@@ -62,6 +62,18 @@ ai-engineering-company-project-monorepo/
 4. **Revisa** los `README.md` de cada carpeta raíz para entender responsabilidades (`uis/`, `services/`, `data/`, `skills/`, etc.).
 5. **Empieza a implementar** entregables por hito en `uis/` y `services/`, reutilizando `packages/shared/` y `data/` según corresponda.
 
+### Ejecutar el hito Web (landing + formulario)
+
+Desde la raíz del repositorio puedes levantar un servidor estático compatible con Codespaces usando:
+
+```bash
+npx serve .
+```
+
+Luego abre en el navegador la URL que entregue Codespaces (Ports) para validar:
+- `index.html` (landing page)
+- `application.html` (formulario de aplicación/registro)
+
 ---
 
 ## Hitos (referencia)

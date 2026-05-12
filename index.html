@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth overflow-x-hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nexova Solutions — Consultoría de RRHH y selección de talento con inteligencia artificial. Headhunting, outsourcing y formación corporativa desde 2011.">
+  <meta name="keywords" content="consultora RRHH, selección de talento, headhunting, formación corporativa, outsourcing, Valencia, Miami">
+  <link rel="icon" href="data:,">
+  <title>Nexova Solutions — Talento que transforma empresas</title>
+
+  <script>
+    (() => {
+      const storedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Schema.org: Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Nexova Solutions",
+    "url": "https://nexovasolutions.com",
+    "logo": "https://nexovasolutions.com/logo.png",
+    "foundingDate": "2011",
+    "description": "Consultoría de recursos humanos y selección de talento especializada en headhunting, outsourcing de soporte y formación corporativa.",
+    "numberOfEmployees": { "@type": "QuantitativeValue", "value": 120 },
+    "address": [
+      {
+        "@type": "PostalAddress",
+        "streetAddress": "Gran Vía Fernando el Católico, 1",
+        "addressLocality": "Valencia",
+        "addressCountry": "ES"
+      },
+      {
+        "@type": "PostalAddress",
+        "addressLocality": "Miami",
+        "addressRegion": "FL",
+        "addressCountry": "US"
+      }
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "email": "hola@nexovasolutions.com",
+      "availableLanguage": ["Spanish", "English"]
+    },
+    "sameAs": [
+      "https://linkedin.com/company/nexova-solutions"
+    ]
+  }
+  </script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Playfair Display"', 'serif'],
+            body: ['"DM Sans"', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#060b18',
+              900: '#0b1628',
+              800: '#0f2040',
+              700: '#152b55',
+            },
+            gold: {
+              400: '#d4a843',
+              500: '#c49530',
+              300: '#e8c97a',
+            }
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.7s ease forwards',
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(28px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+    :focus-visible {
+      outline: 2px solid #d4a843;
+      outline-offset: 2px;
+    }
+
+    .hero-bg {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, #dbeafe 0%, #f8fafc 70%);
+    }
+    .dark .hero-bg {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, #152b55 0%, #060b18 70%);
+    }
+    .gold-line::after {
+      content: '';
+      display: block;
+      width: 56px;
+      height: 3px;
+      background: #d4a843;
+      margin-top: 14px;
+    }
+    .card-hover {
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1px;
+      background: #d4a843;
+      transition: width 0.25s ease;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    [data-animate].visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      [data-animate] {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-100 text-slate-900 dark:bg-navy-950 dark:text-gray-100 antialiased overflow-x-hidden transition-colors duration-300">
+
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-gold-400 focus:px-4 focus:py-2 focus:text-navy-950 focus:font-semibold">
+    Saltar al contenido principal
+  </a>
+
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+    <div class="absolute -top-32 -left-24 h-80 w-80 rounded-full bg-blue-200/35 blur-3xl dark:hidden"></div>
+    <div class="absolute top-1/3 -right-24 h-72 w-72 rounded-full bg-slate-300/35 blur-3xl dark:hidden"></div>
+    <div class="absolute bottom-12 left-1/3 h-64 w-64 rounded-full bg-amber-200/20 blur-3xl dark:hidden"></div>
+  </div>
+
+  <!-- ===== HEADER / NAV ===== -->
+  <header id="siteHeader" class="fixed top-0 inset-x-0 z-50 border-b border-slate-300/80 dark:border-white/5 backdrop-blur-md bg-slate-100/85 dark:bg-navy-950/80 transition-all duration-300">
+    <div class="max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-6 lg:px-10 flex items-center justify-between h-16">
+
+      <!-- Logo -->
+      <a href="index.html" class="flex items-center gap-3" aria-label="Nexova Solutions — Inicio">
+        <div class="w-8 h-8 rounded bg-gold-400 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+          <span class="text-navy-950 font-display font-black text-sm leading-none">N</span>
+        </div>
+        <span class="font-display font-bold text-slate-900 dark:text-white text-lg tracking-tight">Nexova <span class="text-gold-400">Solutions</span></span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav aria-label="Navegación principal">
+        <ul class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-700 dark:text-gray-300">
+          <li><a href="#servicios" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Servicios</a></li>
+          <li><a href="#como-funciona" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Cómo funciona</a></li>
+          <li><a href="#sectores" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Sectores</a></li>
+          <li><a href="#ia" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">IA</a></li>
+          <li><a href="#aplica" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Aplica</a></li>
+          <li><a href="#contacto" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Contacto</a></li>
+          <li>
+            <a href="application.html"
+               class="ml-4 px-5 py-2 rounded-sm bg-gold-400 text-navy-950 font-semibold text-sm hover:bg-gold-300 transition-colors"
+                 aria-label="Aplica ahora">
+              Aplica ahora
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <button id="themeToggle" class="hidden md:inline-flex items-center gap-2 rounded-sm border border-slate-300 dark:border-white/15 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200 hover:border-gold-400 hover:text-gold-400 transition-colors" type="button" aria-label="Cambiar tema" aria-pressed="false">
+        <svg id="themeMoonIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3c0 .34.02.67.06 1a7 7 0 0 0 8.73 8.73c.33.04.66.06 1 .06z"/>
+        </svg>
+        <svg id="themeSunIcon" xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+        <span id="themeToggleText">Modo oscuro</span>
+      </button>
+
+      <label for="languageToggle" class="sr-only">Seleccionar idioma</label>
+      <select id="languageToggle" class="hidden md:inline-flex rounded-sm border border-slate-300 dark:border-white/15 bg-slate-50 dark:bg-navy-900 px-2 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200" aria-label="Seleccionar idioma">
+        <option value="es">🇪🇸 Español</option>
+        <option value="en">🇺🇸 English</option>
+      </select>
+
+      <!-- Mobile menu button -->
+      <button id="menuBtn" class="md:hidden p-2 rounded text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white"
+              aria-expanded="false" aria-controls="mobileMenu" aria-label="Abrir menú">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+      <nav id="mobileMenu" class="md:hidden hidden bg-white dark:bg-navy-900 border-t border-slate-200 dark:border-white/5" aria-label="Menú móvil">
+      <ul class="flex flex-col px-6 py-4 gap-4 text-sm font-medium text-slate-700 dark:text-gray-300">
+        <li><a href="#servicios" class="hover:text-slate-900 dark:hover:text-white block" onclick="closeMenu()">Servicios</a></li>
+        <li><a href="#como-funciona" class="hover:text-slate-900 dark:hover:text-white block" onclick="closeMenu()">Cómo funciona</a></li>
+        <li><a href="#sectores" class="hover:text-slate-900 dark:hover:text-white block" onclick="closeMenu()">Sectores</a></li>
+        <li><a href="#ia" class="hover:text-slate-900 dark:hover:text-white block" onclick="closeMenu()">IA</a></li>
+        <li><a href="#aplica" class="hover:text-slate-900 dark:hover:text-white block" onclick="closeMenu()">Aplica</a></li>
+        <li><a href="#contacto" class="hover:text-slate-900 dark:hover:text-white block" onclick="closeMenu()">Contacto</a></li>
+        <li><a href="application.html" class="block px-4 py-2 bg-gold-400 text-navy-950 font-semibold rounded text-center">Aplica ahora</a></li>
+        <li>
+          <button id="themeToggleMobile" type="button" class="w-full inline-flex items-center gap-2 px-4 py-2 rounded border border-slate-300 dark:border-white/15 text-left hover:border-gold-400 hover:text-gold-400 transition-colors" aria-label="Cambiar tema" aria-pressed="false">
+            <svg id="themeMoonIconMobile" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3c0 .34.02.67.06 1a7 7 0 0 0 8.73 8.73c.33.04.66.06 1 .06z"/>
+            </svg>
+            <svg id="themeSunIconMobile" xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+            <span id="themeToggleMobileText">Cambiar tema</span>
+          </button>
+        </li>
+        <li>
+          <label for="languageToggleMobile" class="sr-only">Seleccionar idioma</label>
+          <select id="languageToggleMobile" class="w-full rounded border border-slate-300 dark:border-white/15 bg-slate-50 dark:bg-navy-900 px-3 py-2 text-sm font-semibold" aria-label="Seleccionar idioma">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇺🇸 English</option>
+          </select>
+        </li>
+      </ul>
+      </nav>
+  </header>
+
+  <main id="main-content" class="overflow-x-clip">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero-bg min-h-screen flex items-center pt-16 scroll-mt-16" aria-labelledby="hero-heading">
+      <div class="max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-6 lg:px-10 py-24 lg:py-32 grid lg:grid-cols-2 2xl:grid-cols-[1.08fr_0.92fr] gap-16 2xl:gap-20 items-center">
+
+        <div>
+          <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-5" data-animate>
+            Desde 2011 · Valencia & Miami
+          </p>
+          <h1 id="hero-heading" class="font-display font-black text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl text-slate-900 dark:text-white leading-tight mb-6 delay-1" data-animate>
+            El talento<br>
+            <span class="text-gold-400">correcto</span>,<br>
+            en el momento<br>exacto.
+          </h1>
+          <p class="text-slate-700 dark:text-gray-300 text-lg leading-relaxed max-w-md mb-10" data-animate style="transition-delay:0.15s">
+            Nexova Solutions lleva doce años ayudando a medianas empresas a encontrar, formar y retener el talento que necesitan para crecer — ahora potenciado con inteligencia artificial.
+          </p>
+          <div class="flex flex-wrap gap-4" data-animate style="transition-delay:0.25s">
+            <a href="application.html"
+               class="px-8 py-3.5 bg-gold-400 text-navy-950 font-semibold rounded-sm hover:bg-gold-300 transition-colors text-sm"
+              aria-label="Trabaja con nosotros">
+              Trabaja con nosotros
+            </a>
+            <a href="#servicios"
+               class="px-8 py-3.5 border border-white/20 text-slate-900 dark:text-white font-medium rounded-sm hover:border-gold-400 hover:text-gold-400 transition-colors text-sm">
+              Ver servicios
+            </a>
+          </div>
+
+          <!-- Stats -->
+          <div class="mt-16 grid grid-cols-3 gap-6 border-t border-white/10 pt-10" data-animate style="transition-delay:0.35s">
+            <div>
+              <p class="font-display text-3xl font-bold text-slate-900 dark:text-white">120<span class="text-gold-400">+</span></p>
+              <p class="text-slate-600 dark:text-gray-400 text-xs mt-1">Profesionales</p>
+            </div>
+            <div>
+              <p class="font-display text-3xl font-bold text-slate-900 dark:text-white">12<span class="text-gold-400">+</span></p>
+              <p class="text-slate-600 dark:text-gray-400 text-xs mt-1">Años de experiencia</p>
+            </div>
+            <div>
+              <p class="font-display text-3xl font-bold text-slate-900 dark:text-white">2<span class="text-gold-400"> países</span></p>
+              <p class="text-slate-600 dark:text-gray-400 text-xs mt-1">ES · USA</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero visual -->
+        <div class="hidden lg:flex justify-end" aria-hidden="true">
+          <div class="relative w-96 h-96">
+            <div class="absolute inset-0 rounded-full bg-navy-700/30 border border-gold-400/20 animate-pulse"></div>
+            <div class="absolute inset-8 rounded-full bg-slate-100 dark:bg-navy-800/50 border border-gold-400/10"></div>
+            <div class="absolute inset-16 rounded-full bg-white dark:bg-navy-900 border border-gold-400/30 flex items-center justify-center">
+              <div class="text-center">
+                <div class="w-16 h-16 mx-auto rounded-xl bg-gold-400 flex items-center justify-center mb-3">
+                  <span class="font-display font-black text-3xl text-navy-950">N</span>
+                </div>
+                <p class="text-gold-400 text-xs font-semibold tracking-widest uppercase">AI-Powered</p>
+              </div>
+            </div>
+            <!-- Floating tags -->
+            <div class="absolute -top-4 left-4 bg-slate-100 dark:bg-navy-800 border border-white/10 rounded-lg px-4 py-2 text-xs text-slate-700 dark:text-gray-300 shadow-xl">
+              🎯 CV Scoring con IA
+            </div>
+            <div class="absolute -bottom-2 right-0 bg-slate-100 dark:bg-navy-800 border border-white/10 rounded-lg px-4 py-2 text-xs text-slate-700 dark:text-gray-300 shadow-xl">
+              📊 Dashboard en tiempo real
+            </div>
+            <div class="absolute top-1/2 -left-8 bg-slate-100 dark:bg-navy-800 border border-gold-400/30 rounded-lg px-4 py-2 text-xs text-gold-300 shadow-xl">
+              ✓ SLA 24h
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SERVICIOS ===== -->
+    <section id="servicios" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-50 dark:bg-navy-900 scroll-mt-16" aria-labelledby="servicios-heading">
+      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+
+        <div class="mb-16" data-animate>
+          <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">Lo que hacemos</p>
+          <h2 id="servicios-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white gold-line">
+            Tres líneas de negocio,<br>un único objetivo.
+          </h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+
+          <!-- Card 1 -->
+          <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-8" data-animate>
+            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-6" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-3">Headhunting & Selección</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
+              Identificamos y reclutamos perfiles de mandos medios y directivos con scoring automatizado de CVs y matching inteligente candidato–vacante.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-700 dark:text-gray-300">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Pipeline de selección con IA</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Portal de candidatos en tiempo real</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Comunicación automatizada</li>
+            </ul>
+          </article>
+
+          <!-- Card 2 -->
+            <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-gold-400/30 rounded-xl p-8 relative" data-animate style="transition-delay:0.1s">
+              <div class="absolute top-4 right-4 bg-gold-400 text-navy-950 text-xs font-bold px-2 py-0.5 rounded">Popular</div>
+            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-6" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-3">Outsourcing de Soporte</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
+              Equipos de atención al cliente dedicados para empresas tech, retail y finanzas. Con chatbot IA de primera línea y dashboards en tiempo real.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-700 dark:text-gray-300">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Chatbot RAG — 40% resolución automática</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>SLA 24h garantizado</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Análisis de sentimiento</li>
+            </ul>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-8" data-animate style="transition-delay:0.2s">
+            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-6" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-3">Formación Corporativa</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
+              Programas de liderazgo, comunicación y gestión de equipos con recomendación personalizada y seguimiento de progreso por alumno.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-700 dark:text-gray-300">
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Catálogo con inscripción online</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Motor de recomendación IA</li>
+              <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" aria-hidden="true"></span>Portal del alumno</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CÓMO FUNCIONA ===== -->
+    <section id="como-funciona" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-100/80 dark:bg-navy-950 scroll-mt-16" aria-labelledby="proceso-heading">
+      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+
+        <div class="text-center mb-16" data-animate>
+          <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">El proceso</p>
+          <h2 id="proceso-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white">Cómo trabajamos</h2>
+          <p class="mt-4 mx-auto max-w-3xl 2xl:max-w-4xl text-base sm:text-lg 2xl:text-xl text-slate-600 dark:text-gray-400 leading-relaxed">
+            Transformamos procesos manuales en flujos operativos con IA, datos y visibilidad en tiempo real. Cada fase tiene entregables concretos para generar impacto desde el primer sprint.
+          </p>
+        </div>
+
+        <ol class="grid md:grid-cols-4 gap-8">
+          <li class="relative text-center" data-animate>
+            <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold-400 flex items-center justify-center mb-5" aria-hidden="true">
+              <span class="font-display font-black text-gold-400 text-lg">01</span>
+            </div>
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg mb-2">Briefing</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed">Entendemos tus necesidades específicas de talento o formación.</p>
+          </li>
+          <li class="relative text-center" data-animate style="transition-delay:0.1s">
+            <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold-400 flex items-center justify-center mb-5" aria-hidden="true">
+              <span class="font-display font-black text-gold-400 text-lg">02</span>
+            </div>
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg mb-2">Análisis IA</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed">Nuestra IA procesa candidatos y genera rankings explicables.</p>
+          </li>
+          <li class="relative text-center" data-animate style="transition-delay:0.2s">
+            <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold-400 flex items-center justify-center mb-5" aria-hidden="true">
+              <span class="font-display font-black text-gold-400 text-lg">03</span>
+            </div>
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg mb-2">Selección</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed">Los consultores validan y presentan los mejores perfiles.</p>
+          </li>
+          <li class="relative text-center" data-animate style="transition-delay:0.3s">
+            <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold-400 flex items-center justify-center mb-5" aria-hidden="true">
+              <span class="font-display font-black text-gold-400 text-lg">04</span>
+            </div>
+            <h3 class="font-display font-bold text-slate-900 dark:text-white text-lg mb-2">Seguimiento</h3>
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed">Portal en tiempo real con visibilidad total del proceso.</p>
+          </li>
+        </ol>
+
+        <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-animate style="transition-delay:0.15s">
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+            <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 1</p>
+            <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Diagnóstico de operación</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Mapa de herramientas, brechas y cuellos de botella por área.</p>
+          </article>
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+            <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 2</p>
+            <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Diseño técnico de solución</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Arquitectura, integraciones y criterios de calidad/seguridad.</p>
+          </article>
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+            <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 3</p>
+            <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Implementación guiada</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Automatizaciones, agentes IA y paneles listos para producción.</p>
+          </article>
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+            <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 4</p>
+            <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Escalado y optimización</h3>
+            <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Métricas, mejora continua y entrenamiento de equipos.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECTORES ===== -->
+    <section id="sectores" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-50 dark:bg-navy-900 scroll-mt-16" aria-labelledby="sectores-heading">
+      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+          <div data-animate>
+            <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">Experiencia sectorial</p>
+              <h2 id="sectores-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white gold-line mb-8">
+                Doce años de red.<br>Tres sectores clave.
+            </h2>
+            <p class="text-slate-700 dark:text-gray-300 leading-relaxed mb-8">
+              Nexova trabaja exclusivamente con medianas empresas de tecnología, retail y servicios financieros que han decidido externalizar parte o la totalidad de su gestión de talento.
+            </p>
+            <a href="application.html" class="inline-block px-7 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
+              Inicia tu proceso →
+            </a>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4" data-animate style="transition-delay:0.15s">
+            <div class="bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-6 flex items-center gap-5">
+              <div class="w-12 h-12 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white">Tecnología</h3>
+                <p class="text-slate-600 dark:text-gray-400 text-sm mt-1">Startups y scale-ups que necesitan talento técnico y soporte de calidad a escala.</p>
+              </div>
+            </div>
+            <div class="bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-6 flex items-center gap-5">
+              <div class="w-12 h-12 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white">Retail</h3>
+                <p class="text-slate-600 dark:text-gray-400 text-sm mt-1">Cadenas con alta rotación que requieren procesos de selección rápidos y eficientes.</p>
+              </div>
+            </div>
+            <div class="bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-6 flex items-center gap-5">
+              <div class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white">Servicios Financieros</h3>
+                <p class="text-slate-600 dark:text-gray-400 text-sm mt-1">Entidades que necesitan perfiles especializados y cumplimiento normativo en selección.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== IA SECTION ===== -->
+    <section id="ia" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-50 dark:bg-navy-950 scroll-mt-16" aria-labelledby="ia-heading">
+      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10 text-center">
+        <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3" data-animate>Ventaja competitiva</p>
+        <h2 id="ia-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white mb-6 max-w-3xl 2xl:max-w-5xl mx-auto" data-animate style="transition-delay:0.1s">
+          En Nexova, la IA no es un complemento — es el núcleo.
+        </h2>
+        <p class="text-slate-600 dark:text-gray-400 max-w-xl 2xl:max-w-3xl mx-auto mb-14 leading-relaxed 2xl:text-lg" data-animate style="transition-delay:0.2s">
+          Desde el scoring de CVs hasta el análisis de sentimiento en soporte: construimos sistemas inteligentes que hacen el trabajo de manera más rápida, precisa y a mayor escala.
+        </p>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 2xl:gap-7" data-animate style="transition-delay:0.3s">
+          <div class="bg-slate-100 dark:bg-navy-800/50 border border-white/8 rounded-xl p-6 text-left">
+            <p class="text-gold-400 text-2xl font-display font-bold mb-2">RAG</p>
+            <p class="text-slate-700 dark:text-gray-300 text-sm">Búsqueda semántica sobre base de datos de candidatos</p>
+          </div>
+          <div class="bg-slate-100 dark:bg-navy-800/50 border border-white/8 rounded-xl p-6 text-left">
+            <p class="text-gold-400 text-2xl font-display font-bold mb-2">40%</p>
+            <p class="text-slate-700 dark:text-gray-300 text-sm">Tickets de soporte resueltos automáticamente</p>
+          </div>
+          <div class="bg-slate-100 dark:bg-navy-800/50 border border-white/8 rounded-xl p-6 text-left">
+            <p class="text-gold-400 text-2xl font-display font-bold mb-2">24h</p>
+            <p class="text-slate-700 dark:text-gray-300 text-sm">SLA de resolución garantizado con monitoreo en tiempo real</p>
+          </div>
+          <div class="bg-slate-100 dark:bg-navy-800/50 border border-white/8 rounded-xl p-6 text-left">
+            <p class="text-gold-400 text-2xl font-display font-bold mb-2">0 retraso</p>
+            <p class="text-slate-700 dark:text-gray-300 text-sm">Dashboard ejecutivo con KPIs actualizados al instante</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section id="aplica" class="min-h-screen flex items-center py-20 bg-slate-100 dark:bg-navy-800 border-y border-slate-200 dark:border-white/5 scroll-mt-16" aria-labelledby="cta-heading">
+        <div class="max-w-4xl 2xl:max-w-5xl mx-auto px-6 text-center" data-animate>
+          <h2 id="cta-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white mb-5">
+            ¿Listo para formar parte<br>del equipo Nexova?
+        </h2>
+        <p class="text-slate-600 dark:text-gray-400 mb-8 text-lg 2xl:text-xl">
+          Completa el formulario de aplicación y cuéntanos tu visión.
+        </p>
+        <a href="application.html"
+           class="inline-block px-10 py-4 bg-gold-400 text-navy-950 font-bold rounded-sm hover:bg-gold-300 transition-colors text-base"
+            aria-label="Aplica ahora">
+          Aplica ahora →
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer id="contacto" class="bg-slate-100 dark:bg-navy-950 border-t border-slate-300/80 dark:border-white/5 min-h-screen flex items-center scroll-mt-16 py-20">
+    <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+      <div class="grid md:grid-cols-4 gap-10 mb-12">
+
+        <!-- Brand -->
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded bg-gold-400 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <span class="text-navy-950 font-display font-black text-sm">N</span>
+            </div>
+            <span class="font-display font-bold text-slate-900 dark:text-white text-lg">Nexova <span class="text-gold-400">Solutions</span></span>
+          </div>
+          <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed max-w-xs">
+            Consultoría de RRHH y selección de talento potenciada con inteligencia artificial. Desde 2011, con presencia en Valencia y Miami.
+          </p>
+        </div>
+
+        <!-- Servicios -->
+        <nav aria-label="Servicios">
+          <h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-4">Servicios</h3>
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-gray-400">
+            <li><a href="#servicios" class="hover:text-gold-400 transition-colors">Headhunting</a></li>
+            <li><a href="#servicios" class="hover:text-gold-400 transition-colors">Outsourcing de soporte</a></li>
+            <li><a href="#servicios" class="hover:text-gold-400 transition-colors">Formación corporativa</a></li>
+          </ul>
+        </nav>
+
+        <!-- Contacto -->
+        <div>
+          <h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-4">Contacto</h3>
+          <address class="not-italic">
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-gray-400">
+            <li>
+              <a href="mailto:hola@nexovasolutions.com" class="hover:text-gold-400 transition-colors">
+                hola@nexovasolutions.com
+              </a>
+            </li>
+            <li>Valencia, España</li>
+            <li>Miami, Florida · USA</li>
+            <li>
+              <a href="https://linkedin.com/company/nexova-solutions"
+                 class="hover:text-gold-400 transition-colors"
+                 rel="noopener noreferrer"
+                 target="_blank"
+                 aria-label="LinkedIn de Nexova Solutions (abre en nueva pestaña)">
+                LinkedIn
+              </a>
+            </li>
+          </ul>
+          </address>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-200 dark:border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-700 dark:text-gray-300 text-xs">
+        <p>© 2024 Nexova Solutions S.L. Todos los derechos reservados.</p>
+        <p>Valencia · España &nbsp;|&nbsp; Miami · USA</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const siteHeader = document.getElementById('siteHeader');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeToggleMobile = document.getElementById('themeToggleMobile');
+    const themeToggleText = document.getElementById('themeToggleText');
+    const themeToggleMobileText = document.getElementById('themeToggleMobileText');
+    const themeMoonIcon = document.getElementById('themeMoonIcon');
+    const themeSunIcon = document.getElementById('themeSunIcon');
+    const themeMoonIconMobile = document.getElementById('themeMoonIconMobile');
+    const themeSunIconMobile = document.getElementById('themeSunIconMobile');
+
+    const setThemeLabel = () => {
+      const lang = localStorage.getItem('language') === 'en' ? 'en' : 'es';
+      const isDark = document.documentElement.classList.contains('dark');
+      if (themeToggleText) {
+        themeToggleText.textContent = lang === 'en'
+          ? (isDark ? 'Light mode' : 'Dark mode')
+          : (isDark ? 'Modo claro' : 'Modo oscuro');
+      }
+      if (themeToggleMobileText) {
+        themeToggleMobileText.textContent = lang === 'en'
+          ? (isDark ? 'Switch to light mode' : 'Switch to dark mode')
+          : (isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+      }
+
+      themeToggle?.setAttribute('aria-pressed', String(isDark));
+      themeToggleMobile?.setAttribute('aria-pressed', String(isDark));
+
+      themeMoonIcon?.classList.toggle('hidden', isDark);
+      themeSunIcon?.classList.toggle('hidden', !isDark);
+      themeMoonIconMobile?.classList.toggle('hidden', isDark);
+      themeSunIconMobile?.classList.toggle('hidden', !isDark);
+    };
+
+    const toggleTheme = () => {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      setThemeLabel();
+    };
+
+    themeToggle?.addEventListener('click', toggleTheme);
+    themeToggleMobile?.addEventListener('click', toggleTheme);
+    window.updateThemeLabels = setThemeLabel;
+    setThemeLabel();
+
+    menuBtn.addEventListener('click', () => {
+      const isOpen = !mobileMenu.classList.contains('hidden');
+      mobileMenu.classList.toggle('hidden');
+      menuBtn.setAttribute('aria-expanded', String(!isOpen));
+    });
+    function closeMenu() {
+      mobileMenu.classList.add('hidden');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 24) {
+        siteHeader.classList.add('shadow-lg', 'shadow-slate-900/10');
+      } else {
+        siteHeader.classList.remove('shadow-lg', 'shadow-slate-900/10');
+      }
+    });
+
+    // Scroll animation observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+  <script src="i18n.js"></script>
+</body>
+</html>

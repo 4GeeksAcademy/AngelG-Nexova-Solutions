@@ -7,52 +7,56 @@ Nexova Solutions
 
 ## Por qué elegí esta empresa
 
-- Elegí Nexova porque, aunque ya está bien posicionada (fundada en 2011, 120 empleados y operación entre Valencia y Miami), todavía tiene demasiados procesos manuales en áreas muy importantes.
+Elegí Nexova Solutions porque me parece una empresa con problemas reales donde la inteligencia artificial puede generar un impacto directo en las operaciones diarias. Muchas áreas todavía dependen de procesos manuales, hojas de cálculo y herramientas desconectadas, lo que provoca pérdida de tiempo, falta de automatización y poca visibilidad sobre el negocio.
 
-- Me interesó mucho que su negocio principal de selección, con 40 consultores, siga haciendo el cribado de CVs y el seguimiento de candidatos casi todo a mano. Ahí se nota clarísimo el espacio para automatizar.
+También me resultó interesante que Nexova trabaja con distintos departamentos que requieren soluciones tecnológicas diferentes, permitiendo desarrollar proyectos donde se combinan automatización, análisis de datos, dashboards y agentes de IA aplicados a escenarios empresariales reales.
 
-- También me pareció clave que la Dirección Ejecutiva dependa de reportes semanales en PDF hechos manualmente, porque eso significa tomar decisiones con datos que llegan tarde.
-
-- En soporte, el dato de 48 horas de resolución frente a un SLA de 24 horas me pareció súper concreto: es un problema real que se puede mejorar con IA aplicada de forma práctica.
-
-- Y a nivel técnico, tener herramientas desconectadas (ATS legacy, CRM, helpdesk y hojas de cálculo) me parece el escenario ideal para trabajar integración, observabilidad y agentes internos con impacto medible.
-
+Además, considero especialmente atractivo que la IA en Nexova no funcione únicamente como una herramienta complementaria, sino como una parte central de la estrategia de crecimiento y optimización de la empresa.
 ---
 
 ## Departamentos que me interesan
 
-### Recursos Humanos
-Me interesa porque el onboarding, las solicitudes internas y las evaluaciones todavía se manejan de forma bastante manual. Creo que aquí un buen flujo automatizado y un asistente interno pueden ahorrar mucho tiempo al equipo.
-
 ### Atención al Cliente
-Me gusta este departamento porque tiene un reto muy claro: bajar tiempos de respuesta y cumplir SLA. Entre chatbot de primera línea, análisis de tickets y base de conocimiento centralizada, hay mucho para construir.
+Me interesa este departamento porque actualmente los agentes trabajan sin una base de conocimiento centralizada y los tiempos de resolución superan el SLA prometido. Considero muy interesante el desafío de construir un chatbot con IA y RAG capaz de resolver consultas frecuentes automáticamente.
+
+También me llama la atención la posibilidad de implementar dashboards en tiempo real y análisis de sentimiento para detectar clientes insatisfechos antes de que los problemas escalen.
 
 ### Tecnología e Infraestructura
-Fue de los departamentos que más me llamó la atención porque hoy trabajan con un mosaico de herramientas desconectadas (HubSpot, Zendesk legacy, Google Workspace, ATS interno y hojas de cálculo), sin telemetría ni logging centralizado. Me gustaría enfocarme en monitorización en tiempo real, alertas automáticas y un pipeline de datos que unifique la información para toda la empresa.
+Este departamento me interesa porque la empresa utiliza múltiples herramientas desconectadas y no cuenta con telemetría, logging centralizado ni monitoreo en tiempo real.
+
+Me parece un reto muy completo trabajar en la integración de sistemas, automatización de despliegues y construcción de pipelines de datos que permitan obtener una visión unificada del estado de toda la empresa.
 
 ---
 
 ## Reto de automatización elegido
 
-Quiero trabajar en un sistema de telemetría y monitorización centralizada que conecte las herramientas actuales de Nexova, lance alertas automáticas cuando haya incidencias y alimente dashboards en tiempo real para Tecnología y Dirección Ejecutiva. La idea es que el equipo técnico detecte fallos antes de que los reporten usuarios y que la CEO deje de depender de reportes PDF manuales y atrasados.
+Implementar una plataforma centralizada de soporte y monitoreo interno que combine una base de conocimiento inteligente, un agente de IA para Atención al Cliente y un sistema de telemetría y monitoreo en tiempo real para Tecnología e Infraestructura.
+
+El objetivo sería reducir los tiempos de resolución de incidencias, mejorar el cumplimiento de SLAs y permitir que los equipos tengan visibilidad inmediata sobre problemas técnicos, carga de trabajo y estado general de los servicios utilizados por la empresa.
 
 ---
 
 ## Mi idea de Agente de IA
 
 ### Qué haría
-Sería un asistente interno para el equipo técnico: respondería dudas sobre arquitectura, ayudaría a investigar incidentes y avisaría cuando detecte señales de problema antes de que impacten a usuarios.
+El agente de IA ayudaría tanto al equipo de Atención al Cliente como al equipo de Tecnología e Infraestructura. Sería capaz de responder consultas frecuentes automáticamente mediante RAG, asistir a los agentes humanos con sugerencias de solución y detectar incidentes técnicos o anomalías en tiempo real.
+
+Además, podría centralizar información de distintas herramientas de la empresa para ofrecer soporte más rápido y preciso.
 
 ### Qué información necesitaría
-- Documentación técnica.
-- Logs del sistema.
-- Métricas de infraestructura.
-- Información de monitoreo en tiempo real.
-- Historial de incidentes y errores.
+- Tickets históricos de soporte
+- Documentación técnica interna
+- Preguntas frecuentes
+- Historial de conversaciones con clientes
+- Logs y métricas del sistema
+- Estado de servicios e incidencias
+- Base de conocimiento centralizada
+- Datos provenientes de herramientas como HubSpot, Zendesk y Google Workspace
 
 ### Qué produciría o dispararía
-- Alertas automáticas.
-- Resúmenes técnicos de incidentes.
-- Recomendaciones de solución.
-- Respuestas rápidas para el equipo de ingeniería en lenguaje claro.
-- Actualizaciones para dashboards internos.
+- Respuestas automáticas en chat y soporte web
+- Recomendaciones para agentes humanos
+- Alertas automáticas ante fallos o anomalías técnicas
+- Clasificación inteligente de tickets por prioridad
+- Detección de clientes insatisfechos mediante análisis de sentimiento
+- Métricas y dashboards en tiempo real sobre incidencias, tiempos de respuesta y estado de la infraestructura

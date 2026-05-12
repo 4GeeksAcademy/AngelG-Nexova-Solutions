@@ -62,6 +62,18 @@ ai-engineering-company-project-monorepo/
 4. **Review** each top-level folder `README.md` to understand intended responsibilities (`uis/`, `services/`, `data/`, `skills/`, etc.).
 5. **Start implementing** milestone deliverables in `uis/` and `services/`, reusing `packages/shared/` and `data/` as needed.
 
+### Run the Web milestone (landing + form)
+
+From the repository root, run a static server compatible with Codespaces:
+
+```bash
+npx serve .
+```
+
+Then open the forwarded Codespaces URL (Ports) and validate:
+- `index.html` (landing page)
+- `application.html` (application/registration form)
+
 ---
 
 ## Milestones (reference)
