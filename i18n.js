@@ -1,3 +1,49 @@
+  // Traducciones adicionales para el formulario
+  ['Formulario de aplicación a Nexova Solutions', 'Nexova Solutions application form'],
+  ['Formulario de aplicación', 'Application form'],
+  ['Formulario de Aplicación', 'Application form'],
+  ['Propuesta técnica', 'Technical proposal'],
+  ['Cuéntanos tu visión sobre cómo la IA puede transformar Nexova Solutions.', 'Tell us your vision of how AI can transform Nexova Solutions.'],
+  ['Correo electrónico', 'Email address'],
+  ['Introduce un correo electrónico válido.', 'Enter a valid email address.'],
+  ['Teléfono', 'Phone'],
+  ['Introduce un número de teléfono válido.', 'Enter a valid phone number.'],
+  ['Introduce una fecha de nacimiento válida.', 'Enter a valid date of birth.'],
+  ['Introduce una URL de LinkedIn válida (https://linkedin.com/in/...).', 'Enter a valid LinkedIn URL (https://linkedin.com/in/...).'],
+  ['Si introduces una URL, debe ser válida.', 'If you provide a URL, it must be valid.'],
+  ['¿Por qué elegiste Nexova Solutions?', 'Why did you choose Nexova Solutions?'],
+  ['Cuéntanos qué te atrajo de Nexova y por qué quieres trabajar aquí...', 'Tell us what attracted you to Nexova and why you want to work here...'],
+  ['Departamentos de interés', 'Departments of interest'],
+  ['Atención al Cliente', 'Customer Support'],
+  ['Chatbot RAG, base de conocimiento, análisis de sentimiento, dashboards SLA', 'RAG chatbot, knowledge base, sentiment analysis, SLA dashboards'],
+  ['Tecnología e Infraestructura', 'Technology and Infrastructure'],
+  ['Telemetría, logging centralizado, monitoreo en tiempo real, pipelines de datos', 'Telemetry, centralized logging, real-time monitoring, data pipelines'],
+  ['Operaciones de Selección', 'Selection Operations'],
+  ['Scoring de CVs, matching IA, portal de candidatos', 'CV scoring, AI matching, candidate portal'],
+  ['Formación Corporativa', 'Corporate Training'],
+  ['Motor de recomendación, portal del alumno, catálogo inteligente', 'Recommendation engine, student portal, smart catalog'],
+  ['Ventas y Desarrollo de Negocio', 'Sales and Business Development'],
+  ['CRM automation, pipeline dashboard, agente de propuesta', 'CRM automation, pipeline dashboard, proposal agent'],
+  ['Marketing y Comunicación', 'Marketing and Communications'],
+  ['SEO/GEO, pipeline de contenido IA, dashboard de métricas', 'SEO/GEO, AI content pipeline, metrics dashboard'],
+  ['Reto de automatización elegido', 'Chosen automation challenge'],
+  ['Describe el reto de automatización que quieres abordar en Nexova...', 'Describe the automation challenge you want to address at Nexova...'],
+  ['Por favor describe el reto (mínimo 80 caracteres).', 'Please describe the challenge (minimum 80 characters).'],
+  ['¿Qué haría el agente?', 'What should the agent do?'],
+  ['Describe las capacidades y funciones del agente de IA que propondrías...', 'Describe the capabilities and functions of the AI agent you would propose...'],
+  ['Por favor describe el agente (mínimo 60 caracteres).', 'Please describe the agent (minimum 60 characters).'],
+  ['¿Qué información necesitaría?', 'What inputs would it need?'],
+  ['Tickets históricos, documentación técnica, logs, base de conocimiento...', 'Historical tickets, technical documentation, logs, knowledge base...'],
+  ['Por favor describe las entradas del agente (mínimo 30 caracteres).', 'Please describe the agent inputs (minimum 30 characters).'],
+  ['¿Qué produciría o dispararía?', 'What outputs or actions would it trigger?'],
+  ['Respuestas automáticas, alertas, clasificación de tickets, dashboards...', 'Automatic replies, alerts, ticket classification, dashboards...'],
+  ['Por favor describe los resultados del agente (mínimo 30 caracteres).', 'Please describe the agent outcomes (minimum 30 characters).'],
+  ['Intermedio — He construido proyectos pequeños con IA', 'Intermediate — I have built small AI projects'],
+  ['Avanzado — Tengo experiencia en producción con IA', 'Advanced — I have production AI experience'],
+  ['Acepto que mis datos sean utilizados para el proceso de selección de Nexova Solutions.', 'I agree that my data may be used for the Nexova Solutions selection process.'],
+  ['Debes aceptar los términos para continuar.', 'You must accept the terms to continue.'],
+  ['Enviar aplicación', 'Submit application'],
+  ['¡Aplicación enviada!', 'Application sent!'],
 (function () {
   const LANGUAGE_KEY = 'language';
   const DEFAULT_LANGUAGE = 'es';
@@ -44,6 +90,48 @@
     ['Cambiar tema', 'Change theme'],
     ['Cambiar a modo claro', 'Switch to light mode'],
     ['Cambiar a modo oscuro', 'Switch to dark mode'],
+    // Nuevas traducciones para asegurar cobertura total del formulario
+    ['Empresa e intereses', 'Company and interests'],
+    ['Propuesta técnica', 'Technical proposal'],
+    ['Datos personales', 'Personal details'],
+    ['Nombre', 'First name'],
+    ['Apellidos', 'Last name'],
+    ['Correo electrónico', 'Email address'],
+    ['Teléfono', 'Phone'],
+    ['Fecha de nacimiento', 'Date of birth'],
+    ['Limpiar formulario', 'Clear form'],
+    ['Siguiente →', 'Next →'],
+    ['← Anterior', '← Previous'],
+    ['Limpiar', 'Clear'],
+    ['Enviar aplicación', 'Submit application'],
+    ['¡Aplicación enviada!', 'Application sent!'],
+    ['Gracias por aplicar a Nexova Solutions. Hemos recibido tu propuesta y nos pondremos en contacto contigo pronto.', 'Thanks for applying to Nexova Solutions. We have received your proposal and will contact you soon.'],
+    ['Volver al inicio', 'Back to homepage'],
+    ['Volver', 'Back'],
+    ['https://linkedin.com/in/tu-perfil', 'https://linkedin.com/in/your-profile'],
+    ['https://github.com/tu-usuario', 'https://github.com/your-username'],
+    ['Cuéntanos qué te atrajo de Nexova y por qué quieres trabajar aquí...', 'Tell us what attracted you to Nexova and why you want to work here...'],
+    ['Describe el reto de automatización que quieres abordar en Nexova...', 'Describe the automation challenge you want to address at Nexova...'],
+    ['Describe las capacidades y funciones del agente de IA que propondrías...', 'Describe the capabilities and functions of the AI agent you would propose...'],
+    ['Tickets históricos, documentación técnica, logs, base de conocimiento...', 'Historical tickets, technical documentation, logs, knowledge base...'],
+    ['Respuestas automáticas, alertas, clasificación de tickets, dashboards...', 'Automatic replies, alerts, ticket classification, dashboards...'],
+    // Mensajes de error
+    ['El nombre es obligatorio.', 'First name is required.'],
+    ['Los apellidos son obligatorios.', 'Last name is required.'],
+    ['Introduce un correo electrónico válido.', 'Enter a valid email address.'],
+    ['Introduce un número de teléfono válido.', 'Enter a valid phone number.'],
+    ['Introduce una fecha de nacimiento válida.', 'Enter a valid date of birth.'],
+    ['Introduce una URL de LinkedIn válida (https://linkedin.com/in/...).', 'Enter a valid LinkedIn URL (https://linkedin.com/in/...).'],
+    ['Si introduces una URL, debe ser válida.', 'If you provide a URL, it must be valid.'],
+    ['Este campo es obligatorio.', 'This field is required.'],
+    ['Por favor escribe al menos 50 caracteres.', 'Please write at least 50 characters.'],
+    ['Selecciona al menos un departamento.', 'Select at least one department.'],
+    ['Por favor describe el reto (mínimo 80 caracteres).', 'Please describe the challenge (minimum 80 characters).'],
+    ['Por favor describe el agente (mínimo 60 caracteres).', 'Please describe the agent (minimum 60 characters).'],
+    ['Por favor describe las entradas del agente (mínimo 30 caracteres).', 'Please describe the agent inputs (minimum 30 characters).'],
+    ['Por favor describe los resultados del agente (mínimo 30 caracteres).', 'Please describe the agent outcomes (minimum 30 characters).'],
+    ['Selecciona tu nivel de experiencia.', 'Select your experience level.'],
+    ['Debes aceptar los términos para continuar.', 'You must accept the terms to continue.'],
     ['Desde 2011 · Valencia & Miami', 'Since 2011 · Valencia & Miami'],
     ['Creamos automatizaciones y soluciones de IA que convierten operaciones complejas en resultados medibles.', 'We create automation and AI solutions that turn complex operations into measurable results.'],
     ['Hablamos de producto, no solo de tecnologia', 'We talk about product, not just technology'],
@@ -227,8 +315,15 @@
     ['Nexova', 'Nexova'],
     ['Cómo funciona', 'How it works'],
     ['Aplica ahora', 'Apply now'],
-    ['El talento', 'The right talent,'],
+    ['El talento', 'The talent'],
     ['correcto,', 'right when'],
+    ['correcto', 'right'],
+    ['o retraso', 'or delay'],
+    ['0 retraso', '0 delay'],
+    ['Nuestra IA procesa candidatos y genera rankings explicables.', 'Our AI processes candidates and generates explainable rankings.'],
+    ['Análisis IA', 'AI analysis'],
+    ['Experiencia sectorial', 'Sector experience'],
+    ['Ventaja competitiva', 'Competitive advantage'],
     ['en el momento', 'your business'],
     ['exacto.', 'needs it.'],
     ['Nexova Solutions lleva doce años ayudando a medianas empresas a encontrar, formar y retener el talento que necesitan para crecer — ahora potenciado con inteligencia artificial.', 'Nexova Solutions has spent twelve years helping mid-sized companies find, train, and retain the talent they need to grow - now powered by artificial intelligence.'],
@@ -370,7 +465,7 @@
 
     while (node) {
       const parent = node.parentElement;
-      if (parent && !parent.closest('script, style, textarea')) {
+      if (parent && !parent.closest('script, style, textarea') && !parent.closest('.lang-es, .lang-en')) {
         const original = node.textContent || '';
         const translated = translateString(original, dictionary);
         if (translated) {
@@ -382,6 +477,18 @@
       }
       node = walker.nextNode();
     }
+  };
+
+  const updateLanguageBlocks = (lang) => {
+    const showEnglish = lang === 'en';
+
+    document.querySelectorAll('.lang-es').forEach((el) => {
+      el.style.display = showEnglish ? 'none' : '';
+    });
+
+    document.querySelectorAll('.lang-en').forEach((el) => {
+      el.style.display = showEnglish ? '' : 'none';
+    });
   };
 
   const translateAttributes = (dictionary) => {
@@ -484,6 +591,7 @@
     const dictionary = getDictionary(safeLang);
 
     document.documentElement.lang = safeLang;
+    updateLanguageBlocks(safeLang);
     translateTextNodes(dictionary);
     translateAttributes(dictionary);
     updateMeta(safeLang);
