@@ -33,7 +33,10 @@
     input.classList.remove('success');
     input.setAttribute('aria-invalid', 'true');
     const errEl = document.getElementById(errorId);
-    if (errEl) errEl.classList.add('visible');
+    if (errEl) {
+      errEl.classList.add('visible');
+      errEl.classList.remove('hidden');
+    }
   }
 
   /**
@@ -46,7 +49,10 @@
     input.classList.add('success');
     input.setAttribute('aria-invalid', 'false');
     const errEl = document.getElementById(errorId);
-    if (errEl) errEl.classList.remove('visible');
+    if (errEl) {
+      errEl.classList.remove('visible');
+      errEl.classList.add('hidden');
+    }
   }
 
   /**
@@ -58,7 +64,48 @@
     input.classList.remove('error', 'success');
     input.removeAttribute('aria-invalid');
     const errEl = document.getElementById(errorId);
-    if (errEl) errEl.classList.remove('visible');
+    if (errEl) {
+      errEl.classList.remove('visible');
+      errEl.classList.add('hidden');
+    }
+  }
+
+  /**
+   * Show error for checkbox group
+   * @param {string} name - checkbox group name
+   * @param {string} errorId
+   */
+  function showCheckboxGroupError(name, errorId) {
+    const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
+    checkboxes.forEach(cb => {
+      cb.setAttribute('aria-invalid', 'true');
+    });
+    const errEl = document.getElementById(errorId);
+    if (errEl) {
+      errEl.classList.add('visible');
+      errEl.classList.remove('hidden');
+      // Focus first checkbox for accessibility
+      if (checkboxes.length > 0) {
+        checkboxes[0].focus();
+      }
+    }
+  }
+
+  /**
+   * Clear error for checkbox group
+   * @param {string} name - checkbox group name
+   * @param {string} errorId
+   */
+  function clearCheckboxGroupError(name, errorId) {
+    const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
+    checkboxes.forEach(cb => {
+      cb.setAttribute('aria-invalid', 'false');
+    });
+    const errEl = document.getElementById(errorId);
+    if (errEl) {
+      errEl.classList.remove('visible');
+      errEl.classList.add('hidden');
+    }
   }
 
   // ── Validators ─────────────────────────────────────────────────────────────
@@ -190,11 +237,10 @@
 
     // Checkbox group validation
     const deptValid = VALIDATORS.checkboxGroup('departments');
-    const deptError = document.getElementById('departments-error');
     if (deptValid) {
-      if (deptError) deptError.classList.remove('visible');
+      clearCheckboxGroupError('departments', 'departments-error');
     } else {
-      if (deptError) deptError.classList.add('visible');
+      showCheckboxGroupError('departments', 'departments-error');
     }
     results.push(deptValid);
 
@@ -210,16 +256,28 @@
       validateField('experienceLevel',     'experienceLevel-error',     v => VALIDATORS.select(v)),
     ];
 
-    // Terms checkbox
+    // Terms checkbox - manage focus and accessibility
     const terms = document.getElementById('acceptTerms');
     const termsError = document.getElementById('terms-error');
     const termsValid = terms && terms.checked;
     if (termsValid) {
-      if (terms)      { terms.setAttribute('aria-invalid', 'false'); }
-      if (termsError) termsError.classList.remove('visible');
+      if (terms) { 
+        terms.setAttribute('aria-invalid', 'false');
+      }
+      if (termsError) {
+        termsError.classList.remove('visible');
+        termsError.classList.add('hidden');
+      }
     } else {
-      if (terms)      { terms.setAttribute('aria-invalid', 'true'); }
-      if (termsError) termsError.classList.add('visible');
+      if (terms) { 
+        terms.setAttribute('aria-invalid', 'true');
+        // Focus the checkbox for accessibility feedback
+        terms.focus();
+      }
+      if (termsError) {
+        termsError.classList.add('visible');
+        termsError.classList.remove('hidden');
+      }
     }
     results.push(termsValid);
 
@@ -349,8 +407,9 @@
     document.querySelectorAll('input[name="departments"]').forEach(cb => {
       cb.addEventListener('change', () => {
         const deptValid = VALIDATORS.checkboxGroup('departments');
-        const deptError = document.getElementById('departments-error');
-        if (deptValid && deptError) deptError.classList.remove('visible');
+        if (deptValid) {
+          clearCheckboxGroupError('departments', 'departments-error');
+        }
       });
     });
 
@@ -358,8 +417,14 @@
     const terms = document.getElementById('acceptTerms');
     if (terms) {
       terms.addEventListener('change', () => {
-        const termsError = document.getElementById('terms-error');
-        if (terms.checked && termsError) termsError.classList.remove('visible');
+        if (terms.checked) {
+          const termsError = document.getElementById('terms-error');
+          if (termsError) {
+            termsError.classList.remove('visible');
+            termsError.classList.add('hidden');
+          }
+          terms.setAttribute('aria-invalid', 'false');
+        }
       });
     }
   }
@@ -403,8 +468,24 @@
   function focusFirstError(panelId) {
     const panel = document.getElementById(panelId);
     if (!panel) return;
+    
+    // First try to focus a regular input with error
     const firstError = panel.querySelector('.field-input.error');
-    if (firstError) firstError.focus();
+    if (firstError) {
+      firstError.focus();
+      return;
+    }
+    
+    // If no regular input with error, look for first checkbox with aria-invalid
+    const firstCheckboxError = panel.querySelector('input[type="checkbox"][aria-invalid="true"]');
+    if (firstCheckboxError) {
+      firstCheckboxError.focus();
+      return;
+    }
+    
+    // Fallback: focus first input in panel
+    const firstInput = panel.querySelector('input, textarea, select');
+    if (firstInput) firstInput.focus();
   }
 
   // ── Form submit ────────────────────────────────────────────────────────────
@@ -474,7 +555,10 @@
     if (companyField) companyField.value = 'Nexova Solutions';
 
     // Hide all error messages
-    form.querySelectorAll('.error-msg').forEach(el => el.classList.remove('visible'));
+    form.querySelectorAll('.error-msg').forEach(el => {
+      el.classList.remove('visible');
+      el.classList.add('hidden');
+    });
 
     // Reset checkboxes visual (they reset via form.reset() but ensure aria)
     form.querySelectorAll('input[type="checkbox"]').forEach(cb => {
