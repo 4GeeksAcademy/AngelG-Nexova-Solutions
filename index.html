@@ -100,8 +100,42 @@
   </script>
 
   <style>
+    :root {
+      --header-height: 4rem;
+    }
+
+    html, body {
+      overflow-x: clip;
+    }
+
     body { font-family: 'DM Sans', sans-serif; }
     h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+    main {
+      padding-top: var(--header-height);
+    }
+
+    .section-fit {
+      scroll-margin-top: var(--header-height);
+      padding-block: 2.5rem;
+    }
+
+    .section-inner {
+      width: 100%;
+    }
+
+    .hero-section {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    @media (min-width: 1024px) {
+      .section-fit {
+        min-height: calc(100dvh - var(--header-height));
+        padding-block: 1.75rem;
+      }
+    }
 
     :focus-visible {
       outline: 2px solid #d4a843;
@@ -170,7 +204,7 @@
   </style>
 </head>
 
-<body class="bg-slate-100 text-slate-900 dark:bg-navy-950 dark:text-gray-100 antialiased overflow-x-hidden transition-colors duration-300">
+<body class="bg-slate-100 text-slate-900 dark:bg-navy-950 dark:text-gray-100 antialiased overflow-x-clip transition-colors duration-300">
 
   <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-gold-400 focus:px-4 focus:py-2 focus:text-navy-950 focus:font-semibold">
     Saltar al contenido principal
@@ -275,18 +309,18 @@
   <main id="main-content" class="overflow-x-clip">
 
     <!-- ===== HERO ===== -->
-    <section class="hero-bg min-h-screen flex items-center pt-16 scroll-mt-16" aria-labelledby="hero-heading">
-      <div class="max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-6 lg:px-10 py-24 lg:py-32 grid lg:grid-cols-2 2xl:grid-cols-[1.08fr_0.92fr] gap-16 2xl:gap-20 items-center">
+    <section class="section-fit hero-section hero-bg flex items-center" aria-labelledby="hero-heading">
+      <div class="section-inner max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-6 lg:px-10 grid lg:grid-cols-2 2xl:grid-cols-[1.08fr_0.92fr] gap-10 xl:gap-12 items-center py-6 lg:py-4">
 
         <div>
           <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-5" data-animate>
             Desde 2011 · Valencia & Miami
           </p>
-          <h1 id="hero-heading" class="font-display font-black text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl text-slate-900 dark:text-white leading-tight mb-6 delay-1" data-animate>
+          <h1 id="hero-heading" class="font-display font-black text-5xl lg:text-6xl xl:text-6xl 2xl:text-7xl text-slate-900 dark:text-white leading-tight mb-5 delay-1" data-animate>
             <span class="lang-es">El talento<br><span class="text-gold-400">correcto</span>,<br>en el momento<br>exacto.</span>
             <span class="lang-en" style="display:none;">The <span class="text-gold-400">right</span> talent.<br>When<br>your business needs it.</span>
           </h1>
-          <p class="text-slate-700 dark:text-gray-300 text-lg leading-relaxed max-w-md mb-10" data-animate style="transition-delay:0.15s">
+          <p class="text-slate-700 dark:text-gray-300 text-base lg:text-lg leading-relaxed max-w-md mb-6" data-animate style="transition-delay:0.15s">
             Nexova Solutions lleva doce años ayudando a medianas empresas a encontrar, formar y retener el talento que necesitan para crecer — ahora potenciado con inteligencia artificial.
           </p>
           <div class="flex flex-wrap gap-4" data-animate style="transition-delay:0.25s">
@@ -302,7 +336,7 @@
           </div>
 
           <!-- Stats -->
-          <div class="mt-16 grid grid-cols-3 gap-6 border-t border-white/10 pt-10" data-animate style="transition-delay:0.35s">
+          <div class="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-4" data-animate style="transition-delay:0.35s">
             <div>
               <p class="font-display text-3xl font-bold text-slate-900 dark:text-white">120<span class="text-gold-400">+</span></p>
               <p class="text-slate-600 dark:text-gray-400 text-xs mt-1">Profesionales</p>
@@ -319,8 +353,8 @@
         </div>
 
         <!-- Hero visual -->
-        <div class="hidden lg:flex justify-end" aria-hidden="true">
-          <div class="relative w-96 h-96">
+        <div class="hidden lg:flex justify-center items-center self-stretch" aria-hidden="true">
+          <div class="relative w-[22rem] h-[22rem] xl:w-[25rem] xl:h-[25rem] max-w-full">
             <div class="absolute inset-0 rounded-full bg-navy-700/30 border border-gold-400/20 animate-pulse"></div>
             <div class="absolute inset-8 rounded-full bg-slate-100 dark:bg-navy-800/50 border border-gold-400/10"></div>
             <div class="absolute inset-16 rounded-full bg-white dark:bg-navy-900 border border-gold-400/30 flex items-center justify-center">
@@ -335,10 +369,10 @@
             <div class="absolute -top-4 left-4 bg-slate-100 dark:bg-navy-800 border border-white/10 rounded-lg px-4 py-2 text-xs text-slate-700 dark:text-gray-300 shadow-xl">
               🎯 CV Scoring con IA
             </div>
-            <div class="absolute -bottom-2 right-0 bg-slate-100 dark:bg-navy-800 border border-white/10 rounded-lg px-4 py-2 text-xs text-slate-700 dark:text-gray-300 shadow-xl">
+            <div class="absolute bottom-1 right-0 bg-slate-100 dark:bg-navy-800 border border-white/10 rounded-lg px-4 py-2 text-xs text-slate-700 dark:text-gray-300 shadow-xl">
               📊 Dashboard en tiempo real
             </div>
-            <div class="absolute top-1/2 -left-8 bg-slate-100 dark:bg-navy-800 border border-gold-400/30 rounded-lg px-4 py-2 text-xs text-gold-300 shadow-xl">
+            <div class="absolute top-1/2 -left-6 bg-slate-100 dark:bg-navy-800 border border-gold-400/30 rounded-lg px-4 py-2 text-xs text-gold-300 shadow-xl">
               ✓ SLA 24h
             </div>
           </div>
@@ -347,27 +381,27 @@
     </section>
 
     <!-- ===== SERVICIOS ===== -->
-    <section id="servicios" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-50 dark:bg-navy-900 scroll-mt-16" aria-labelledby="servicios-heading">
-      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+    <section id="servicios" class="section-fit flex items-center bg-slate-50 dark:bg-navy-900" aria-labelledby="servicios-heading">
+      <div class="section-inner max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
 
-        <div class="mb-16" data-animate>
+        <div class="mb-6" data-animate>
           <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">Lo que hacemos</p>
           <h2 id="servicios-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white gold-line">
             Tres líneas de negocio,<br>un único objetivo.
           </h2>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-6">
+        <div class="grid md:grid-cols-3 gap-3 lg:gap-4">
 
           <!-- Card 1 -->
-          <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-8" data-animate>
-            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-6" aria-hidden="true">
+          <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-5" data-animate>
+            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-4" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
             </div>
             <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-3">Headhunting & Selección</h3>
-            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
               Identificamos y reclutamos perfiles de mandos medios y directivos con scoring automatizado de CVs y matching inteligente candidato–vacante.
             </p>
             <ul class="space-y-2 text-sm text-slate-700 dark:text-gray-300">
@@ -378,15 +412,15 @@
           </article>
 
           <!-- Card 2 -->
-            <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-gold-400/30 rounded-xl p-8 relative" data-animate style="transition-delay:0.1s">
+            <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-gold-400/30 rounded-xl p-5 relative" data-animate style="transition-delay:0.1s">
               <div class="absolute top-4 right-4 bg-gold-400 text-navy-950 text-xs font-bold px-2 py-0.5 rounded">Popular</div>
-            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-6" aria-hidden="true">
+            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-4" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-3">Outsourcing de Soporte</h3>
-            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
               Equipos de atención al cliente dedicados para empresas tech, retail y finanzas. Con chatbot IA de primera línea y dashboards en tiempo real.
             </p>
             <ul class="space-y-2 text-sm text-slate-700 dark:text-gray-300">
@@ -397,14 +431,14 @@
           </article>
 
           <!-- Card 3 -->
-          <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-8" data-animate style="transition-delay:0.2s">
-            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-6" aria-hidden="true">
+          <article class="card-hover bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-white/8 rounded-xl p-5" data-animate style="transition-delay:0.2s">
+            <div class="w-12 h-12 rounded-lg bg-gold-400/10 border border-gold-400/30 flex items-center justify-center mb-4" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
               </svg>
             </div>
             <h3 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-3">Formación Corporativa</h3>
-            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-5">
+            <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
               Programas de liderazgo, comunicación y gestión de equipos con recomendación personalizada y seguimiento de progreso por alumno.
             </p>
             <ul class="space-y-2 text-sm text-slate-700 dark:text-gray-300">
@@ -418,10 +452,10 @@
     </section>
 
     <!-- ===== CÓMO FUNCIONA ===== -->
-    <section id="como-funciona" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-100/80 dark:bg-navy-950 scroll-mt-16" aria-labelledby="proceso-heading">
-      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+    <section id="como-funciona" class="section-fit flex items-center bg-slate-100/80 dark:bg-navy-950" aria-labelledby="proceso-heading">
+      <div class="section-inner max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
 
-        <div class="text-center mb-16" data-animate>
+        <div class="text-center mb-8" data-animate>
           <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">El proceso</p>
           <h2 id="proceso-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white">Cómo trabajamos</h2>
           <p class="mt-4 mx-auto max-w-3xl 2xl:max-w-4xl text-base sm:text-lg 2xl:text-xl text-slate-600 dark:text-gray-400 leading-relaxed">
@@ -429,7 +463,7 @@
           </p>
         </div>
 
-        <ol class="grid md:grid-cols-4 gap-8">
+        <ol class="grid md:grid-cols-4 gap-4 lg:gap-5">
           <li class="relative text-center" data-animate>
             <div class="w-14 h-14 mx-auto rounded-full border-2 border-gold-400 flex items-center justify-center mb-5" aria-hidden="true">
               <span class="font-display font-black text-gold-400 text-lg">01</span>
@@ -460,23 +494,23 @@
           </li>
         </ol>
 
-        <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-animate style="transition-delay:0.15s">
-          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+        <div class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-animate style="transition-delay:0.15s">
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-4">
             <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 1</p>
             <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Diagnóstico de operación</h3>
             <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Mapa de herramientas, brechas y cuellos de botella por área.</p>
           </article>
-          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-4">
             <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 2</p>
             <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Diseño técnico de solución</h3>
             <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Arquitectura, integraciones y criterios de calidad/seguridad.</p>
           </article>
-          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-4">
             <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 3</p>
             <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Implementación guiada</h3>
             <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Automatizaciones, agentes IA y paneles listos para producción.</p>
           </article>
-          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-5">
+          <article class="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-navy-900 p-4">
             <p class="text-xs font-semibold tracking-widest uppercase text-gold-400">Fase 4</p>
             <h3 class="mt-2 font-semibold text-slate-900 dark:text-white">Escalado y optimización</h3>
             <p class="mt-1 text-sm text-slate-600 dark:text-gray-400">Métricas, mejora continua y entrenamiento de equipos.</p>
@@ -486,16 +520,16 @@
     </section>
 
     <!-- ===== SECTORES ===== -->
-    <section id="sectores" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-50 dark:bg-navy-900 scroll-mt-16" aria-labelledby="sectores-heading">
-      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
+    <section id="sectores" class="section-fit flex items-center bg-slate-50 dark:bg-navy-900" aria-labelledby="sectores-heading">
+      <div class="section-inner max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
+        <div class="grid lg:grid-cols-2 gap-8 lg:gap-10 items-center">
 
           <div data-animate>
             <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3">Experiencia sectorial</p>
-              <h2 id="sectores-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white gold-line mb-8">
+              <h2 id="sectores-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white gold-line mb-5">
                 Doce años de red.<br>Tres sectores clave.
             </h2>
-            <p class="text-slate-700 dark:text-gray-300 leading-relaxed mb-8">
+            <p class="text-slate-700 dark:text-gray-300 leading-relaxed mb-6">
               Nexova trabaja exclusivamente con medianas empresas de tecnología, retail y servicios financieros que han decidido externalizar parte o la totalidad de su gestión de talento.
             </p>
             <a href="application.html" class="inline-block px-7 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
@@ -543,13 +577,13 @@
     </section>
 
     <!-- ===== IA SECTION ===== -->
-    <section id="ia" class="min-h-screen flex items-center py-20 lg:py-24 bg-slate-50 dark:bg-navy-950 scroll-mt-16" aria-labelledby="ia-heading">
-      <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10 text-center">
+    <section id="ia" class="section-fit flex items-center bg-slate-50 dark:bg-navy-950" aria-labelledby="ia-heading">
+      <div class="section-inner max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10 text-center">
         <p class="text-gold-400 text-sm font-semibold tracking-widest uppercase mb-3" data-animate>Ventaja competitiva</p>
         <h2 id="ia-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white mb-6 max-w-3xl 2xl:max-w-5xl mx-auto" data-animate style="transition-delay:0.1s">
           En Nexova, la IA no es un complemento — es el núcleo.
         </h2>
-        <p class="text-slate-600 dark:text-gray-400 max-w-xl 2xl:max-w-3xl mx-auto mb-14 leading-relaxed 2xl:text-lg" data-animate style="transition-delay:0.2s">
+        <p class="text-slate-600 dark:text-gray-400 max-w-xl 2xl:max-w-3xl mx-auto mb-8 leading-relaxed 2xl:text-lg" data-animate style="transition-delay:0.2s">
           Desde el scoring de CVs hasta el análisis de sentimiento en soporte: construimos sistemas inteligentes que hacen el trabajo de manera más rápida, precisa y a mayor escala.
         </p>
 
@@ -575,8 +609,8 @@
     </section>
 
     <!-- ===== CTA ===== -->
-    <section id="aplica" class="min-h-screen flex items-center py-20 bg-slate-100 dark:bg-navy-800 border-y border-slate-200 dark:border-white/5 scroll-mt-16" aria-labelledby="cta-heading">
-        <div class="max-w-4xl 2xl:max-w-5xl mx-auto px-6 text-center" data-animate>
+    <section id="aplica" class="section-fit flex items-center bg-slate-100 dark:bg-navy-800 border-y border-slate-200 dark:border-white/5" aria-labelledby="cta-heading">
+      <div class="section-inner max-w-4xl 2xl:max-w-5xl mx-auto px-6 text-center" data-animate>
           <h2 id="cta-heading" class="font-display font-bold text-4xl lg:text-5xl 2xl:text-6xl text-slate-900 dark:text-white mb-5">
             ¿Listo para formar parte<br>del equipo Nexova?
         </h2>
@@ -594,7 +628,7 @@
   </main>
 
   <!-- ===== FOOTER ===== -->
-  <footer id="contacto" class="bg-slate-100 dark:bg-navy-950 border-t border-slate-300/80 dark:border-white/5 min-h-screen flex items-center scroll-mt-16 py-20">
+  <footer id="contacto" class="bg-slate-100 dark:bg-navy-950 border-t border-slate-300/80 dark:border-white/5 scroll-mt-[var(--header-height)] py-10">
     <div class="w-full max-w-[92rem] 2xl:max-w-[124rem] mx-auto px-5 sm:px-6 lg:px-10">
       <div class="grid md:grid-cols-4 gap-10 mb-12">
 
@@ -669,6 +703,11 @@
     const themeMoonIconMobile = document.getElementById('themeMoonIconMobile');
     const themeSunIconMobile = document.getElementById('themeSunIconMobile');
 
+    const syncHeaderOffset = () => {
+      const headerHeight = Math.round(siteHeader.getBoundingClientRect().height || 64);
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+    };
+
     const setThemeLabel = () => {
       const lang = localStorage.getItem('language') === 'en' ? 'en' : 'es';
       const isDark = document.documentElement.classList.contains('dark');
@@ -701,17 +740,22 @@
     themeToggle?.addEventListener('click', toggleTheme);
     themeToggleMobile?.addEventListener('click', toggleTheme);
     window.updateThemeLabels = setThemeLabel;
+    syncHeaderOffset();
     setThemeLabel();
 
     menuBtn.addEventListener('click', () => {
       const isOpen = !mobileMenu.classList.contains('hidden');
       mobileMenu.classList.toggle('hidden');
       menuBtn.setAttribute('aria-expanded', String(!isOpen));
+      requestAnimationFrame(syncHeaderOffset);
     });
     function closeMenu() {
       mobileMenu.classList.add('hidden');
       menuBtn.setAttribute('aria-expanded', 'false');
+      requestAnimationFrame(syncHeaderOffset);
     }
+
+    window.addEventListener('resize', syncHeaderOffset);
 
     window.addEventListener('scroll', () => {
       if (window.scrollY > 24) {
