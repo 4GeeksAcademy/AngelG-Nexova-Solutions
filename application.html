@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Formulario de aplicación al equipo de AI Engineering de Nexova Solutions.">
+  <meta name="description" content="Únete al banco de talento de Nexova Solutions. Regístranos tus datos y te contactaremos cuando tengamos una oportunidad que encaje con tu perfil.">
   <link rel="icon" href="data:,">
-  <title>Aplicación — Nexova Solutions AI Engineering</title>
+  <title>Banco de Talento — Nexova Solutions</title>
 
   <script>
     (() => {
@@ -30,8 +30,8 @@
   {
     "@context": "https://schema.org",
     "@type": "JobPosting",
-    "title": "AI Engineering Intern — Nexova Solutions",
-    "description": "Construye sistemas de IA aplicados a RRHH, selección de talento y soporte al cliente en Nexova Solutions.",
+    "title": "Registro de Talento — Nexova Solutions",
+    "description": "Únete al banco de talento de Nexova Solutions. Buscamos profesionales de tecnología, retail y servicios financieros.",
     "hiringOrganization": {
       "@type": "Organization",
       "name": "Nexova Solutions",
@@ -47,8 +47,8 @@
         "address": { "@type": "PostalAddress", "addressLocality": "Miami", "addressRegion": "FL", "addressCountry": "US" }
       }
     ],
-    "employmentType": "INTERN",
-    "datePosted": "2024-01-01"
+    "employmentType": "FULL_TIME",
+    "datePosted": "2025-01-01"
   }
   </script>
 
@@ -80,96 +80,181 @@
   </script>
 
   <style>
+    :root {
+      --header-height: 4rem;
+    }
+
+    html, body {
+      overflow-x: clip;
+    }
+
     body { font-family: 'DM Sans', sans-serif; }
     h1, h2, h3, legend { font-family: 'Playfair Display', serif; }
 
-    /* Step indicator styles */
-    .step-dot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      font-size: 0.8rem;
-      font-weight: 700;
-      flex-shrink: 0;
-      transition: background 0.3s, color 0.3s, border-color 0.3s;
-    }
-    .step-dot.done {
-      background: #d4a843;
-      color: #060b18;
-      border: 2px solid #d4a843;
-    }
-    .step-dot.active {
-      background: transparent;
-      color: #d4a843;
-      border: 2px solid #d4a843;
-    }
-    .step-dot.pending {
-      background: transparent;
-      color: #64748b;
-      border: 2px solid #cbd5e1;
-    }
-    .dark .step-dot.pending {
-      color: #475569;
-      border: 2px solid #1e293b;
+    main {
+      padding-top: var(--header-height);
     }
 
-    .step-line {
-      flex: 1;
-      height: 2px;
-      background: #cbd5e1;
-      transition: background 0.3s;
+    .section-fit {
+      scroll-margin-top: var(--header-height);
+      padding-block: 1.5rem;
     }
-    .dark .step-line {
-      background: #1e293b;
+
+    @media (min-width: 1024px) {
+      .section-fit {
+        min-height: calc(100dvh - var(--header-height));
+        padding-block: 1rem;
+      }
     }
-    .step-line.done {
-      background: #d4a843;
+
+    @media (min-width: 1024px) and (min-height: 700px) {
+      .section-form .step-panel.active {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-height: calc(100dvh - var(--header-height) - 2.5rem);
+      }
+
+      .section-form .step-panel.active .form-card {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+      }
+
+      .section-form .step-panel.active .form-actions {
+        position: sticky;
+        bottom: 0;
+        margin-top: 0.35rem;
+        padding-top: 0.4rem;
+        background: linear-gradient(to bottom, rgba(248, 250, 252, 0), rgba(248, 250, 252, 0.95) 26%, rgba(248, 250, 252, 1) 100%);
+        z-index: 5;
+      }
+
+      .dark .section-form .step-panel.active .form-actions {
+        background: linear-gradient(to bottom, rgba(6, 11, 24, 0), rgba(6, 11, 24, 0.95) 26%, rgba(6, 11, 24, 1) 100%);
+      }
     }
+
+    @media (min-width: 1024px) and (max-height: 920px) {
+      .section-form .form-card {
+        padding: 0.65rem;
+      }
+
+      .section-form .field-base {
+        padding: 0.42rem 0.65rem;
+        font-size: 0.8rem;
+      }
+
+      .section-form h2 {
+        font-size: 1.55rem;
+        line-height: 1.2;
+      }
+
+      .section-form .step-panel label,
+      .section-form .step-panel legend {
+        margin-bottom: 0.3rem;
+      }
+
+      .section-form .step-panel p[role="alert"] {
+        margin-top: 0.2rem;
+      }
+
+      #comments {
+        min-height: 2.4rem;
+      }
+    }
+
+    :focus-visible {
+      outline: 2px solid #d4a843;
+      outline-offset: 2px;
+    }
+
+    /* Step indicator */
+    .step-dot {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+    }
+    .step-dot.done   { background: #d4a843; color: #060b18; border: 2px solid #d4a843; }
+    .step-dot.active { background: transparent; color: #d4a843; border: 2px solid #d4a843; }
+    .step-dot.pending { background: transparent; color: #64748b; border: 2px solid #cbd5e1; }
+    .dark .step-dot.pending { color: #475569; border: 2px solid #1e293b; }
+
+    .step-line { flex: 1; height: 2px; background: #cbd5e1; transition: background 0.3s; }
+    .dark .step-line { background: #1e293b; }
+    .step-line.done { background: #d4a843; }
+
+    /* Step panels */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .step-panel.active { animation: slideIn 0.3s ease; }
+
+    /* Field base */
+    .field-base {
+      width: 100%; padding: 0.5rem 0.75rem;
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.25rem;
+      color: #0f172a; font-size: 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .dark .field-base { background: #0f2040; border-color: rgba(255,255,255,0.1); color: #f1f5f9; }
+    .field-base:focus { outline: none; border-color: #d4a843; box-shadow: 0 0 0 3px rgba(212,168,67,0.15); }
+    .field-base::placeholder { color: #94a3b8; }
+    .field-base.error { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.15); }
+    .field-base option { background: #0b1628; color: #f1f5f9; }
+
+    /* Character counter */
+    #commentsCounter { transition: color 0.2s; }
 
     /* Success overlay */
     #successOverlay { display: none; }
     #successOverlay.visible { display: flex; }
 
-    /* Step panels */
-    .step-panel { display: none; }
-    .step-panel.active { display: block; }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(24px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    .step-panel.active { animation: slideIn 0.3s ease; }
-
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-        scroll-behavior: auto !important;
-      }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 
-<body class="bg-slate-100 text-slate-900 dark:bg-navy-950 dark:text-gray-100 antialiased min-h-screen overflow-x-hidden transition-colors duration-300">
+<body class="bg-slate-100 text-slate-900 dark:bg-navy-950 dark:text-gray-100 antialiased min-h-screen overflow-x-clip transition-colors duration-300">
 
   <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-gold-400 focus:px-4 focus:py-2 focus:text-navy-950 focus:font-semibold">
     Saltar al contenido principal
   </a>
 
-  <!-- Header -->
-  <header class="fixed top-0 inset-x-0 z-50 border-b border-slate-300/80 dark:border-white/5 backdrop-blur-md bg-slate-100/85 dark:bg-navy-950/80 transition-colors duration-300">
-    <div class="max-w-[92rem] 2xl:max-w-[118rem] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16 gap-2">
+  <!-- ===== HEADER ===== -->
+  <header id="appHeader" class="fixed top-0 inset-x-0 z-50 border-b border-slate-300/80 dark:border-white/5 backdrop-blur-md bg-slate-100/85 dark:bg-navy-950/80 transition-colors duration-300">
+    <div class="max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16 gap-3">
+
       <a href="index.html" class="flex items-center gap-3" aria-label="Volver a Nexova Solutions">
         <div class="w-8 h-8 rounded bg-gold-400 flex items-center justify-center" aria-hidden="true">
           <span class="text-navy-950 font-display font-black text-sm">N</span>
         </div>
         <span class="font-display font-bold text-slate-900 dark:text-white text-lg">Nexova <span class="text-gold-400">Solutions</span></span>
       </a>
-      <div class="flex items-center gap-2 sm:gap-3">
-        <button id="themeToggle" type="button" class="inline-flex items-center gap-2 rounded-sm border border-slate-300 dark:border-white/15 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200 hover:border-gold-400 hover:text-gold-400 transition-colors" aria-label="Cambiar tema" aria-pressed="false">
+
+      <nav aria-label="Navegacion del formulario" class="block">
+        <ul class="flex items-center gap-3 sm:gap-5 text-xs sm:text-sm font-medium text-slate-700 dark:text-gray-300">
+          <li><a href="#home" class="hover:text-slate-900 dark:hover:text-white transition-colors">Inicio</a></li>
+          <li><a href="#form" class="hover:text-slate-900 dark:hover:text-white transition-colors">Formulario</a></li>
+        </ul>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <label for="languageToggle" class="sr-only">Seleccionar idioma</label>
+        <select id="languageToggle" class="rounded-sm border border-slate-300 dark:border-white/15 bg-slate-50 dark:bg-navy-900 px-2 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200" aria-label="Seleccionar idioma">
+          <option value="es">🇪🇸 Español</option>
+          <option value="en">🇺🇸 English</option>
+        </select>
+
+        <!-- Theme toggle -->
+        <button id="themeToggle" type="button"
+          class="inline-flex items-center gap-2 rounded-sm border border-slate-300 dark:border-white/15 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200 hover:border-gold-400 hover:text-gold-400 transition-colors"
+          aria-label="Cambiar tema" aria-pressed="false">
           <svg id="themeMoonIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3c0 .34.02.67.06 1a7 7 0 0 0 8.73 8.73c.33.04.66.06 1 .06z"/>
           </svg>
@@ -179,493 +264,854 @@
           </svg>
           <span id="themeToggleText">Modo oscuro</span>
         </button>
-        <label for="languageToggle" class="sr-only">Seleccionar idioma</label>
-        <select id="languageToggle" class="rounded-sm border border-slate-300 dark:border-white/15 bg-slate-50 dark:bg-navy-900 px-2 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200" aria-label="Seleccionar idioma">
-          <option value="es">🇪🇸 Español</option>
-          <option value="en">🇺🇸 English</option>
-        </select>
-        <a href="index.html" class="text-sm text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-        </svg>
-        Volver
+
+        <a href="index.html" class="hidden sm:flex text-sm text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors items-center gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Volver
         </a>
       </div>
     </div>
   </header>
 
-  <main class="pt-24 sm:pt-28 pb-16 sm:pb-20 px-4 min-h-screen" id="main-content">
-    <div class="max-w-2xl xl:max-w-3xl 2xl:max-w-4xl mx-auto">
+  <!-- ===== MAIN ===== -->
+  <main id="main-content">
+    <section id="home" class="section-fit flex items-center px-4">
+      <div class="max-w-2xl xl:max-w-3xl mx-auto w-full">
 
       <!-- Page header -->
-      <div class="text-center mb-10">
-        <p class="text-gold-400 text-xs font-semibold tracking-widest uppercase mb-3">AI Engineering</p>
-        <h1 class="font-display font-bold text-3xl lg:text-4xl text-slate-900 dark:text-white mb-3">Formulario de Aplicación</h1>
+      <div class="text-center mb-6">
+        <p class="text-gold-400 text-xs font-semibold tracking-widest uppercase mb-3">Banco de Talento</p>
+        <h1 class="font-display font-bold text-3xl lg:text-4xl text-slate-900 dark:text-white mb-3">
+          Únete al equipo Nexova
+        </h1>
         <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed max-w-md mx-auto">
-          Cuéntanos tu visión sobre cómo la IA puede transformar Nexova Solutions.
+          Regístrate en nuestro banco de talento y te contactaremos cuando tengamos una oportunidad que encaje con tu perfil.
         </p>
+        <!-- Aviso para empresas -->
+        <div class="mt-5 inline-flex items-start gap-2 bg-gold-400/10 border border-gold-400/30 rounded-lg px-4 py-3 text-sm text-slate-700 dark:text-gray-300 max-w-md mx-auto text-left">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gold-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>¿Eres una empresa buscando talento? Escríbenos a
+            <a href="mailto:contacto@nexova.com" class="text-gold-400 hover:text-gold-300 underline transition-colors">contacto@nexova.com</a>
+          </span>
+        </div>
+      <div class="mt-6 text-center">
+        <a href="#form" class="inline-flex items-center gap-2 px-6 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
+          Ir al formulario
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </a>
       </div>
+      </div>
+      </div>
+    </section>
+
+    <section id="form" class="section-fit section-form flex items-start px-4">
+      <div class="max-w-2xl xl:max-w-3xl mx-auto w-full flex flex-col justify-center">
+      <div class="w-full">
 
       <!-- Step indicator -->
-      <div class="flex items-center mb-10 px-2" role="progressbar" aria-label="Progreso del formulario" aria-valuenow="1" aria-valuemin="1" aria-valuemax="3" id="progressbar">
-        <div class="step-dot active" id="dot-1">1</div>
+      <div class="flex items-center mb-2 px-2" role="progressbar" aria-label="Progreso del formulario" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="progressbar">
+        <div class="step-dot active" id="dot-1" aria-current="step">1</div>
         <div class="step-line" id="line-1"></div>
         <div class="step-dot pending" id="dot-2">2</div>
-        <div class="step-line" id="line-2"></div>
-        <div class="step-dot pending" id="dot-3">3</div>
       </div>
-      <div class="flex justify-between text-xs text-slate-600 dark:text-gray-300 mb-8 px-0">
-        <span>Datos personales</span>
-        <span class="text-center">Empresa e intereses</span>
-        <span class="text-right">Propuesta técnica</span>
+      <div class="flex justify-between text-xs text-slate-500 dark:text-gray-400 mb-3 px-1">
+        <span id="step-label-1" class="font-semibold text-slate-700 dark:text-gray-200">Datos de contacto</span>
+        <span id="step-label-2">Perfil profesional</span>
       </div>
 
-      <!-- Form -->
-      <form id="applicationForm" novalidate aria-label="Formulario de aplicación a Nexova Solutions">
+      <!-- ===== FORM ===== -->
+      <form id="talentForm" novalidate aria-label="Formulario de registro de talento Nexova Solutions">
 
-        <!-- ===== STEP 1: Personal data ===== -->
+        <!-- ===== STEP 1: Contact data ===== -->
         <div class="step-panel active" id="panel-1">
-          <div class="bg-slate-50 dark:bg-navy-900 border border-slate-300/70 dark:border-white/8 rounded-xl p-5 sm:p-6 lg:p-8 space-y-5 shadow-sm dark:shadow-none">
-            <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-2">Datos personales</h2>
+          <div class="form-card bg-slate-50 dark:bg-navy-900 border border-slate-300/70 dark:border-white/8 rounded-xl p-3 sm:p-3 lg:p-4 space-y-2 shadow-sm">
 
-            <fieldset>
-              <legend class="sr-only">Nombre completo</legend>
-              <div class="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label for="firstName" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                    Nombre <span class="required-star" aria-hidden="true">*</span>
-                  </label>
-                  <input
-                    type="text" id="firstName" name="firstName"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
-                    autocomplete="given-name"
-                    aria-describedby="firstName-error"
-                    placeholder="Laura">
-                  <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="firstName-error" role="alert" aria-live="polite">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    El nombre es obligatorio.
-                  </p>
-                </div>
-                <div>
-                  <label for="lastName" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                    Apellidos <span class="required-star" aria-hidden="true">*</span>
-                  </label>
-                  <input
-                    type="text" id="lastName" name="lastName"
-                    class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
-                    autocomplete="family-name"
-                    aria-describedby="lastName-error"
-                    placeholder="Mendoza">
-                  <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="lastName-error" role="alert" aria-live="polite">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    Los apellidos son obligatorios.
-                  </p>
-                </div>
-              </div>
-            </fieldset>
+            <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white">Datos de contacto</h2>
 
+            <div class="grid sm:grid-cols-2 gap-3">
+            <!-- Nombre completo -->
+            <div>
+              <label for="fullName" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
+                Nombre completo <span aria-hidden="true" class="text-gold-400">*</span>
+              </label>
+              <input type="text" id="fullName" name="fullName" required
+                class="field-base"
+                autocomplete="name"
+                aria-describedby="fullName-error"
+                placeholder="Laura Mendoza García">
+              <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="fullName-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                El nombre debe contener al menos nombre y apellido.
+              </p>
+            </div>
+
+            <!-- Email -->
             <div>
               <label for="email" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                Correo electrónico <span class="required-star" aria-hidden="true">*</span>
+                Correo electrónico <span aria-hidden="true" class="text-gold-400">*</span>
               </label>
-              <input
-                type="email" id="email" name="email"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
+              <input type="email" id="email" name="email" required
+                class="field-base"
                 autocomplete="email"
                 aria-describedby="email-error"
                 placeholder="laura@ejemplo.com">
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="email-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Introduce un correo electrónico válido.
+              <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="email-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Ingresa un email válido (ejemplo: nombre@empresa.com).
+              </p>
+            </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-3">
+            <!-- Teléfono -->
+            <div>
+              <label for="phone" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
+                Teléfono <span aria-hidden="true" class="text-gold-400">*</span>
+              </label>
+              <input type="tel" id="phone" name="phone" required
+                class="field-base"
+                autocomplete="tel"
+                aria-describedby="phone-error"
+                placeholder="+34 612 345 678">
+              <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="phone-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                El teléfono debe incluir código de país (ejemplo: +34 612 345 678).
               </p>
             </div>
 
-            <div class="grid sm:grid-cols-2 gap-5">
-              <div>
-                <label for="phone" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                  Teléfono <span class="required-star" aria-hidden="true">*</span>
-                </label>
-                <input
-                  type="tel" id="phone" name="phone"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
-                  autocomplete="tel"
-                  aria-describedby="phone-error"
-                  placeholder="+34 600 000 000">
-                  <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="phone-error" role="alert" aria-live="polite">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  Introduce un número de teléfono válido.
-                </p>
+            <!-- País de residencia -->
+            <div>
+              <label for="country" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
+                País de residencia <span aria-hidden="true" class="text-gold-400">*</span>
+              </label>
+              <div class="relative">
+                <select id="country" name="country" required
+                  class="field-base appearance-none pr-10"
+                  aria-describedby="country-error">
+                  <option value="" disabled selected>Selecciona tu país</option>
+                  <option value="españa">España</option>
+                  <option value="estados-unidos">Estados Unidos</option>
+                  <option value="otro">Otro</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
               </div>
-              <div>
-                <label for="birthDate" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                  Fecha de nacimiento <span class="required-star" aria-hidden="true">*</span>
-                </label>
-                <input
-                  type="date" id="birthDate" name="birthDate"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
-                  aria-describedby="birthDate-error">
-                  <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="birthDate-error" role="alert" aria-live="polite">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  Introduce una fecha de nacimiento válida.
-                </p>
-              </div>
+              <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="country-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Selecciona tu país de residencia.
+              </p>
+            </div>
             </div>
 
+            <!-- LinkedIn (opcional) -->
             <div>
               <label for="linkedin" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                LinkedIn <span class="required-star" aria-hidden="true">*</span>
+                LinkedIn <span class="text-slate-400 dark:text-slate-500 font-normal normal-case tracking-normal">(opcional)</span>
               </label>
-              <input
-                type="url" id="linkedin" name="linkedin"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
+              <input type="url" id="linkedin" name="linkedin"
+                class="field-base"
                 aria-describedby="linkedin-error"
                 placeholder="https://linkedin.com/in/tu-perfil">
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="linkedin-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Introduce una URL de LinkedIn válida (https://linkedin.com/in/...).
+              <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="linkedin-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Si incluyes LinkedIn, debe ser una URL válida (https://linkedin.com/in/...).
               </p>
             </div>
 
-            <div>
-              <label for="portfolio" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">Portfolio / GitHub</label>
-              <input
-                type="url" id="portfolio" name="portfolio"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20"
-                aria-describedby="portfolio-error"
-                placeholder="https://github.com/tu-usuario">
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="portfolio-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Si introduces una URL, debe ser válida.
-              </p>
-            </div>
+          </div><!-- end card -->
 
-          </div>
-
-          <div class="flex justify-between mt-6">
-            <button type="button" id="clearBtn"
-              class="px-6 py-3 border border-slate-300 dark:border-white/15 text-slate-600 dark:text-gray-400 font-medium text-sm rounded-sm hover:border-red-400/50 hover:text-red-400 transition-colors flex items-center gap-2"
+          <div class="form-actions flex justify-between mt-2">
+            <button type="button" id="clearBtn1"
+              class="px-5 py-2.5 border border-slate-300 dark:border-white/15 text-slate-600 dark:text-gray-400 font-medium text-sm rounded-sm hover:border-red-400/50 hover:text-red-400 transition-colors flex items-center gap-2"
               aria-label="Limpiar formulario">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
-              Limpiar formulario
+              Limpiar
             </button>
             <button type="button" id="nextBtn1"
-              class="px-8 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors"
-              aria-controls="panel-2">
+              class="px-7 py-2.5 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
               Siguiente →
             </button>
           </div>
-        </div>
+        </div><!-- end panel-1 -->
 
-        <!-- ===== STEP 2: Company & interests ===== -->
+        <!-- ===== STEP 2: Professional profile ===== -->
         <div class="step-panel" id="panel-2">
-          <div class="bg-slate-50 dark:bg-navy-900 border border-slate-300/70 dark:border-white/8 rounded-xl p-5 sm:p-6 lg:p-8 space-y-6 shadow-sm dark:shadow-none">
-            <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-2">Empresa e intereses</h2>
+          <div class="form-card bg-slate-50 dark:bg-navy-900 border border-slate-300/70 dark:border-white/8 rounded-xl p-3 sm:p-3 lg:p-4 space-y-2 shadow-sm">
 
+            <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-1">Perfil profesional</h2>
+
+            <div class="grid sm:grid-cols-2 gap-2.5">
+
+              <!-- Años de experiencia -->
+              <div>
+                <label for="yearsExp" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
+                  Años de experiencia <span aria-hidden="true" class="text-gold-400">*</span>
+                </label>
+                <input type="number" id="yearsExp" name="yearsExp" required
+                  min="0" max="50"
+                  class="field-base"
+                  aria-describedby="yearsExp-error"
+                  placeholder="5">
+                <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="yearsExp-error" role="alert" aria-live="polite">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  Los años de experiencia deben estar entre 0 y 50.
+                </p>
+              </div>
+
+              <!-- Nivel de inglés -->
+              <div>
+                <label for="englishLevel" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
+                  Nivel de inglés <span aria-hidden="true" class="text-gold-400">*</span>
+                </label>
+                <div class="relative">
+                  <select id="englishLevel" name="englishLevel" required
+                    class="field-base appearance-none pr-10"
+                    aria-describedby="englishLevel-error">
+                    <option value="" disabled selected>Selecciona tu nivel</option>
+                    <option value="basico">Básico</option>
+                    <option value="intermedio">Intermedio</option>
+                    <option value="avanzado">Avanzado</option>
+                    <option value="nativo">Nativo</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </div>
+                </div>
+                <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="englishLevel-error" role="alert" aria-live="polite">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  Indica tu nivel de inglés.
+                </p>
+              </div>
+            </div>
+
+            <!-- Sector de interés -->
             <div>
-              <label for="companyChosen" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                Empresa elegida <span class="required-star" aria-hidden="true">*</span>
+              <label for="sector" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
+                Sector de interés <span aria-hidden="true" class="text-gold-400">*</span>
               </label>
-              <input
-                type="text" id="companyChosen" name="companyChosen"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
-                aria-describedby="companyChosen-error"
-                value="Nexova Solutions"
-                readonly>
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="companyChosen-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Este campo es obligatorio.
+              <div class="relative">
+                <select id="sector" name="sector" required
+                  class="field-base appearance-none pr-10"
+                  aria-describedby="sector-error">
+                  <option value="" disabled selected>Selecciona un sector</option>
+                  <option value="tecnologia">Tecnología</option>
+                  <option value="retail">Retail</option>
+                  <option value="servicios-financieros">Servicios Financieros</option>
+                  <option value="consultoria">Consultoría</option>
+                  <option value="otro">Otro</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
+              </div>
+              <p class="hidden text-red-500 text-xs mt-1.5 flex items-center gap-1.5" id="sector-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Selecciona el sector de tu interés.
               </p>
             </div>
 
-            <div>
-              <label for="motivation" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                ¿Por qué elegiste Nexova Solutions? <span class="required-star" aria-hidden="true">*</span>
-              </label>
-              <textarea
-                id="motivation" name="motivation"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20 resize-vertical min-h-24" required
-                aria-describedby="motivation-error"
-                rows="4"
-                placeholder="Cuéntanos qué te atrajo de Nexova y por qué quieres trabajar aquí..."
-              ></textarea>
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="motivation-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Por favor escribe al menos 50 caracteres.
-              </p>
-            </div>
-
+            <!-- Disponibilidad -->
             <fieldset>
-              <legend class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-4 tracking-widest uppercase">
-                Departamentos de interés <span class="required-star" aria-hidden="true">*</span>
-                <span class="sr-only">(selecciona al menos uno)</span>
+              <legend class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 tracking-widest uppercase">
+                Disponibilidad <span aria-hidden="true" class="text-gold-400">*</span>
               </legend>
-              <div class="space-y-3 has-[input:invalid]:ring-2 has-[input:invalid]:ring-red-400/30 has-[input:invalid]:rounded has-[input:invalid]:p-3" aria-describedby="departments-error">
-                <label class="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" name="departments" value="atencion-cliente" id="dept-1" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15">
-                  <span class="block">
-                    <span class="text-slate-900 dark:text-white text-sm font-medium group-hover:text-gold-400 transition-colors">Atención al Cliente</span>
-                    <span class="block text-slate-600 dark:text-gray-400 text-xs mt-0.5">Chatbot RAG, base de conocimiento, análisis de sentimiento, dashboards SLA</span>
-                  </span>
+              <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-1.5" aria-describedby="availability-error">
+                <label class="flex items-center gap-2 cursor-pointer group border border-slate-200 dark:border-white/8 rounded-lg px-3 py-1.5 hover:border-gold-400/50 transition-colors has-[:checked]:border-gold-400 has-[:checked]:bg-gold-400/5">
+                  <input type="radio" name="availability" value="inmediata" required class="w-4 h-4 accent-gold-400">
+                  <span class="text-sm text-slate-700 dark:text-gray-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Inmediata</span>
                 </label>
-                <label class="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" name="departments" value="tecnologia-infraestructura" id="dept-2" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15">
-                  <span class="block">
-                    <span class="text-slate-900 dark:text-white text-sm font-medium group-hover:text-gold-400 transition-colors">Tecnología e Infraestructura</span>
-                    <span class="block text-slate-600 dark:text-gray-400 text-xs mt-0.5">Telemetría, logging centralizado, monitoreo en tiempo real, pipelines de datos</span>
-                  </span>
+                <label class="flex items-center gap-2 cursor-pointer group border border-slate-200 dark:border-white/8 rounded-lg px-3 py-1.5 hover:border-gold-400/50 transition-colors has-[:checked]:border-gold-400 has-[:checked]:bg-gold-400/5">
+                  <input type="radio" name="availability" value="1-mes" class="w-4 h-4 accent-gold-400">
+                  <span class="text-sm text-slate-700 dark:text-gray-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">1 mes</span>
                 </label>
-                <label class="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" name="departments" value="operaciones-seleccion" id="dept-3" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15">
-                  <span class="block">
-                    <span class="text-slate-900 dark:text-white text-sm font-medium group-hover:text-gold-400 transition-colors">Operaciones de Selección</span>
-                    <span class="block text-slate-600 dark:text-gray-400 text-xs mt-0.5">Scoring de CVs, matching IA, portal de candidatos</span>
-                  </span>
+                <label class="flex items-center gap-2 cursor-pointer group border border-slate-200 dark:border-white/8 rounded-lg px-3 py-1.5 hover:border-gold-400/50 transition-colors has-[:checked]:border-gold-400 has-[:checked]:bg-gold-400/5">
+                  <input type="radio" name="availability" value="2-3-meses" class="w-4 h-4 accent-gold-400">
+                  <span class="text-sm text-slate-700 dark:text-gray-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">2-3 meses</span>
                 </label>
-                <label class="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" name="departments" value="formacion-corporativa" id="dept-4" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15">
-                  <span class="block">
-                    <span class="text-slate-900 dark:text-white text-sm font-medium group-hover:text-gold-400 transition-colors">Formación Corporativa</span>
-                    <span class="block text-slate-600 dark:text-gray-400 text-xs mt-0.5">Motor de recomendación, portal del alumno, catálogo inteligente</span>
-                  </span>
-                </label>
-                <label class="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" name="departments" value="ventas" id="dept-5" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15">
-                  <span class="block">
-                    <span class="text-slate-900 dark:text-white text-sm font-medium group-hover:text-gold-400 transition-colors">Ventas y Desarrollo de Negocio</span>
-                    <span class="block text-slate-600 dark:text-gray-400 text-xs mt-0.5">CRM automation, pipeline dashboard, agente de propuesta</span>
-                  </span>
-                </label>
-                <label class="flex items-start gap-3 cursor-pointer group">
-                  <input type="checkbox" name="departments" value="marketing" id="dept-6" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15">
-                  <span class="block">
-                    <span class="text-slate-900 dark:text-white text-sm font-medium group-hover:text-gold-400 transition-colors">Marketing y Comunicación</span>
-                    <span class="block text-slate-600 dark:text-gray-400 text-xs mt-0.5">SEO/GEO, pipeline de contenido IA, dashboard de métricas</span>
-                  </span>
+                <label class="flex items-center gap-2 cursor-pointer group border border-slate-200 dark:border-white/8 rounded-lg px-3 py-1.5 hover:border-gold-400/50 transition-colors has-[:checked]:border-gold-400 has-[:checked]:bg-gold-400/5">
+                  <input type="radio" name="availability" value="solo-explorando" class="w-4 h-4 accent-gold-400">
+                  <span class="text-sm text-slate-700 dark:text-gray-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Solo explorando</span>
                 </label>
               </div>
-              <p class="hidden text-red-500 text-xs mt-2 flex items-center gap-2" id="departments-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Selecciona al menos un departamento.
+              <p class="hidden text-red-500 text-xs mt-2 flex items-center gap-1.5" id="availability-error" role="alert" aria-live="polite">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Selecciona tu disponibilidad.
               </p>
             </fieldset>
 
-          </div>
+            <div class="grid lg:grid-cols-2 gap-2.5 items-start">
+              <!-- Comentarios adicionales (opcional) -->
+              <div>
+                <div class="flex items-baseline justify-between mb-1.5">
+                  <label for="comments" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-widest uppercase">
+                    Comentarios adicionales <span class="text-slate-400 dark:text-slate-500 font-normal normal-case tracking-normal">(opcional)</span>
+                  </label>
+                  <span id="commentsCounter" class="text-xs text-slate-400 dark:text-slate-500 tabular-nums">0/500</span>
+                </div>
+                <textarea id="comments" name="comments"
+                  class="field-base resize-none min-h-12"
+                  rows="1"
+                  maxlength="500"
+                  aria-describedby="comments-error commentsCounter"
+                  placeholder="Cuéntanos más sobre tu trayectoria, motivaciones o cualquier otro detalle..."></textarea>
+                <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-1.5" id="comments-error" role="alert" aria-live="polite">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  Los comentarios no pueden exceder 500 caracteres.
+                </p>
+              </div>
 
-          <div class="flex justify-between mt-6">
+              <!-- Política de datos -->
+              <div id="termsContainer">
+                <div class="flex items-start gap-2.5 group rounded-lg border border-slate-200/80 dark:border-white/10 px-3 py-2 transition-colors">
+                  <input type="checkbox" id="acceptTerms" name="acceptTerms" required
+                    class="w-4 h-4 mt-0.5 cursor-pointer accent-gold-400 flex-shrink-0"
+                    aria-describedby="terms-error">
+                  <span class="text-slate-700 dark:text-gray-300 text-xs leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                    <label for="acceptTerms" class="cursor-pointer">
+                      Acepto la
+                    </label>
+                    <button type="button" id="openPolicyModal" aria-haspopup="dialog" aria-controls="policyModal"
+                      class="text-gold-500 dark:text-gold-300 underline decoration-2 underline-offset-2 hover:text-gold-400 focus-visible:text-gold-400 cursor-pointer font-semibold transition-colors">
+                      política de tratamiento de datos
+                    </button>
+                    <label for="acceptTerms" class="cursor-pointer">
+                      de Nexova Solutions y autorizo el uso de mi información para el proceso de selección. <span aria-hidden="true" class="text-gold-400">*</span>
+                    </label>
+                  </span>
+                </div>
+                <p class="hidden text-red-500 text-xs mt-1.5 ml-1 flex items-center gap-1.5" id="terms-error" role="alert" aria-live="polite">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  Debes aceptar la política de tratamiento de datos para continuar.
+                </p>
+              </div>
+            </div>
+
+          </div><!-- end card -->
+
+          <div class="form-actions flex justify-between mt-1.5">
             <button type="button" id="prevBtn2"
-              class="px-6 py-3 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium text-sm rounded-sm hover:border-slate-400 dark:hover:border-white/30 hover:text-slate-900 dark:hover:text-white transition-colors">
+              class="px-5 py-2.5 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium text-sm rounded-sm hover:border-slate-400 dark:hover:border-white/30 transition-colors">
               ← Anterior
             </button>
             <div class="flex gap-3">
               <button type="button" id="clearBtn2"
-                class="px-5 py-3 border border-slate-300 dark:border-white/15 text-slate-600 dark:text-gray-400 font-medium text-sm rounded-sm hover:border-red-400/50 hover:text-red-400 transition-colors flex items-center gap-2"
-                aria-label="Limpiar">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-                Limpiar
-              </button>
-              <button type="button" id="nextBtn2"
-                class="px-8 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
-                Siguiente →
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- ===== STEP 3: Technical proposal ===== -->
-        <div class="step-panel" id="panel-3">
-          <div class="bg-slate-50 dark:bg-navy-900 border border-slate-300/70 dark:border-white/8 rounded-xl p-5 sm:p-6 lg:p-8 space-y-6 shadow-sm dark:shadow-none">
-            <h2 class="font-display font-bold text-xl text-slate-900 dark:text-white mb-2">Propuesta técnica</h2>
-
-            <div>
-              <label for="automationChallenge" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                Reto de automatización elegido <span class="required-star" aria-hidden="true">*</span>
-              </label>
-              <textarea
-                id="automationChallenge" name="automationChallenge"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20 resize-vertical min-h-24" required
-                aria-describedby="automationChallenge-error"
-                rows="4"
-                placeholder="Describe el reto de automatización que quieres abordar en Nexova..."
-              ></textarea>
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="automationChallenge-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Por favor describe el reto (mínimo 80 caracteres).
-              </p>
-            </div>
-
-            <fieldset class="space-y-4">
-              <legend class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">Mi agente de IA</legend>
-
-              <div>
-                <label for="agentDescription" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                  ¿Qué haría el agente? <span class="required-star" aria-hidden="true">*</span>
-                </label>
-                <textarea
-                  id="agentDescription" name="agentDescription"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20 resize-vertical min-h-20" required
-                  aria-describedby="agentDescription-error"
-                  rows="3"
-                  placeholder="Describe las capacidades y funciones del agente de IA que propondrías..."
-                ></textarea>
-                <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="agentDescription-error" role="alert" aria-live="polite">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  Por favor describe el agente (mínimo 60 caracteres).
-                </p>
-              </div>
-
-              <div>
-                <label for="agentInputs" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                  ¿Qué información necesitaría? <span class="required-star" aria-hidden="true">*</span>
-                </label>
-                <textarea
-                  id="agentInputs" name="agentInputs"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20 resize-vertical min-h-20" required
-                  aria-describedby="agentInputs-error"
-                  rows="3"
-                  placeholder="Tickets históricos, documentación técnica, logs, base de conocimiento..."
-                ></textarea>
-                <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="agentInputs-error" role="alert" aria-live="polite">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  Por favor describe las entradas del agente (mínimo 30 caracteres).
-                </p>
-              </div>
-
-              <div>
-                <label for="agentOutputs" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                  ¿Qué produciría o dispararía? <span class="required-star" aria-hidden="true">*</span>
-                </label>
-                <textarea
-                  id="agentOutputs" name="agentOutputs"
-                  class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20 resize-vertical min-h-20" required
-                  aria-describedby="agentOutputs-error"
-                  rows="3"
-                  placeholder="Respuestas automáticas, alertas, clasificación de tickets, dashboards..."
-                ></textarea>
-                <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="agentOutputs-error" role="alert" aria-live="polite">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  Por favor describe los resultados del agente (mínimo 30 caracteres).
-                </p>
-              </div>
-            </fieldset>
-
-            <div>
-              <label for="experienceLevel" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2 tracking-widest uppercase">
-                Nivel de experiencia en IA <span class="required-star" aria-hidden="true">*</span>
-              </label>
-              <select
-                id="experienceLevel" name="experienceLevel"
-                class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-navy-800 border border-slate-300 dark:border-white/10 rounded text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-400/20 transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500 aria-invalid:border-red-400 aria-invalid:ring-2 aria-invalid:ring-red-400/20" required
-                aria-describedby="experienceLevel-error"
-              >
-                <option value="" disabled selected>Selecciona tu nivel</option>
-                <option value="beginner">Principiante — Estoy aprendiendo los fundamentos</option>
-                <option value="intermediate">Intermedio — He construido proyectos pequeños con IA</option>
-                <option value="advanced">Avanzado — Tengo experiencia en producción con IA</option>
-              </select>
-              <p class="hidden text-red-500 text-xs mt-1 flex items-center gap-2" id="experienceLevel-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Selecciona tu nivel de experiencia.
-              </p>
-            </div>
-
-            <!-- Terms -->
-            <div>
-              <label class="flex items-start gap-3 cursor-pointer group">
-                <input type="checkbox" id="acceptTerms" name="acceptTerms" required aria-describedby="terms-error" class="w-4 h-4 mt-1 cursor-pointer accent-gold-400 border-slate-300 dark:border-white/15 aria-invalid:border-red-400">
-                <span class="text-slate-700 dark:text-gray-300 text-sm group-hover:text-gold-400 transition-colors">
-                  Acepto que mis datos sean utilizados para el proceso de selección de Nexova Solutions.
-                  <span class="required-star" aria-hidden="true">*</span>
-                </span>
-              </label>
-              <p class="hidden text-red-500 text-xs mt-2 flex items-center gap-2 ml-7" id="terms-error" role="alert" aria-live="polite">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                Debes aceptar los términos para continuar.
-              </p>
-            </div>
-
-          </div>
-
-          <div class="flex justify-between mt-6">
-            <button type="button" id="prevBtn3"
-              class="px-6 py-3 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium text-sm rounded-sm hover:border-slate-400 dark:hover:border-white/30 hover:text-slate-900 dark:hover:text-white transition-colors">
-              ← Anterior
-            </button>
-            <div class="flex gap-3">
-              <button type="button" id="clearBtn3"
-                class="px-5 py-3 border border-slate-300 dark:border-white/15 text-slate-600 dark:text-gray-400 font-medium text-sm rounded-sm hover:border-red-400/50 hover:text-red-400 transition-colors flex items-center gap-2"
-                aria-label="Limpiar">
+                class="px-4 py-2.5 border border-slate-300 dark:border-white/15 text-slate-600 dark:text-gray-400 font-medium text-sm rounded-sm hover:border-red-400/50 hover:text-red-400 transition-colors flex items-center gap-2"
+                aria-label="Limpiar paso">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
                 Limpiar
               </button>
               <button type="submit" id="submitBtn"
-                class="px-8 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors flex items-center gap-2">
-                <span>Enviar aplicación</span>
+                class="px-7 py-2.5 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors flex items-center gap-2">
+                <span>Enviar registro</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
                 </svg>
               </button>
             </div>
           </div>
-        </div>
+        </div><!-- end panel-2 -->
 
       </form>
-    </div>
+      </div>
+      </div>
+    </section>
   </main>
 
-  <!-- Success overlay -->
+  <!-- ===== FOOTER ===== -->
+  <footer class="bg-slate-100 dark:bg-navy-950 border-t border-slate-300/80 dark:border-white/5 py-14">
+    <div class="max-w-[92rem] mx-auto px-5 sm:px-6 lg:px-10">
+      <div class="grid md:grid-cols-4 gap-10 mb-10">
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-8 h-8 rounded bg-gold-400 flex items-center justify-center flex-shrink-0" aria-hidden="true">
+              <span class="text-navy-950 font-display font-black text-sm">N</span>
+            </div>
+            <span class="font-display font-bold text-slate-900 dark:text-white text-lg">Nexova <span class="text-gold-400">Solutions</span></span>
+          </div>
+          <p class="text-slate-600 dark:text-gray-400 text-sm leading-relaxed max-w-xs">
+            Consultoría de RRHH y selección de talento potenciada con inteligencia artificial. Desde 2011, con presencia en Valencia y Miami.
+          </p>
+        </div>
+
+        <nav aria-label="Enlaces">
+          <h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-4">Enlaces</h3>
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-gray-400">
+            <li><a href="#home" class="hover:text-gold-400 transition-colors">Inicio</a></li>
+            <li><a href="#form" class="hover:text-gold-400 transition-colors">Formulario</a></li>
+            <li><a href="index.html" class="hover:text-gold-400 transition-colors">Página principal</a></li>
+          </ul>
+        </nav>
+
+        <div>
+          <h3 class="text-slate-900 dark:text-white font-semibold text-sm mb-4">Contacto</h3>
+          <ul class="space-y-2 text-sm text-slate-600 dark:text-gray-400">
+            <li><a href="mailto:hola@nexovasolutions.com" class="hover:text-gold-400 transition-colors">hola@nexovasolutions.com</a></li>
+            <li>Valencia, España</li>
+            <li>Miami, Florida · USA</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-slate-200 dark:border-white/5 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-700 dark:text-gray-300 text-xs">
+        <p>© 2024 Nexova Solutions S.L. Todos los derechos reservados.</p>
+        <p>Valencia · España | Miami · USA</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== POLICY MODAL ===== -->
+  <div id="policyModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center px-4 sm:px-6"
+    role="dialog" aria-modal="true" aria-labelledby="policy-modal-title" aria-describedby="policy-modal-description">
+    <div id="policyModalBackdrop" class="absolute inset-0 bg-slate-900/70 dark:bg-navy-950/85 opacity-0 transition-opacity duration-300"></div>
+    <div id="policyModalDialog"
+      class="relative w-full max-w-2xl max-h-[85vh] overflow-hidden rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-navy-900 shadow-2xl opacity-0 scale-95 translate-y-6 transition-all duration-300"
+      tabindex="-1">
+      <div class="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-white/10 px-5 py-4">
+        <h2 id="policy-modal-title" class="font-display font-bold text-xl text-slate-900 dark:text-white">Política de tratamiento de datos</h2>
+        <button type="button" id="closePolicyModal" class="inline-flex items-center justify-center w-9 h-9 rounded-md border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-200 hover:border-gold-400 hover:text-gold-400 transition-colors" aria-label="Cerrar política de tratamiento de datos">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div id="policy-modal-description" class="overflow-y-auto max-h-[calc(85vh-5rem)] px-5 py-4 space-y-4 text-sm leading-relaxed text-slate-700 dark:text-gray-300">
+        <p>
+          En Nexova Solutions tratamos tus datos personales con la finalidad de gestionar tu candidatura, evaluar tu perfil profesional y contactar contigo para procesos de selección actuales o futuros.
+        </p>
+        <div>
+          <h3 class="font-semibold text-slate-900 dark:text-white mb-1">1. Responsable del tratamiento</h3>
+          <p>Nexova Solutions S.L., con oficinas en Valencia (España) y Miami (EE. UU.), actúa como responsable del tratamiento de la información que compartes en este formulario.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-900 dark:text-white mb-1">2. Finalidad</h3>
+          <p>Usaremos tus datos para analizar tu experiencia, validar tu encaje con vacantes, mantenerte en nuestro banco de talento y enviarte comunicaciones relacionadas con oportunidades laborales.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-900 dark:text-white mb-1">3. Base legal</h3>
+          <p>La base legal del tratamiento es tu consentimiento explícito al aceptar esta política y enviar voluntariamente tu solicitud.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-900 dark:text-white mb-1">4. Conservación</h3>
+          <p>Conservaremos tus datos durante el tiempo necesario para cumplir la finalidad indicada o hasta que solicites su supresión, salvo obligaciones legales que exijan su conservación por más tiempo.</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-900 dark:text-white mb-1">5. Derechos</h3>
+          <p>Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a hola@nexovasolutions.com, indicando en el asunto "Protección de datos".</p>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-900 dark:text-white mb-1">6. Seguridad</h3>
+          <p>Aplicamos medidas técnicas y organizativas apropiadas para proteger tus datos frente a accesos no autorizados, alteración, pérdida o destrucción.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SUCCESS OVERLAY ===== -->
   <div id="successOverlay"
-      class="fixed inset-0 bg-slate-900/80 dark:bg-navy-950/95 backdrop-blur-sm z-50 items-center justify-center"
-       role="dialog" aria-modal="true" aria-labelledby="success-title">
-    <div class="max-w-md mx-auto text-center px-6">
+    class="fixed inset-0 bg-slate-900/85 dark:bg-navy-950/95 backdrop-blur-sm z-50 items-center justify-center px-6"
+    role="dialog" aria-modal="true" aria-labelledby="success-title">
+    <div class="max-w-md mx-auto text-center">
       <div class="w-20 h-20 mx-auto rounded-full bg-gold-400/10 border-2 border-gold-400 flex items-center justify-center mb-6" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
         </svg>
       </div>
-      <h2 id="success-title" tabindex="-1" class="font-display font-bold text-3xl text-white mb-4">¡Aplicación enviada!</h2>
-      <p class="text-slate-300 dark:text-gray-400 leading-relaxed mb-8">
-        Gracias por aplicar a Nexova Solutions. Hemos recibido tu propuesta y nos pondremos en contacto contigo pronto.
+      <h2 id="success-title" tabindex="-1" class="font-display font-bold text-3xl text-white mb-4">
+        ¡Gracias por tu interés en Nexova!
+      </h2>
+      <p class="text-slate-300 leading-relaxed mb-3">
+        Hemos recibido tu información. Nuestro equipo de selección la revisará y te contactaremos en caso de que tu perfil encaje con alguna de nuestras oportunidades actuales o futuras.
+      </p>
+      <p class="text-slate-400 text-sm mb-8">
+        Mientras tanto, síguenos en
+        <a href="https://linkedin.com/company/nexova-solutions" class="text-gold-400 hover:text-gold-300 underline transition-colors" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        para estar al día de nuestras vacantes y contenido sobre desarrollo profesional.
       </p>
       <a href="index.html"
-         class="inline-block px-8 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
+        class="inline-block px-8 py-3 bg-gold-400 text-navy-950 font-semibold text-sm rounded-sm hover:bg-gold-300 transition-colors">
         Volver al inicio
       </a>
     </div>
   </div>
 
-  <script src="validation.js"></script>
+  <!-- ===== SCRIPTS ===== -->
   <script>
+    // ---- Theme toggle ----
+    const appHeader = document.getElementById('appHeader');
     const themeToggle = document.getElementById('themeToggle');
     const themeToggleText = document.getElementById('themeToggleText');
     const themeMoonIcon = document.getElementById('themeMoonIcon');
     const themeSunIcon = document.getElementById('themeSunIcon');
 
-    const setThemeLabel = () => {
-      const lang = localStorage.getItem('language') === 'en' ? 'en' : 'es';
-      const isDark = document.documentElement.classList.contains('dark');
-      themeToggleText.textContent = lang === 'en'
-        ? (isDark ? 'Light mode' : 'Dark mode')
-        : (isDark ? 'Modo claro' : 'Modo oscuro');
-      themeToggle.setAttribute('aria-pressed', String(isDark));
-      themeMoonIcon.classList.toggle('hidden', isDark);
-      themeSunIcon.classList.toggle('hidden', !isDark);
+    const syncHeaderOffset = () => {
+      const headerHeight = Math.round(appHeader?.getBoundingClientRect().height || 64);
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
     };
 
-    themeToggle.addEventListener('click', () => {
+    const syncThemeUI = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      const currentLanguage = typeof window.getAppLanguage === 'function' ? window.getAppLanguage() : (localStorage.getItem('language') === 'en' ? 'en' : 'es');
+      if (themeToggleText) {
+        themeToggleText.textContent = currentLanguage === 'en'
+          ? (isDark ? 'Light mode' : 'Dark mode')
+          : (isDark ? 'Modo claro' : 'Modo oscuro');
+      }
+      themeToggle?.setAttribute('aria-label', currentLanguage === 'en' ? 'Change theme' : 'Cambiar tema');
+      themeToggle?.setAttribute('aria-pressed', String(isDark));
+      themeMoonIcon?.classList.toggle('hidden', isDark);
+      themeSunIcon?.classList.toggle('hidden', !isDark);
+    };
+
+    themeToggle?.addEventListener('click', () => {
       document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      setThemeLabel();
+      syncThemeUI();
+    });
+    window.updateThemeLabels = syncThemeUI;
+    syncHeaderOffset();
+    window.addEventListener('resize', syncHeaderOffset);
+    syncThemeUI();
+
+    // ---- Step logic ----
+    let currentStep = 1;
+    const totalSteps = 2;
+
+    const showStep = (step) => {
+      for (let i = 1; i <= totalSteps; i++) {
+        const panel = document.getElementById(`panel-${i}`);
+        const dot   = document.getElementById(`dot-${i}`);
+        const label1 = document.getElementById('step-label-1');
+        const label2 = document.getElementById('step-label-2');
+
+        panel.classList.toggle('active', i === step);
+
+        if (i < step) {
+          dot.className = 'step-dot done';
+          dot.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`;
+        } else if (i === step) {
+          dot.className = 'step-dot active';
+          dot.innerHTML = String(i);
+          dot.setAttribute('aria-current', 'step');
+        } else {
+          dot.className = 'step-dot pending';
+          dot.innerHTML = String(i);
+          dot.removeAttribute('aria-current');
+        }
+
+        if (i < totalSteps) {
+          const line = document.getElementById(`line-${i}`);
+          line.classList.toggle('done', i < step);
+        }
+      }
+
+      document.getElementById('progressbar').setAttribute('aria-valuenow', String(step));
+
+      // Update step labels
+      document.getElementById('step-label-1').className =
+        `text-xs ${step === 1 ? 'font-semibold text-slate-700 dark:text-gray-200' : 'text-slate-500 dark:text-gray-400'}`;
+      document.getElementById('step-label-2').className =
+        `text-xs text-right ${step === 2 ? 'font-semibold text-slate-700 dark:text-gray-200' : 'text-slate-500 dark:text-gray-400'}`;
+
+      currentStep = step;
+      document.getElementById('form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // ---- Helpers ----
+    const setError = (fieldId, show) => {
+      const field = document.getElementById(fieldId);
+      const error = document.getElementById(`${fieldId}-error`);
+      if (!field || !error) return;
+      error.classList.toggle('hidden', !show);
+      if (show) {
+        field.classList.add('error');
+        field.setAttribute('aria-invalid', 'true');
+      } else {
+        field.classList.remove('error');
+        field.setAttribute('aria-invalid', 'false');
+      }
+    };
+
+    const setRadioError = (name, show) => {
+      const error = document.getElementById('availability-error');
+      if (error) error.classList.toggle('hidden', !show);
+    };
+
+    const setTermsError = (show) => {
+      const terms = document.getElementById('acceptTerms');
+      const error = document.getElementById('terms-error');
+      const container = document.getElementById('termsContainer');
+      if (!terms || !error || !container) return;
+
+      error.classList.toggle('hidden', !show);
+      terms.setAttribute('aria-invalid', show ? 'true' : 'false');
+      container.classList.toggle('border-red-500', show);
+      container.classList.toggle('dark:border-red-400/80', show);
+      container.classList.toggle('bg-red-50/40', show);
+      container.classList.toggle('dark:bg-red-500/10', show);
+    };
+
+    const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    const isValidPhone = (val) => /^\+\d/.test(val.trim());
+    const isValidUrl   = (val) => { try { new URL(val); return true; } catch { return false; } };
+    const hasFullName  = (val) => val.trim().split(/\s+/).filter(Boolean).length >= 2;
+
+    // ---- Step 1 validation ----
+    const validateStep1 = () => {
+      let valid = true;
+
+      const fullName = document.getElementById('fullName').value;
+      if (!hasFullName(fullName)) { setError('fullName', true); valid = false; }
+      else setError('fullName', false);
+
+      const email = document.getElementById('email').value;
+      if (!isValidEmail(email)) { setError('email', true); valid = false; }
+      else setError('email', false);
+
+      const phone = document.getElementById('phone').value;
+      if (!isValidPhone(phone)) { setError('phone', true); valid = false; }
+      else setError('phone', false);
+
+      const country = document.getElementById('country').value;
+      if (!country) { setError('country', true); valid = false; }
+      else setError('country', false);
+
+      const linkedin = document.getElementById('linkedin').value;
+      if (linkedin && !isValidUrl(linkedin)) { setError('linkedin', true); valid = false; }
+      else setError('linkedin', false);
+
+      return valid;
+    };
+
+    // ---- Step 2 validation ----
+    const validateStep2 = () => {
+      let valid = true;
+
+      const yearsVal = document.getElementById('yearsExp').value;
+      const years = Number(yearsVal);
+      if (yearsVal === '' || isNaN(years) || years < 0 || years > 50) {
+        setError('yearsExp', true); valid = false;
+      } else setError('yearsExp', false);
+
+      const englishLevel = document.getElementById('englishLevel').value;
+      if (!englishLevel) { setError('englishLevel', true); valid = false; }
+      else setError('englishLevel', false);
+
+      const sector = document.getElementById('sector').value;
+      if (!sector) { setError('sector', true); valid = false; }
+      else setError('sector', false);
+
+      const availability = document.querySelector('input[name="availability"]:checked');
+      if (!availability) { setRadioError('availability', true); valid = false; }
+      else setRadioError('availability', false);
+
+      const comments = document.getElementById('comments').value;
+      if (comments.length > 500) { setError('comments', true); valid = false; }
+      else setError('comments', false);
+
+      const terms = document.getElementById('acceptTerms').checked;
+      if (!terms) { setTermsError(true); valid = false; }
+      else setTermsError(false);
+
+      return valid;
+    };
+
+    // ---- Button wiring ----
+    document.getElementById('nextBtn1').addEventListener('click', () => {
+      if (validateStep1()) showStep(2);
+      else {
+        // Focus first error
+        const firstError = document.querySelector('#panel-1 [aria-invalid="true"]');
+        if (firstError) firstError.focus();
+      }
     });
 
-    window.updateThemeLabels = setThemeLabel;
-    setThemeLabel();
+    document.getElementById('prevBtn2').addEventListener('click', () => showStep(1));
+
+    document.getElementById('clearBtn1').addEventListener('click', () => {
+      ['fullName','email','phone','linkedin'].forEach(id => {
+        document.getElementById(id).value = '';
+        setError(id, false);
+      });
+      document.getElementById('country').value = '';
+      setError('country', false);
+    });
+
+    document.getElementById('clearBtn2').addEventListener('click', () => {
+      document.getElementById('yearsExp').value = '';
+      document.getElementById('englishLevel').value = '';
+      document.getElementById('sector').value = '';
+      document.getElementById('comments').value = '';
+      document.getElementById('acceptTerms').checked = false;
+      document.querySelectorAll('input[name="availability"]').forEach(r => r.checked = false);
+      ['yearsExp','englishLevel','sector','comments'].forEach(id => setError(id, false));
+      setTermsError(false);
+      setRadioError('availability', false);
+      updateCounter();
+    });
+
+    // ---- Character counter ----
+    const commentsField   = document.getElementById('comments');
+    const commentsCounter = document.getElementById('commentsCounter');
+
+    const updateCounter = () => {
+      const len = commentsField.value.length;
+      commentsCounter.textContent = `${len}/500`;
+      commentsCounter.classList.toggle('text-red-500', len > 500);
+      commentsCounter.classList.toggle('text-gold-400', len > 400 && len <= 500);
+      commentsCounter.classList.toggle('text-slate-400', len <= 400);
+      commentsCounter.classList.remove('dark:text-slate-500');
+    };
+    commentsField.addEventListener('input', updateCounter);
+
+    // ---- Terms real-time validation ----
+    document.getElementById('acceptTerms').addEventListener('change', (e) => {
+      setTermsError(!e.target.checked);
+    });
+
+    // ---- Form submit ----
+    document.getElementById('talentForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (validateStep2()) {
+        const overlay = document.getElementById('successOverlay');
+        overlay.classList.add('visible');
+        document.getElementById('success-title').focus();
+      } else {
+        const firstError = document.querySelector('#panel-2 [aria-invalid="true"]');
+        if (firstError) firstError.focus();
+        // Also check radio
+        if (!document.querySelector('input[name="availability"]:checked')) {
+          document.querySelector('input[name="availability"]').focus();
+        }
+      }
+    });
+
+    // ---- Policy modal ----
+    const policyModal = document.getElementById('policyModal');
+    const policyModalDialog = document.getElementById('policyModalDialog');
+    const policyModalBackdrop = document.getElementById('policyModalBackdrop');
+    const openPolicyModalBtn = document.getElementById('openPolicyModal');
+    const closePolicyModalBtn = document.getElementById('closePolicyModal');
+    const focusablePolicySelector = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    let policyModalPreviousFocus = null;
+
+    const openPolicyModal = () => {
+      if (!policyModal || !policyModalDialog || !policyModalBackdrop) return;
+      policyModalPreviousFocus = document.activeElement;
+      policyModal.classList.remove('hidden');
+      policyModal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+
+      requestAnimationFrame(() => {
+        policyModalBackdrop.classList.remove('opacity-0');
+        policyModalBackdrop.classList.add('opacity-100');
+        policyModalDialog.classList.remove('opacity-0', 'scale-95', 'translate-y-6');
+        policyModalDialog.classList.add('opacity-100', 'scale-100', 'translate-y-0');
+      });
+
+      setTimeout(() => {
+        closePolicyModalBtn?.focus();
+      }, 180);
+    };
+
+    const closePolicyModal = () => {
+      if (!policyModal || !policyModalDialog || !policyModalBackdrop) return;
+
+      policyModalBackdrop.classList.remove('opacity-100');
+      policyModalBackdrop.classList.add('opacity-0');
+      policyModalDialog.classList.remove('opacity-100', 'scale-100', 'translate-y-0');
+      policyModalDialog.classList.add('opacity-0', 'scale-95', 'translate-y-6');
+
+      setTimeout(() => {
+        policyModal.classList.remove('flex');
+        policyModal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        if (policyModalPreviousFocus && typeof policyModalPreviousFocus.focus === 'function') {
+          policyModalPreviousFocus.focus();
+        }
+      }, 220);
+    };
+
+    openPolicyModalBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openPolicyModal();
+    });
+
+    closePolicyModalBtn?.addEventListener('click', closePolicyModal);
+
+    policyModal?.addEventListener('click', (e) => {
+      if (e.target === policyModal || e.target === policyModalBackdrop) {
+        closePolicyModal();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!policyModal || policyModal.classList.contains('hidden')) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closePolicyModal();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusableElements = policyModalDialog?.querySelectorAll(focusablePolicySelector);
+        if (!focusableElements || focusableElements.length === 0) return;
+        const firstEl = focusableElements[0];
+        const lastEl = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    });
+
+    // ---- Inline validation on blur ----
+    document.getElementById('fullName').addEventListener('blur', () => {
+      const val = document.getElementById('fullName').value;
+      if (val) setError('fullName', !hasFullName(val));
+    });
+    document.getElementById('email').addEventListener('blur', () => {
+      const val = document.getElementById('email').value;
+      if (val) setError('email', !isValidEmail(val));
+    });
+    document.getElementById('phone').addEventListener('blur', () => {
+      const val = document.getElementById('phone').value;
+      if (val) setError('phone', !isValidPhone(val));
+    });
+    document.getElementById('linkedin').addEventListener('blur', () => {
+      const val = document.getElementById('linkedin').value;
+      if (val) setError('linkedin', !isValidUrl(val));
+    });
+    document.getElementById('yearsExp').addEventListener('blur', () => {
+      const val = document.getElementById('yearsExp').value;
+      const n = Number(val);
+      if (val !== '') setError('yearsExp', isNaN(n) || n < 0 || n > 50);
+    });
   </script>
   <script src="i18n.js"></script>
+
 </body>
 </html>
