@@ -14,20 +14,37 @@ interface RecordsResponse {
 }
 
 function getApiBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_RECORDS_API_URL?.trim();
 
   if (!baseUrl) {
-    throw new Error("Falta NEXT_PUBLIC_API_URL en variables de entorno.");
+    if (typeof window !== "undefined") {
+      return "/api";
+    }
+    const port = process.env.PORT ?? "3000";
+    return `http://127.0.0.1:${port}/api`;
   }
 
-  return baseUrl;
+  if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) {
+    return baseUrl.replace(/\/$/, "");
+  }
+
+  if (baseUrl.startsWith("/")) {
+    if (typeof window !== "undefined") {
+      return baseUrl.replace(/\/$/, "");
+    }
+    const port = process.env.PORT ?? "3000";
+    return `http://127.0.0.1:${port}${baseUrl.replace(/\/$/, "")}`;
+  }
+
+  return baseUrl.replace(/\/$/, "");
 }
 
 async function request<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const response = await fetch(`${getApiBaseUrl()}${normalizedPath}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
