@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth overflow-x-hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Directorio de Proveedores — Nexova Solutions">
+  <link rel="icon" href="data:,">
+  <title>Directorio de Proveedores — Nexova Solutions</title>
+
+  <script>
+    (() => {
+      const storedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Playfair Display"', 'serif'],
+            body: ['"DM Sans"', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#060b18',
+              900: '#0b1628',
+              800: '#0f2040',
+              700: '#152b55',
+            },
+            gold: {
+              400: '#d4a843',
+              500: '#c49530',
+              300: '#e8c97a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root { --header-height: 4rem; }
+    html, body { overflow-x: clip; }
+    body { font-family: 'DM Sans', sans-serif; }
+    h1, h2, h3, legend { font-family: 'Playfair Display', serif; }
+    main { padding-top: var(--header-height); }
+    :focus-visible { outline: 2px solid #d4a843; outline-offset: 2px; }
+
+    .field-base {
+      width: 100%; padding: 0.5rem 0.75rem;
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.25rem;
+      color: #0f172a; font-size: 0.875rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .dark .field-base { background: #0f2040; border-color: rgba(255,255,255,0.1); color: #f1f5f9; }
+    .field-base:focus { outline: none; border-color: #d4a843; box-shadow: 0 0 0 3px rgba(212,168,67,0.15); }
+    .field-base.error { border-color: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.15); }
+    .field-base option { background: #0b1628; color: #f1f5f9; }
+
+    .nav-link { position: relative; }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0;
+      width: 0; height: 1px;
+      background: #d4a843;
+      transition: width 0.25s ease;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 600; }
+    .badge-active { background: #166534; color: #dcfce7; }
+    .badge-suspended { background: #7f1d1d; color: #fecaca; }
+    .dark .badge-active { background: #14532d; color: #bbf7d0; }
+    .dark .badge-suspended { background: #450a0a; color: #fca5a5; }
+
+    .toast-container {
+      position: fixed; top: 5rem; right: 1rem; z-index: 9999;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .toast {
+      padding: 0.75rem 1rem; border-radius: 0.25rem; font-size: 0.875rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: toastIn 0.3s ease;
+    }
+    .toast-success { background: #14532d; color: #bbf7d0; border: 1px solid #166534; }
+    .toast-error { background: #450a0a; color: #fca5a5; border: 1px solid #7f1d1d; }
+    .toast-info { background: #0f2040; color: #bfdbfe; border: 1px solid #1e3a5f; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* Modal overlay */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-content { background: #f8fafc; border-radius: 0.5rem; padding: 1.5rem; max-width: 32rem; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .dark .modal-content { background: #0b1628; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-navy-950 dark:text-gray-100 antialiased min-h-screen transition-colors duration-300">
+
+  <div id="toastContainer" class="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- ===== HEADER ===== -->
+  <header id="appHeader" class="fixed top-0 inset-x-0 z-50 border-b border-slate-300/80 dark:border-white/5 backdrop-blur-md bg-slate-100/85 dark:bg-navy-950/80 transition-colors duration-300">
+    <div class="max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between h-16 gap-3">
+      <a href="../../index.html" class="flex items-center gap-3" aria-label="Volver a Nexova Solutions">
+        <div class="w-8 h-8 rounded bg-gold-400 flex items-center justify-center" aria-hidden="true">
+          <span class="text-navy-950 font-display font-black text-sm">N</span>
+        </div>
+        <span class="font-display font-bold text-slate-900 dark:text-white text-lg">Nexova <span class="text-gold-400">Solutions</span></span>
+      </a>
+      <nav aria-label="Navegación del directorio" class="hidden md:block">
+        <ul class="flex items-center gap-5 text-sm font-medium text-slate-700 dark:text-gray-300">
+          <li><a href="../../index.html" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Inicio</a></li>
+          <li><a href="../../application.html" class="nav-link hover:text-slate-900 dark:hover:text-white transition-colors">Banco de Talento</a></li>
+          <li><a href="index.html" class="nav-link text-gold-400 hover:text-gold-300 transition-colors" aria-current="page">Directorio de Proveedores</a></li>
+        </ul>
+      </nav>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" type="button"
+          class="inline-flex items-center gap-2 rounded-sm border border-slate-300 dark:border-white/15 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-gray-200 hover:border-gold-400 hover:text-gold-400 transition-colors"
+          aria-label="Cambiar tema" aria-pressed="false">
+          <svg id="themeMoonIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3c0 .34.02.67.06 1a7 7 0 0 0 8.73 8.73c.33.04.66.06 1 .06z"/>
+          </svg>
+          <svg id="themeSunIcon" xmlns="http://www.w3.org/2000/svg" class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+          </svg>
+          <span id="themeToggleText">Modo oscuro</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main id="main-content">
+    <div class="max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-10 py-6">
+
+      <!-- Page header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+          <p class="text-gold-400 text-xs font-semibold tracking-widest uppercase mb-2">Operaciones</p>
+          <h1 class="font-display font-bold text-3xl lg:text-4xl text-slate-900 dark:text-white">Directorio de Proveedores</h1>
+          <p class="text-slate-600 dark:text-gray-400 text-sm mt-1">Registro oficial y único de proveedores de Nexova Solutions.</p>
+        </div>
+        <button id="btnAddSupplier" type="button"
+          class="px-5 py-2.5 bg-gold-400 text-navy-950 font-semibold rounded-sm hover:bg-gold-300 transition-colors text-sm flex items-center gap-2 self-start">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Añadir proveedor
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        <div class="flex-1 min-w-[12rem]">
+          <label for="filterCountry" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">País</label>
+          <select id="filterCountry" class="field-base">
+            <option value="">Todos los países</option>
+            <option value="Spain">España</option>
+            <option value="USA">Estados Unidos</option>
+          </select>
+        </div>
+        <div class="flex-1 min-w-[12rem]">
+          <label for="filterCategory" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Categoría</label>
+          <select id="filterCategory" class="field-base">
+            <option value="">Todas las categorías</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button id="btnClearFilters" type="button"
+            class="px-4 py-2.5 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium rounded-sm hover:border-gold-400 hover:text-gold-400 transition-colors text-sm">
+            Limpiar filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loadingState" class="text-center py-12">
+        <div class="inline-block w-8 h-8 border-2 border-gold-400 border-t-transparent rounded-full animate-spin mb-3" role="status" aria-label="Cargando"></div>
+        <p class="text-slate-600 dark:text-gray-400 text-sm">Cargando proveedores...</p>
+      </div>
+
+      <!-- Error state -->
+      <div id="errorState" class="hidden text-center py-12">
+        <p class="text-red-400 font-semibold mb-2">Error al cargar los proveedores</p>
+        <p id="errorMessage" class="text-slate-600 dark:text-gray-400 text-sm mb-4"></p>
+        <button id="btnRetry" type="button" class="px-4 py-2 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium rounded-sm hover:border-gold-400 hover:text-gold-400 transition-colors text-sm">Reintentar</button>
+      </div>
+
+      <!-- Empty state -->
+      <div id="emptyState" class="hidden text-center py-12">
+        <p class="text-slate-500 dark:text-gray-500 text-lg font-semibold mb-2">No hay proveedores</p>
+        <p id="emptyMessage" class="text-slate-600 dark:text-gray-400 text-sm">No se encontraron proveedores con los filtros seleccionados.</p>
+      </div>
+
+      <!-- Table -->
+      <div id="tableContainer" class="hidden overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-200 dark:bg-navy-800 text-slate-700 dark:text-gray-300 text-left">
+              <th class="px-4 py-3 font-semibold">Nombre</th>
+              <th class="px-4 py-3 font-semibold">País</th>
+              <th class="px-4 py-3 font-semibold">Categorías</th>
+              <th class="px-4 py-3 font-semibold text-right">Tarifa mensual</th>
+              <th class="px-4 py-3 font-semibold text-center">Estado</th>
+              <th class="px-4 py-3 font-semibold text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="suppliersTableBody" class="divide-y divide-slate-200 dark:divide-white/5">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== CREATE/EDIT MODAL ===== -->
+  <div id="supplierModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="modalTitle" class="font-display font-bold text-xl text-slate-900 dark:text-white">Añadir proveedor</h2>
+        <button id="btnCloseModal" type="button" class="text-slate-500 hover:text-slate-700 dark:hover:text-gray-300" aria-label="Cerrar">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form id="supplierForm" novalidate>
+        <div class="space-y-4">
+          <div>
+            <label for="fieldName" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Nombre comercial *</label>
+            <input id="fieldName" type="text" class="field-base" required placeholder="Ej: LinkedIn Talent Solutions">
+            <p id="errorName" class="hidden text-red-400 text-xs mt-1" role="alert"></p>
+          </div>
+          <div>
+            <label for="fieldCountry" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">País *</label>
+            <select id="fieldCountry" class="field-base" required>
+              <option value="">Seleccionar país</option>
+              <option value="Spain">España</option>
+              <option value="USA">Estados Unidos</option>
+            </select>
+            <p id="errorCountry" class="hidden text-red-400 text-xs mt-1" role="alert"></p>
+          </div>
+          <div>
+            <label for="fieldCategories" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Categorías *</label>
+            <select id="fieldCategories" class="field-base" multiple required size="4">
+              <option value="job_boards">Job Boards</option>
+              <option value="ats_software">ATS Software</option>
+              <option value="assessment_tools">Assessment Tools</option>
+              <option value="training_platforms">Training Platforms</option>
+              <option value="payroll_and_hr_software">Payroll & HR Software</option>
+              <option value="video_interview">Video Interview</option>
+              <option value="background_check">Background Check</option>
+              <option value="office_and_facilities">Office & Facilities</option>
+              <option value="it_and_software_licenses">IT & Software Licenses</option>
+            </select>
+            <p class="text-xs text-slate-500 dark:text-gray-500 mt-1">Selecciona una o más (Ctrl+clic)</p>
+            <p id="errorCategories" class="hidden text-red-400 text-xs mt-1" role="alert"></p>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="fieldRate" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Tarifa mensual *</label>
+              <input id="fieldRate" type="number" step="0.01" min="0.01" class="field-base" required placeholder="Ej: 1200.00">
+              <p id="errorRate" class="hidden text-red-400 text-xs mt-1" role="alert"></p>
+            </div>
+            <div>
+              <label for="fieldCurrency" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Moneda</label>
+              <input id="fieldCurrency" type="text" class="field-base" readonly value="EUR">
+              <p class="text-xs text-slate-500 dark:text-gray-500 mt-1">Se asigna automáticamente</p>
+            </div>
+          </div>
+          <div>
+            <label for="fieldStatus" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Estado</label>
+            <select id="fieldStatus" class="field-base">
+              <option value="active">Activo</option>
+              <option value="suspended">Suspendido</option>
+            </select>
+          </div>
+          <div>
+            <label for="fieldContactEmail" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Email de contacto</label>
+            <input id="fieldContactEmail" type="email" class="field-base" placeholder="Ej: account@proveedor.com">
+          </div>
+          <div>
+            <label for="fieldRenewalDate" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Fecha de renovación</label>
+            <input id="fieldRenewalDate" type="date" class="field-base">
+          </div>
+          <div>
+            <label for="fieldNotes" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Notas</label>
+            <textarea id="fieldNotes" class="field-base" rows="2" placeholder="Observaciones internas..."></textarea>
+          </div>
+        </div>
+        <div id="formError" class="hidden mt-4 p-3 bg-red-900/30 border border-red-700/50 rounded text-red-300 text-sm" role="alert"></div>
+        <div class="mt-5 flex justify-end gap-3">
+          <button id="btnCancelForm" type="button" class="px-4 py-2 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium rounded-sm hover:border-gold-400 hover:text-gold-400 transition-colors text-sm">Cancelar</button>
+          <button id="btnSubmitForm" type="submit" class="px-5 py-2 bg-gold-400 text-navy-950 font-semibold rounded-sm hover:bg-gold-300 transition-colors text-sm">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== RATE EDIT MODAL ===== -->
+  <div id="rateModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="rateModalTitle">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-4">
+        <h2 id="rateModalTitle" class="font-display font-bold text-xl text-slate-900 dark:text-white">Actualizar tarifa</h2>
+        <button id="btnCloseRateModal" type="button" class="text-slate-500 hover:text-slate-700 dark:hover:text-gray-300" aria-label="Cerrar">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form id="rateForm">
+        <p id="rateSupplierName" class="text-sm text-slate-600 dark:text-gray-400 mb-3"></p>
+        <p id="rateCurrentValue" class="text-sm text-slate-600 dark:text-gray-400 mb-3"></p>
+        <div>
+          <label for="fieldNewRate" class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Nueva tarifa mensual *</label>
+          <input id="fieldNewRate" type="number" step="0.01" min="0.01" class="field-base" required placeholder="Ej: 1500.00">
+          <p id="errorNewRate" class="hidden text-red-400 text-xs mt-1" role="alert"></p>
+        </div>
+        <div id="rateFormError" class="hidden mt-4 p-3 bg-red-900/30 border border-red-700/50 rounded text-red-300 text-sm" role="alert"></div>
+        <div class="mt-5 flex justify-end gap-3">
+          <button id="btnCancelRateForm" type="button" class="px-4 py-2 border border-slate-300 dark:border-white/15 text-slate-700 dark:text-gray-300 font-medium rounded-sm hover:border-gold-400 hover:text-gold-400 transition-colors text-sm">Cancelar</button>
+          <button id="btnSubmitRate" type="submit" class="px-5 py-2 bg-gold-400 text-navy-950 font-semibold rounded-sm hover:bg-gold-300 transition-colors text-sm">Actualizar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ── Configuration ──────────────────────────────────────────────────
+      const API_BASE = 'http://localhost:8000';
+
+      // ── DOM refs ───────────────────────────────────────────────────────
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => document.querySelectorAll(sel);
+
+      const tbody = $('#suppliersTableBody');
+      const loadingState = $('#loadingState');
+      const errorState = $('#errorState');
+      const errorMessage = $('#errorMessage');
+      const emptyState = $('#emptyState');
+      const emptyMessage = $('#emptyMessage');
+      const tableContainer = $('#tableContainer');
+      const filterCountry = $('#filterCountry');
+      const filterCategory = $('#filterCategory');
+      const btnClearFilters = $('#btnClearFilters');
+      const btnRetry = $('#btnRetry');
+      const toastContainer = $('#toastContainer');
+
+      // Modal refs
+      const supplierModal = $('#supplierModal');
+      const rateModal = $('#rateModal');
+      const supplierForm = $('#supplierForm');
+      const rateForm = $('#rateForm');
+      const btnAddSupplier = $('#btnAddSupplier');
+      const btnCloseModal = $('#btnCloseModal');
+      const btnCancelForm = $('#btnCancelForm');
+      const btnCloseRateModal = $('#btnCloseRateModal');
+      const btnCancelRateForm = $('#btnCancelRateForm');
+      const formError = $('#formError');
+      const rateFormError = $('#rateFormError');
+      const rateSupplierName = $('#rateSupplierName');
+      const rateCurrentValue = $('#rateCurrentValue');
+
+      // Form fields
+      const fieldName = $('#fieldName');
+      const fieldCountry = $('#fieldCountry');
+      const fieldCategories = $('#fieldCategories');
+      const fieldRate = $('#fieldRate');
+      const fieldCurrency = $('#fieldCurrency');
+      const fieldStatus = $('#fieldStatus');
+      const fieldContactEmail = $('#fieldContactEmail');
+      const fieldRenewalDate = $('#fieldRenewalDate');
+      const fieldNotes = $('#fieldNotes');
+      const fieldNewRate = $('#fieldNewRate');
+
+      // ── State ──────────────────────────────────────────────────────────
+      let suppliers = [];
+      let editingRateSupplierId = null;
+
+      // ── Theme toggle ───────────────────────────────────────────────────
+      const themeToggle = $('#themeToggle');
+      const themeMoonIcon = $('#themeMoonIcon');
+      const themeSunIcon = $('#themeSunIcon');
+      const themeToggleText = $('#themeToggleText');
+
+      function applyTheme(isDark) {
+        document.documentElement.classList.toggle('dark', isDark);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        themeMoonIcon.classList.toggle('hidden', isDark);
+        themeSunIcon.classList.toggle('hidden', !isDark);
+        themeToggleText.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+        themeToggle.setAttribute('aria-pressed', isDark);
+      }
+
+      themeToggle.addEventListener('click', () => {
+        const isDark = !document.documentElement.classList.contains('dark');
+        applyTheme(isDark);
+      });
+
+      // Init theme button state
+      (function initThemeUI() {
+        const isDark = document.documentElement.classList.contains('dark');
+        themeMoonIcon.classList.toggle('hidden', isDark);
+        themeSunIcon.classList.toggle('hidden', !isDark);
+        themeToggleText.textContent = isDark ? 'Modo claro' : 'Modo oscuro';
+        themeToggle.setAttribute('aria-pressed', isDark);
+      })();
+
+      // ── Toast system ───────────────────────────────────────────────────
+      function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s';
+          setTimeout(() => toast.remove(), 300);
+        }, 4000);
+      }
+
+      // ── API helpers ────────────────────────────────────────────────────
+      async function apiFetch(path, options) {
+        const url = `${API_BASE}${path}`;
+        const res = await fetch(url, {
+          headers: { 'Content-Type': 'application/json', ...options?.headers },
+          ...options,
+        });
+        if (res.status === 204) return null;
+        const data = await res.json();
+        if (!res.ok) {
+          const detail = data.detail;
+          const msg = Array.isArray(detail)
+            ? detail.map((e) => e.msg).join('; ')
+            : detail || 'Error desconocido';
+          throw { status: res.status, message: msg };
+        }
+        return data;
+      }
+
+      // ── Load suppliers ────────────────────────────────────────────────
+      async function loadSuppliers() {
+        loadingState.classList.remove('hidden');
+        errorState.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        tableContainer.classList.add('hidden');
+
+        const params = new URLSearchParams();
+        const country = filterCountry.value;
+        const category = filterCategory.value;
+        if (country) params.set('country', country);
+        if (category) params.set('category', category);
+
+        try {
+          suppliers = await apiFetch(`/suppliers?${params.toString()}`);
+          loadingState.classList.add('hidden');
+
+          if (suppliers.length === 0) {
+            emptyState.classList.remove('hidden');
+            emptyMessage.textContent = country || category
+              ? 'No se encontraron proveedores con los filtros seleccionados.'
+              : 'No hay proveedores registrados.';
+            return;
+          }
+
+          renderTable();
+          tableContainer.classList.remove('hidden');
+        } catch (err) {
+          loadingState.classList.add('hidden');
+          errorState.classList.remove('hidden');
+          errorMessage.textContent = err.message || 'No se pudo conectar con el servidor.';
+        }
+      }
+
+      // ── Render table ──────────────────────────────────────────────────
+      function renderTable() {
+        tbody.innerHTML = '';
+        suppliers.forEach((s) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50 dark:hover:bg-navy-800/50 transition-colors';
+
+          const categoriesHtml = s.categories
+            .map((c) => `<span class="text-xs bg-slate-200 dark:bg-navy-700 px-2 py-0.5 rounded">${c.replace(/_/g, ' ')}</span>`)
+            .join(' ');
+
+          const statusBadge = s.status === 'active'
+            ? '<span class="badge badge-active">● Activo</span>'
+            : '<span class="badge badge-suspended">● Suspendido</span>';
+
+          const rateDisplay = new Intl.NumberFormat('es-ES', {
+            style: 'currency',
+            currency: s.currency,
+            minimumFractionDigits: 2,
+          }).format(s.monthly_rate);
+
+          tr.innerHTML = `
+            <td class="px-4 py-3 font-medium text-slate-900 dark:text-white">${escHtml(s.name)}</td>
+            <td class="px-4 py-3">${escHtml(s.country)}</td>
+            <td class="px-4 py-3"><div class="flex flex-wrap gap-1">${categoriesHtml}</div></td>
+            <td class="px-4 py-3 text-right font-mono text-sm">${rateDisplay}</td>
+            <td class="px-4 py-3 text-center">${statusBadge}</td>
+            <td class="px-4 py-3 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button type="button" class="rate-btn text-xs px-2 py-1 rounded bg-gold-400/10 border border-gold-400/30 text-gold-400 hover:bg-gold-400/20 transition-colors" data-id="${s.id}" title="Actualizar tarifa">💰 Tarifa</button>
+                <button type="button" class="status-btn text-xs px-2 py-1 rounded border transition-colors ${s.status === 'active' ? 'border-red-700/30 text-red-400 hover:bg-red-900/20' : 'border-green-700/30 text-green-400 hover:bg-green-900/20'}" data-id="${s.id}" data-status="${s.status}" title="${s.status === 'active' ? 'Suspender' : 'Activar'}">
+                  ${s.status === 'active' ? '⏸ Suspendér' : '▶ Activar'}
+                </button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Attach event listeners
+        tbody.querySelectorAll('.rate-btn').forEach((btn) => {
+          btn.addEventListener('click', () => openRateModal(parseInt(btn.dataset.id)));
+        });
+        tbody.querySelectorAll('.status-btn').forEach((btn) => {
+          btn.addEventListener('click', () => toggleStatus(parseInt(btn.dataset.id), btn.dataset.status));
+        });
+      }
+
+      function escHtml(str) {
+        if (str == null) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // ── Filters ────────────────────────────────────────────────────────
+      filterCountry.addEventListener('change', loadSuppliers);
+      filterCategory.addEventListener('change', loadSuppliers);
+      btnClearFilters.addEventListener('click', () => {
+        filterCountry.value = '';
+        filterCategory.value = '';
+        loadSuppliers();
+      });
+      btnRetry.addEventListener('click', loadSuppliers);
+
+      // ── Populate category filter ──────────────────────────────────────
+      const CATEGORIES = [
+        'job_boards', 'ats_software', 'assessment_tools', 'training_platforms',
+        'payroll_and_hr_software', 'video_interview', 'background_check',
+        'office_and_facilities', 'it_and_software_licenses'
+      ];
+      CATEGORIES.forEach((cat) => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat.replace(/_/g, ' ');
+        filterCategory.appendChild(opt);
+      });
+
+      // ── Modal: country → currency auto-set ────────────────────────────
+      fieldCountry.addEventListener('change', () => {
+        fieldCurrency.value = fieldCountry.value === 'USA' ? 'USD' : 'EUR';
+      });
+
+      // ── Create supplier ────────────────────────────────────────────────
+      function openCreateModal() {
+        supplierForm.reset();
+        fieldCurrency.value = 'EUR';
+        formError.classList.add('hidden');
+        document.querySelectorAll('#supplierForm [id^="error"]').forEach((el) => {
+          el.classList.add('hidden');
+        });
+        document.querySelectorAll('#supplierForm .field-base').forEach((el) => {
+          el.classList.remove('error');
+        });
+        $('#modalTitle').textContent = 'Añadir proveedor';
+        supplierModal.classList.add('open');
+      }
+
+      btnAddSupplier.addEventListener('click', openCreateModal);
+      btnCloseModal.addEventListener('click', () => supplierModal.classList.remove('open'));
+      btnCancelForm.addEventListener('click', () => supplierModal.classList.remove('open'));
+
+      supplierModal.addEventListener('click', (e) => {
+        if (e.target === supplierModal) supplierModal.classList.remove('open');
+      });
+
+      supplierForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        formError.classList.add('hidden');
+        document.querySelectorAll('#supplierForm [id^="error"]').forEach((el) => el.classList.add('hidden'));
+        document.querySelectorAll('#supplierForm .field-base').forEach((el) => el.classList.remove('error'));
+
+        // Basic frontend validation
+        let valid = true;
+        if (!fieldName.value.trim()) {
+          showFieldError('errorName', 'El nombre es obligatorio.');
+          fieldName.classList.add('error');
+          valid = false;
+        }
+        if (!fieldCountry.value) {
+          showFieldError('errorCountry', 'Selecciona un país.');
+          fieldCountry.classList.add('error');
+          valid = false;
+        }
+        const selectedCategories = Array.from(fieldCategories.selectedOptions).map((o) => o.value);
+        if (selectedCategories.length === 0) {
+          showFieldError('errorCategories', 'Selecciona al menos una categoría.');
+          fieldCategories.classList.add('error');
+          valid = false;
+        }
+        if (!fieldRate.value || parseFloat(fieldRate.value) <= 0) {
+          showFieldError('errorRate', 'La tarifa debe ser mayor que 0.');
+          fieldRate.classList.add('error');
+          valid = false;
+        }
+        if (!valid) return;
+
+        const payload = {
+          name: fieldName.value.trim(),
+          country: fieldCountry.value,
+          categories: selectedCategories,
+          monthly_rate: parseFloat(fieldRate.value),
+          currency: fieldCurrency.value,
+          status: fieldStatus.value,
+        };
+        if (fieldContactEmail.value.trim()) payload.contact_email = fieldContactEmail.value.trim();
+        if (fieldRenewalDate.value) payload.contract_renewal_date = fieldRenewalDate.value;
+        if (fieldNotes.value.trim()) payload.notes = fieldNotes.value.trim();
+
+        try {
+          await apiFetch('/suppliers', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+          supplierModal.classList.remove('open');
+          showToast('Proveedor creado correctamente.', 'success');
+          await loadSuppliers();
+        } catch (err) {
+          formError.classList.remove('hidden');
+          formError.textContent = err.message || 'Error al crear el proveedor.';
+        }
+      });
+
+      function showFieldError(id, msg) {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+      }
+
+      // ── Rate modal ─────────────────────────────────────────────────────
+      function openRateModal(supplierId) {
+        const supplier = suppliers.find((s) => s.id === supplierId);
+        if (!supplier) return;
+        editingRateSupplierId = supplierId;
+        rateSupplierName.textContent = `Proveedor: ${supplier.name}`;
+        rateCurrentValue.textContent = `Tarifa actual: ${supplier.monthly_rate} ${supplier.currency}`;
+        fieldNewRate.value = '';
+        rateFormError.classList.add('hidden');
+        fieldNewRate.classList.remove('error');
+        rateModal.classList.add('open');
+      }
+
+      btnCloseRateModal.addEventListener('click', () => rateModal.classList.remove('open'));
+      btnCancelRateForm.addEventListener('click', () => rateModal.classList.remove('open'));
+      rateModal.addEventListener('click', (e) => {
+        if (e.target === rateModal) rateModal.classList.remove('open');
+      });
+
+      rateForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        rateFormError.classList.add('hidden');
+        fieldNewRate.classList.remove('error');
+
+        const newRate = parseFloat(fieldNewRate.value);
+        if (!newRate || newRate <= 0) {
+          fieldNewRate.classList.add('error');
+          $('#errorNewRate').textContent = 'La tarifa debe ser mayor que 0.';
+          $('#errorNewRate').classList.remove('hidden');
+          return;
+        }
+
+        try {
+          await apiFetch(`/suppliers/${editingRateSupplierId}/rate`, {
+            method: 'PATCH',
+            body: JSON.stringify({ monthly_rate: newRate }),
+          });
+          rateModal.classList.remove('open');
+          showToast('Tarifa actualizada correctamente.', 'success');
+          await loadSuppliers();
+        } catch (err) {
+          rateFormError.classList.remove('hidden');
+          rateFormError.textContent = err.message || 'Error al actualizar la tarifa.';
+        }
+      });
+
+      // ── Toggle status ──────────────────────────────────────────────────
+      async function toggleStatus(supplierId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+        const label = newStatus === 'active' ? 'activar' : 'suspender';
+
+        try {
+          await apiFetch(`/suppliers/${supplierId}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: newStatus }),
+          });
+          showToast(`Proveedor ${label}do correctamente.`, 'success');
+          await loadSuppliers();
+        } catch (err) {
+          showToast(err.message || `Error al ${label} el proveedor.`, 'error');
+        }
+      }
+
+      // ── Init ───────────────────────────────────────────────────────────
+      loadSuppliers();
+
+    })();
+  </script>
+</body>
+</html>
