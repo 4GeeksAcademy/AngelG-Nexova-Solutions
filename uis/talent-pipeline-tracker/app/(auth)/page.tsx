@@ -1,25 +1,6 @@
 import { CandidateList } from "@/components/CandidateList";
-import { ErrorMessage } from "@/components/ErrorMessage";
-import { getRecords } from "@/lib/api";
 
-async function loadCandidates() {
-  try {
-    const records = await getRecords();
-    return { records, error: null };
-  } catch (error) {
-    return {
-      records: [],
-      error:
-        error instanceof Error
-          ? error.message
-          : "Error inesperado al consultar candidaturas.",
-    };
-  }
-}
-
-export default async function Home() {
-  const { records, error } = await loadCandidates();
-
+export default function Home() {
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
       <section className="mx-auto w-full max-w-6xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
@@ -36,14 +17,7 @@ export default async function Home() {
           </p>
         </header>
 
-        {error ? (
-          <ErrorMessage
-            title="No se pudo cargar el pipeline"
-            message={error}
-          />
-        ) : (
-          <CandidateList initialCandidates={records} />
-        )}
+        <CandidateList />
       </section>
     </main>
   );

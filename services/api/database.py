@@ -11,3 +11,6 @@ db = TinyDB(DATA_DIR / "db.json")
 
 users_table = db.table("users")
 profiles_table = db.table("profiles")
+password_reset_tokens_table = db.table("password_reset_tokens")
+records_table = db.table("records")
+notes_table = db.table("notes")
