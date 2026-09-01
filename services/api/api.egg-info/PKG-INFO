@@ -1,0 +1,33 @@
+Metadata-Version: 2.4
+Name: api
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.141.1
+Requires-Dist: libpass[bcrypt]>=1.9.3
+Requires-Dist: python-dotenv>=1.2.3
+Requires-Dist: python-jose[cryptography]>=3.5.0
+Requires-Dist: python-multipart>=0.0.32
+Requires-Dist: resend>=2.9.0
+Requires-Dist: tinydb>=4.9.0
+Requires-Dist: uvicorn[standard]>=0.52.4
+
+# API
+
+## Variables de entorno
+
+Copiar `.env.example` a `.env` y completar los valores:
+
+- `JWT_SECRET`: secreto usado para firmar los tokens de acceso.
+- `ACCESS_TOKEN_EXPIRE_MINUTES`: minutos de validez del token de acceso (default `30`).
+- `PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES`: minutos de validez del token de restablecimiento de contraseña (default `30`).
+- `FRONTEND_URL`: URL base del frontend, usada para construir el enlace de restablecimiento de contraseña.
+- `RESEND_API_KEY`: API key de [Resend](https://resend.com) usada para enviar emails. No se debe hardcodear ni commitear.
+- `RESEND_FROM_EMAIL`: dirección remitente usada al enviar emails con Resend.
+
+## Tests
+
+```bash
+pytest
+```
