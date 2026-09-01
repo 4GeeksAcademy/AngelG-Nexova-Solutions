@@ -1,9 +1,11 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { changePasswordRequest } from "@/lib/api-client";
+import { useAuth } from "@/lib/auth-context";
 
 interface FieldErrors {
   currentPassword?: string;
@@ -13,6 +15,7 @@ interface FieldErrors {
 }
 
 function ChangePasswordContent() {
+  const { logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,8 +39,8 @@ function ChangePasswordContent() {
 
     if (!newPassword.trim()) {
       errors.newPassword = "La nueva contraseña es obligatoria.";
-    } else if (newPassword.length < 6) {
-      errors.newPassword = "La contraseña debe tener al menos 6 caracteres.";
+    } else if (newPassword.length < 8) {
+      errors.newPassword = "La contraseña debe tener al menos 8 caracteres.";
     }
 
     if (!confirmPassword.trim()) {
@@ -55,10 +58,7 @@ function ChangePasswordContent() {
 
     try {
       await changePasswordRequest(currentPassword, newPassword);
-      setSuccessMessage("Tu contraseña se ha actualizado correctamente.");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      logout();
     } catch (err) {
       setFieldErrors({
         general:
@@ -74,13 +74,21 @@ function ChangePasswordContent() {
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
       <section className="mx-auto w-full max-w-2xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
-        <header className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
-            Nexova · Mi cuenta
-          </p>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-            Cambiar contraseña
-          </h1>
+        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
+              Nexova · Mi cuenta
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+              Cambiar contraseña
+            </h1>
+          </div>
+          <Link
+            href="/"
+            className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
+          >
+            Volver al panel
+          </Link>
         </header>
 
         <form onSubmit={handleSubmit} className="grid gap-4">

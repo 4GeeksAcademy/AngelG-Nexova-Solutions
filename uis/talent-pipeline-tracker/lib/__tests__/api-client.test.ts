@@ -6,16 +6,10 @@ import {
   resetPasswordRequest,
 } from "@/lib/api-client";
 
-const originalEnv = process.env;
-
 describe("lib/api-client - password reset/change", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
-    process.env = {
-      ...originalEnv,
-      NEXT_PUBLIC_API_URL: "https://api.nexova.local",
-    };
   });
 
   it("forgotPasswordRequest hace POST /auth/forgot-password con el email", async () => {
@@ -28,7 +22,7 @@ describe("lib/api-client - password reset/change", () => {
     const result = await forgotPasswordRequest("user@example.com");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/auth/forgot-password",
+      "/api/auth/forgot-password",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({ email: "user@example.com" }),
@@ -47,7 +41,7 @@ describe("lib/api-client - password reset/change", () => {
     await resetPasswordRequest("token-123", "NewPassword123!");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/auth/reset-password",
+      "/api/auth/reset-password",
       expect.objectContaining({
         method: "POST",
         body: JSON.stringify({
@@ -82,7 +76,7 @@ describe("lib/api-client - password reset/change", () => {
     await changePasswordRequest("OldPassword123!", "NewPassword123!");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/auth/change-password",
+      "/api/auth/change-password",
       expect.objectContaining({
         method: "POST",
         headers: expect.objectContaining({

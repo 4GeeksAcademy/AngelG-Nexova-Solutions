@@ -37,6 +37,19 @@ def get_reset_token_for(email):
     return record
 
 
+def test_reset_link_uses_public_codespace_url(monkeypatch):
+    monkeypatch.setenv("CODESPACES", "true")
+    monkeypatch.setenv("CODESPACE_NAME", "nexova-dev")
+    monkeypatch.setenv(
+        "GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN", "app.github.dev"
+    )
+    monkeypatch.setenv("FRONTEND_URL", "http://localhost:3000")
+
+    assert auth.get_frontend_url() == (
+        "https://nexova-dev-3000.app.github.dev"
+    )
+
+
 def test_forgot_password_existing_email_sends_email(monkeypatch):
     sent = {}
 

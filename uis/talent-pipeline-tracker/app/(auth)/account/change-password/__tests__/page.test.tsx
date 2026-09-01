@@ -6,6 +6,7 @@ import { changePasswordRequest } from "@/lib/api-client";
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
+const logoutMock = vi.fn();
 let isAuthenticatedValue = true;
 let isReadyValue = true;
 
@@ -17,6 +18,7 @@ vi.mock("@/lib/auth-context", () => ({
   useAuth: () => ({
     isAuthenticated: isAuthenticatedValue,
     isReady: isReadyValue,
+    logout: logoutMock,
   }),
 }));
 
@@ -31,6 +33,7 @@ describe("ChangePasswordPage", () => {
     pushMock.mockReset();
     replaceMock.mockReset();
     changePasswordRequestMock.mockReset();
+    logoutMock.mockReset();
     isAuthenticatedValue = true;
     isReadyValue = true;
   });
@@ -78,7 +81,7 @@ describe("ChangePasswordPage", () => {
     expect(changePasswordRequestMock).not.toHaveBeenCalled();
   });
 
-  it("llama a /auth/change-password y muestra feedback de éxito, limpiando el formulario", async () => {
+  it("cierra sesión después de actualizar la contraseña", async () => {
     changePasswordRequestMock.mockResolvedValue({ message: "ok" });
 
     render(<ChangePasswordPage />);
@@ -103,13 +106,9 @@ describe("ChangePasswordPage", () => {
       );
     });
 
-    expect(
-      await screen.findByText(/se ha actualizado correctamente/i),
-    ).toBeInTheDocument();
-
-    expect(
-      (screen.getByLabelText("Contraseña actual") as HTMLInputElement).value,
-    ).toBe("");
+    await waitFor(() => {
+      expect(logoutMock).toHaveBeenCalledOnce();
+    });
   });
 
   it("muestra el error del backend cuando la contraseña actual es incorrecta", async () => {

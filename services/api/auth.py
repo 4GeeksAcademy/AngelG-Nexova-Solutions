@@ -45,8 +45,6 @@ PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = int(
     os.getenv("PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES", "30")
 )
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 GENERIC_FORGOT_PASSWORD_MESSAGE = (
@@ -100,6 +98,22 @@ class ChangePasswordRequest(BaseModel):
 
 def hash_reset_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def get_frontend_url() -> str:
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    codespace_name = os.getenv("CODESPACE_NAME")
+    forwarding_domain = os.getenv("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")
+
+    if (
+        os.getenv("CODESPACES")
+        and frontend_url.startswith("http://localhost")
+        and codespace_name
+        and forwarding_domain
+    ):
+        return f"https://{codespace_name}-3000.{forwarding_domain}"
+
+    return frontend_url.rstrip("/")
 
 
 def create_access_token(user_id: str):
@@ -232,7 +246,7 @@ def forgot_password(data: ForgotPasswordRequest):
             "used_at": None
         })
 
-        reset_url = f"{FRONTEND_URL}/reset-password?token={reset_token}"
+        reset_url = f"{get_frontend_url()}/reset-password?token={reset_token}"
 
         send_password_reset_email(user["email"], reset_url)
 

@@ -42,8 +42,8 @@ function ResetPasswordForm() {
 
     if (!newPassword.trim()) {
       errors.newPassword = "La nueva contraseña es obligatoria.";
-    } else if (newPassword.length < 6) {
-      errors.newPassword = "La contraseña debe tener al menos 6 caracteres.";
+    } else if (newPassword.length < 8) {
+      errors.newPassword = "La contraseña debe tener al menos 8 caracteres.";
     }
 
     if (!confirmPassword.trim()) {

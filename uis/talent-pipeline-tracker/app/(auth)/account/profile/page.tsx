@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Loading } from "@/components/Loading";
@@ -86,13 +87,21 @@ function ProfileContent() {
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
       <section className="mx-auto w-full max-w-2xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
-        <header className="mb-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
-            Nexova · Mi cuenta
-          </p>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
-            Perfil
-          </h1>
+        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">
+              Nexova · Mi cuenta
+            </p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">
+              Perfil
+            </h1>
+          </div>
+          <Link
+            href="/"
+            className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
+          >
+            Volver al panel
+          </Link>
         </header>
 
         {/* Información no editable */}

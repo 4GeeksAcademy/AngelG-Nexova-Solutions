@@ -14,13 +14,7 @@ interface RecordsResponse {
 }
 
 function getApiBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!baseUrl) {
-    throw new Error("Falta NEXT_PUBLIC_API_URL en variables de entorno.");
-  }
-
-  return baseUrl;
+  return "/api";
 }
 
 function getToken(): string | null {
