@@ -7,12 +7,10 @@ import { CandidateCard } from "@/components/CandidateCard";
 import { CandidateFilters } from "@/components/CandidateFilters";
 import { CandidateForm } from "@/components/CandidateForm";
 import { CandidateSearch } from "@/components/CandidateSearch";
-import { createRecord } from "@/lib/api";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { Loading } from "@/components/Loading";
+import { createRecord, getRecords } from "@/lib/api";
 import { Candidate, CandidateStage, CandidateStatus } from "@/types/candidate";
-
-interface CandidateListProps {
-  initialCandidates: Candidate[];
-}
 
 function isCandidateStatus(value: string): value is CandidateStatus {
   return ["received", "in_progress", "selected", "discarded"].includes(value);
@@ -28,7 +26,7 @@ function isCandidateStage(value: string): value is CandidateStage {
   ].includes(value);
 }
 
-export function CandidateList({ initialCandidates }: CandidateListProps) {
+export function CandidateList() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -46,7 +44,9 @@ export function CandidateList({ initialCandidates }: CandidateListProps) {
       ? initialStageParam
       : "all";
 
-  const [candidates, setCandidates] = useState(initialCandidates);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<CandidateStatus | "all">(initialStatus);
   const [stageFilter, setStageFilter] = useState<CandidateStage | "all">(initialStage);
@@ -54,6 +54,24 @@ export function CandidateList({ initialCandidates }: CandidateListProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const records = await getRecords();
+        setCandidates(records);
+      } catch (error) {
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : "Error inesperado al consultar candidaturas.",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -131,6 +149,19 @@ export function CandidateList({ initialCandidates }: CandidateListProps) {
   }, [candidates, search, statusFilter, stageFilter]);
 
   const detailQuery = searchParams.toString();
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (loadError) {
+    return (
+      <ErrorMessage
+        title="No se pudo cargar el pipeline"
+        message={loadError}
+      />
+    );
+  }
 
   return (
     <section className="space-y-5">

@@ -4,8 +4,6 @@ import { createRecord, getNotes, getRecordById, getRecords } from "@/lib/api";
 import { Candidate } from "@/types/candidate";
 import { Note } from "@/types/note";
 
-const originalEnv = process.env;
-
 const candidateFixture: Candidate = {
   id: "abc-1",
   full_name: "Elena Ruiz",
@@ -32,10 +30,6 @@ const noteFixture: Note = {
 describe("lib/api", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    process.env = {
-      ...originalEnv,
-      NEXT_PUBLIC_API_URL: "https://api.nexova.local",
-    };
   });
 
   it("obtiene candidaturas desde /records y devuelve data", async () => {
@@ -53,7 +47,7 @@ describe("lib/api", () => {
     const records = await getRecords();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/records",
+      "/api/records",
       expect.objectContaining({ cache: "no-store" }),
     );
     expect(records).toHaveLength(1);
@@ -91,7 +85,7 @@ describe("lib/api", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/records",
+      "/api/records",
       expect.objectContaining({
         method: "POST",
       }),
@@ -111,12 +105,23 @@ describe("lib/api", () => {
     expect(notes[0].content).toContain("Buen fit");
   });
 
-  it("lanza error si no existe NEXT_PUBLIC_API_URL", async () => {
-    process.env = { ...originalEnv };
-    delete process.env.NEXT_PUBLIC_API_URL;
+  it("usa el proxy local sin requerir una URL pública de la API", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        total: 0,
+        page: 1,
+        limit: 20,
+        data: [],
+      }),
+    } as Response);
 
-    await expect(getRecords()).rejects.toThrow(
-      "Falta NEXT_PUBLIC_API_URL en variables de entorno.",
+    await getRecords();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/records",
+      expect.objectContaining({ cache: "no-store" }),
     );
   });
 });

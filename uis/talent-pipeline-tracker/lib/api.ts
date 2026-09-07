@@ -14,23 +14,26 @@ interface RecordsResponse {
 }
 
 function getApiBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  return "/api";
+}
 
-  if (!baseUrl) {
-    throw new Error("Falta NEXT_PUBLIC_API_URL en variables de entorno.");
-  }
-
-  return baseUrl;
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
 }
 
 async function request<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
+  // /records requiere sesión iniciada; se adjunta el token igual que en api-client.
+  const token = getToken();
+
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
     cache: "no-store",
