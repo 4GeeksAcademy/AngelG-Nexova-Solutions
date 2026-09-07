@@ -33,6 +33,18 @@ export default function Home() {
                 className="flex flex-wrap items-center gap-2"
               >
                 <Link
+                  href="/incidents"
+                  className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
+                >
+                  Incidencias
+                </Link>
+                <Link
+                  href="/incidents/new"
+                  className="rounded-xl bg-cyan-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
+                >
+                  Nueva incidencia
+                </Link>
+                <Link
                   href="/account/profile"
                   className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
                 >

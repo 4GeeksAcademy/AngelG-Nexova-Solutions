@@ -28,12 +28,14 @@ def isolated_db():
     database.users_table.truncate()
     database.profiles_table.truncate()
     database.password_reset_tokens_table.truncate()
+    database.incidents_table.truncate()
 
     yield
 
     database.users_table.truncate()
     database.profiles_table.truncate()
     database.password_reset_tokens_table.truncate()
+    database.incidents_table.truncate()
 
     if original_content is not None:
         db_path.write_text(original_content)

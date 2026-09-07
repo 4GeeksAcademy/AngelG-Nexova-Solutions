@@ -22,6 +22,10 @@ function getToken(): string | null {
  */
 let onUnauthorized: (() => void) | null = null;
 
+export class ApiRequestError extends Error {
+  fields?: Record<string, string>;
+}
+
 export function setOnUnauthorized(cb: () => void): void {
   onUnauthorized = cb;
 }
@@ -62,11 +66,22 @@ export async function authRequest<T = unknown>(
   if (!response.ok) {
     const errorBody = await response.text();
     let detail = `Error HTTP ${response.status}`;
+    let fields: Record<string, string> | undefined;
 
     try {
       const parsed = JSON.parse(errorBody);
       if (parsed.detail) {
-        detail = parsed.detail;
+        if (typeof parsed.detail === "string") {
+          detail = parsed.detail;
+        } else {
+          detail = parsed.detail.message ?? detail;
+          fields = Object.fromEntries(
+            Object.entries(parsed.detail.fields ?? {}).map(([field, value]) => [
+              field,
+              Array.isArray(value) ? value.join(" ") : String(value),
+            ]),
+          );
+        }
       }
     } catch {
       if (errorBody) {
@@ -74,7 +89,9 @@ export async function authRequest<T = unknown>(
       }
     }
 
-    throw new Error(detail);
+    const error = new ApiRequestError(detail);
+    error.fields = fields;
+    throw error;
   }
 
   if (response.status === 204) {
