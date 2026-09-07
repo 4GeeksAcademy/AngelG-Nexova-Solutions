@@ -47,27 +47,27 @@ export interface CreateIncidentPayload {
 }
 
 export const INCIDENT_CATEGORY_LABELS: Record<IncidentCategory, string> = {
-  technical_failure: "technical_failure",
-  process_error: "process_error",
-  client_complaint: "client_complaint",
-  candidate_issue: "candidate_issue",
-  staff_issue: "staff_issue",
-  sla_breach: "sla_breach",
-  data_quality: "data_quality",
-  other: "other",
+  technical_failure: "Fallo de sistema o herramienta tecnológica",
+  process_error: "Error en un proceso operativo",
+  client_complaint: "Queja o reclamación de cliente",
+  candidate_issue: "Problema relacionado con candidato",
+  staff_issue: "Incidencia interna de RRHH",
+  sla_breach: "Incumplimiento de SLA",
+  data_quality: "Error o inconsistencia en datos",
+  other: "Otra",
 };
 
 export const INCIDENT_STATUS_LABELS: Record<IncidentStatus, string> = {
-  open: "open",
-  in_progress: "in_progress",
-  resolved: "resolved",
-  discarded: "discarded",
+  open: "Abierta",
+  in_progress: "En progreso",
+  resolved: "Resuelta",
+  discarded: "Descartada",
 };
 
 export const INCIDENT_ORIGIN_LABELS: Record<IncidentOrigin, string> = {
-  customer: "customer",
-  branch: "branch",
-  internal: "internal",
+  customer: "Cliente",
+  branch: "Sede",
+  internal: "Interna",
 };
 
 export const INCIDENT_BRANCH_LABELS: Record<IncidentBranch, string> = {

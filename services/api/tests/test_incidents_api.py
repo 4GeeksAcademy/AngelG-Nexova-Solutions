@@ -40,7 +40,7 @@ def test_create_incident_rejects_invalid_fields_with_field_details():
     response = client.post("/incidents", json=incident_payload(category="invalid"))
 
     assert response.status_code == 400
-    assert "category" in response.json()["error"]["fields"]
+    assert "category" in response.json()["detail"]["fields"]
 
 
 def test_list_incidents_and_filters():
@@ -116,5 +116,5 @@ def test_unexpected_service_errors_return_json_500(monkeypatch):
     response = client.get("/incidents")
 
     assert response.status_code == 500
-    assert response.json()["error"]["code"] == "INTERNAL_ERROR"
+    assert response.json()["detail"]["code"] == "INTERNAL_ERROR"
     assert "internal test failure" not in response.text

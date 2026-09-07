@@ -22,9 +22,9 @@ describe("IncidentCard", () => {
       <IncidentCard incident={incidentFixture} isUpdating={false} onChangeStatus={vi.fn()} />,
     );
 
-    expect(screen.getByRole("button", { name: /Mover a in_progress/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Mover a discarded/ })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /Mover a resolved/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Mover a En progreso/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Mover a Descartada/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Mover a Resuelta/ })).not.toBeInTheDocument();
   });
 
   it("no muestra acciones para estados finales", () => {

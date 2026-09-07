@@ -121,15 +121,15 @@ describe("IncidentList", () => {
       expect(screen.getByText(openIncident.title)).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Mover a in_progress/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Mover a En progreso/ }));
 
     await waitFor(() => {
       expect(mockedUpdateIncidentStatus).toHaveBeenCalledWith("inc-1", "in_progress");
     });
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Mover a resolved/ })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Mover a Resuelta/ })).toBeInTheDocument();
     });
-    expect(screen.getByRole("button", { name: /Mover a discarded/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Mover a Descartada/ })).toBeInTheDocument();
   });
 
   it("restaura el estado anterior y muestra error si el PATCH falla", async () => {
@@ -142,11 +142,11 @@ describe("IncidentList", () => {
       expect(screen.getByText(openIncident.title)).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Mover a in_progress/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Mover a En progreso/ }));
 
     await waitFor(() => {
       expect(screen.getByText("No se pudo actualizar")).toBeInTheDocument();
     });
-    expect(screen.getByRole("button", { name: /Mover a in_progress/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Mover a En progreso/ })).toBeInTheDocument();
   });
 });

@@ -34,7 +34,7 @@ async def request_validation_error_handler(
     return JSONResponse(
         status_code=400,
         content={
-            "error": {
+            "detail": {
                 "code": "VALIDATION_ERROR",
                 "message": "La solicitud contiene campos inválidos.",
                 "fields": fields,
@@ -49,7 +49,7 @@ async def unexpected_error_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
         content={
-            "error": {
+            "detail": {
                 "code": "INTERNAL_ERROR",
                 "message": "Se produjo un error interno al procesar la solicitud.",
             }
