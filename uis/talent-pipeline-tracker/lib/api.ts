@@ -22,6 +22,20 @@ function getToken(): string | null {
   return localStorage.getItem("token");
 }
 
+/**
+ * Callback que se invoca automáticamente ante un 401.
+ * Lo registra AuthProvider al montarse.
+ */
+let onUnauthorized: (() => void) | null = null;
+
+export function setOnUnauthorized(cb: () => void): void {
+  onUnauthorized = cb;
+}
+
+export function clearOnUnauthorized(): void {
+  onUnauthorized = null;
+}
+
 async function request<T>(
   path: string,
   init?: RequestInit,
@@ -29,15 +43,30 @@ async function request<T>(
   // /records requiere sesión iniciada; se adjunta el token igual que en api-client.
   const token = getToken();
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.",
+    );
+  }
+
+  if (response.status === 401) {
+    localStorage.removeItem("token");
+    if (onUnauthorized) {
+      onUnauthorized();
+    }
+    throw new Error("Sesión expirada. Redirigiendo al inicio de sesión…");
+  }
 
   if (!response.ok) {
     const errorBody = await response.text();

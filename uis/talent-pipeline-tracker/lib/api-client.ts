@@ -44,15 +44,22 @@ export async function authRequest<T = unknown>(
 ): Promise<T> {
   const token = getToken();
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(init?.headers ?? {}),
-    },
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.",
+    );
+  }
 
   if (response.status === 401) {
     // Limpiar sesión y notificar
@@ -169,14 +176,21 @@ export async function loginRequest(
     password,
   });
 
-  const response = await fetch(`${getApiBaseUrl()}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: formBody.toString(),
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formBody.toString(),
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.",
+    );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -226,14 +240,21 @@ export interface MessageResponse {
 export async function forgotPasswordRequest(
   email: string,
 ): Promise<MessageResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/auth/forgot-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}/auth/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.",
+    );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -258,14 +279,21 @@ export async function resetPasswordRequest(
   token: string,
   newPassword: string,
 ): Promise<MessageResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/auth/reset-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ token, new_password: newPassword }),
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}/auth/reset-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, new_password: newPassword }),
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.",
+    );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();

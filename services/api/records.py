@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
@@ -17,6 +18,9 @@ from services import (
     set_record_notes_count,
     update_record
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -124,7 +128,19 @@ def create_candidate(
         "updated_at": now
     }
 
-    create_record(record)
+    try:
+        create_record(record)
+    except Exception:
+        logger.exception(
+            "Error al crear candidatura para usuario %s", current_user["id"]
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "RECORD_CREATE_FAILED",
+                "message": "No se pudo crear la candidatura.",
+            }
+        )
 
     return record
 
@@ -140,7 +156,19 @@ def replace_candidate(
     changes = data.model_dump()
     changes["updated_at"] = datetime.now(timezone.utc).isoformat()
 
-    return update_record(record_id, changes)
+    try:
+        return update_record(record_id, changes)
+    except Exception:
+        logger.exception(
+            "Error al reemplazar candidatura %s para usuario %s", record_id, current_user["id"]
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "RECORD_UPDATE_FAILED",
+                "message": "No se pudo actualizar la candidatura.",
+            }
+        )
 
 
 @router.patch("/{record_id}")
@@ -161,7 +189,19 @@ def patch_candidate(
 
     changes["updated_at"] = datetime.now(timezone.utc).isoformat()
 
-    return update_record(record_id, changes)
+    try:
+        return update_record(record_id, changes)
+    except Exception:
+        logger.exception(
+            "Error al modificar candidatura %s para usuario %s", record_id, current_user["id"]
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "RECORD_UPDATE_FAILED",
+                "message": "No se pudo modificar la candidatura.",
+            }
+        )
 
 
 @router.get("/{record_id}/notes")
@@ -194,8 +234,26 @@ def add_note(
         "created_at": datetime.now(timezone.utc).isoformat()
     }
 
-    create_note(note)
-    set_record_notes_count(record_id, len(get_notes_by_record(record_id)))
+    try:
+        create_note(note)
+    except Exception:
+        logger.exception(
+            "Error al crear nota para candidatura %s", record_id
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "NOTE_CREATE_FAILED",
+                "message": "No se pudo agregar la nota.",
+            }
+        )
+
+    try:
+        set_record_notes_count(record_id, len(get_notes_by_record(record_id)))
+    except Exception:
+        logger.exception(
+            "Error al actualizar contador de notas para candidatura %s", record_id
+        )
 
     return note
 
@@ -208,7 +266,25 @@ def remove_note(
 ):
     get_record_or_404(record_id)
 
-    delete_note(record_id, note_id)
-    set_record_notes_count(record_id, len(get_notes_by_record(record_id)))
+    try:
+        delete_note(record_id, note_id)
+    except Exception:
+        logger.exception(
+            "Error al eliminar nota %s de candidatura %s", note_id, record_id
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "NOTE_DELETE_FAILED",
+                "message": "No se pudo eliminar la nota.",
+            }
+        )
+
+    try:
+        set_record_notes_count(record_id, len(get_notes_by_record(record_id)))
+    except Exception:
+        logger.exception(
+            "Error al actualizar contador de notas tras eliminar en candidatura %s", record_id
+        )
 
     return Response(status_code=204)

@@ -19,6 +19,10 @@ import {
   setOnUnauthorized,
   type RegisterPayload,
 } from "@/lib/api-client";
+import {
+  clearOnUnauthorized as clearOnUnauthorizedApi,
+  setOnUnauthorized as setOnUnauthorizedApi,
+} from "@/lib/api";
 
 // ─── Tipos ───
 
@@ -84,16 +88,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
   }, []);
 
-  // Registrar el callback de 401
+  // Registrar el callback de 401 en ambos clientes HTTP
   useEffect(() => {
-    setOnUnauthorized(() => {
+    const handler = () => {
       setUser(null);
       localStorage.removeItem("token");
       router.push("/login");
-    });
+    };
+
+    setOnUnauthorized(handler);
+    setOnUnauthorizedApi(handler);
 
     return () => {
       clearOnUnauthorized();
+      clearOnUnauthorizedApi();
     };
   }, [router]);
 

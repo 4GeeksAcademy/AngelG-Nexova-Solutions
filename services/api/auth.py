@@ -147,6 +147,12 @@ def get_current_user(
 
         user_id = payload.get("sub")
 
+        if not user_id or not isinstance(user_id, str):
+            raise HTTPException(
+                status_code=401,
+                detail="Token inválido o expirado"
+            )
+
         user = get_user_by_id(user_id)
 
         if not user:
@@ -191,10 +197,19 @@ def login(
             detail="Email o contraseña incorrectos"
         )
 
-    if not bcrypt.verify(
-        form.password,
-        user["hashed_password"]
-    ):
+    try:
+        if not bcrypt.verify(
+            form.password,
+            user["hashed_password"]
+        ):
+            raise HTTPException(
+                status_code=401,
+                detail="Email o contraseña incorrectos"
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error al verificar contraseña para usuario %s", user["id"])
         raise HTTPException(
             status_code=401,
             detail="Email o contraseña incorrectos"
@@ -304,10 +319,20 @@ def reset_password(data: ResetPasswordRequest):
             detail="El token ya fue utilizado"
         )
 
-    update_user(
-        user["id"],
-        {"hashed_password": bcrypt.hash(data.new_password)}
-    )
+    try:
+        update_user(
+            user["id"],
+            {"hashed_password": bcrypt.hash(data.new_password)}
+        )
+    except Exception:
+        logger.exception("Error al actualizar contraseña con reset token para usuario %s", user["id"])
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "PASSWORD_UPDATE_FAILED",
+                "message": "No se pudo restablecer la contraseña.",
+            }
+        )
 
     return {"message": "Contraseña actualizada correctamente"}
 
@@ -317,18 +342,37 @@ def change_password(
     data: ChangePasswordRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    if not bcrypt.verify(
-        data.current_password,
-        current_user["hashed_password"]
-    ):
+    try:
+        if not bcrypt.verify(
+            data.current_password,
+            current_user["hashed_password"]
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="La contraseña actual es incorrecta"
+            )
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception("Error al verificar contraseña actual para usuario %s", current_user["id"])
         raise HTTPException(
             status_code=400,
             detail="La contraseña actual es incorrecta"
         )
 
-    update_user(
-        current_user["id"],
-        {"hashed_password": bcrypt.hash(data.new_password)}
-    )
+    try:
+        update_user(
+            current_user["id"],
+            {"hashed_password": bcrypt.hash(data.new_password)}
+        )
+    except Exception:
+        logger.exception("Error al actualizar contraseña para usuario %s", current_user["id"])
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "PASSWORD_UPDATE_FAILED",
+                "message": "No se pudo actualizar la contraseña.",
+            }
+        )
 
     return {"message": "Contraseña actualizada correctamente"}

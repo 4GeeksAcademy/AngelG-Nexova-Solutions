@@ -33,6 +33,12 @@ def send_password_reset_email(to_email: str, reset_url: str) -> bool:
             )
         })
         return True
+    except resend.exceptions.ResendError:
+        logger.exception("Error de API de Resend al enviar email a %s", to_email)
+        return False
+    except OSError:
+        logger.exception("Error de conexión al enviar email a %s", to_email)
+        return False
     except Exception:
-        logger.exception("Error al enviar email de restablecimiento a %s", to_email)
+        logger.exception("Error inesperado al enviar email a %s", to_email)
         return False

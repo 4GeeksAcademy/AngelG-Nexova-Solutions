@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -43,6 +43,24 @@ async def request_validation_error_handler(
     )
 
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    del request
+    if isinstance(exc.detail, dict):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+        )
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": {
+                "message": str(exc.detail),
+            }
+        },
+    )
+
+
 @app.exception_handler(Exception)
 async def unexpected_error_handler(request: Request, exc: Exception):
     del request, exc
@@ -55,6 +73,7 @@ async def unexpected_error_handler(request: Request, exc: Exception):
             }
         },
     )
+
 
 app.add_middleware(
     CORSMiddleware,

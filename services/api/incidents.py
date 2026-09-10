@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -9,6 +10,8 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
+
+logger = logging.getLogger(__name__)
 
 API_DIR = Path(__file__).resolve().parent
 REPO_ROOT = API_DIR.parents[1]
@@ -152,7 +155,19 @@ def update_status(incident_id: str, data: IncidentStatusUpdate):
             },
         )
 
-    return update_incident_status(incident_id, data.status.value, utc_now_iso())
+    try:
+        return update_incident_status(incident_id, data.status.value, utc_now_iso())
+    except Exception:
+        logger.exception(
+            "Error al actualizar estado de incidencia %s", incident_id
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "STATUS_UPDATE_FAILED",
+                "message": "No se pudo actualizar el estado de la incidencia.",
+            }
+        )
 
 
 @router.get("/summary")

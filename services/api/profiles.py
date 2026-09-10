@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,6 +10,8 @@ from services import (
     update_profile
 )
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/profiles",
@@ -48,7 +51,19 @@ def edit_my_profile(
         exclude_none=True
     )
 
-    return update_profile(
-        current_user["id"],
-        changes
-    )
+    try:
+        return update_profile(
+            current_user["id"],
+            changes
+        )
+    except Exception:
+        logger.exception(
+            "Error al actualizar perfil del usuario %s", current_user["id"]
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "PROFILE_UPDATE_FAILED",
+                "message": "No se pudo actualizar el perfil.",
+            }
+        )

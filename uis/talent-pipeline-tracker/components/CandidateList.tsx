@@ -55,22 +55,23 @@ export function CandidateList() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const records = await getRecords();
-        setCandidates(records);
-      } catch (error) {
-        setLoadError(
-          error instanceof Error
-            ? error.message
-            : "Error inesperado al consultar candidaturas.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
+  async function loadCandidates() {
+    try {
+      const records = await getRecords();
+      setCandidates(records);
+    } catch (error) {
+      setLoadError(
+        error instanceof Error
+          ? error.message
+          : "Error inesperado al consultar candidaturas.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-    load();
+  }
+
+  useEffect(() => {
+    loadCandidates();
   }, []);
 
   useEffect(() => {
@@ -156,10 +157,19 @@ export function CandidateList() {
 
   if (loadError) {
     return (
-      <ErrorMessage
-        title="No se pudo cargar el pipeline"
-        message={loadError}
-      />
+      <div className="space-y-3">
+        <ErrorMessage
+          title="No se pudo cargar el pipeline"
+          message={loadError}
+        />
+        <button
+          type="button"
+          onClick={loadCandidates}
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+        >
+          Reintentar
+        </button>
+      </div>
     );
   }
 
