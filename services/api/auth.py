@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import re
 import secrets
@@ -27,6 +28,7 @@ from services import (
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/auth",
@@ -248,7 +250,12 @@ def forgot_password(data: ForgotPasswordRequest):
 
         reset_url = f"{get_frontend_url()}/reset-password?token={reset_token}"
 
-        send_password_reset_email(user["email"], reset_url)
+        try:
+            send_password_reset_email(user["email"], reset_url)
+        except Exception:
+            logger.exception(
+                "Error al enviar email de restablecimiento a %s", user["email"]
+            )
 
     return {"message": GENERIC_FORGOT_PASSWORD_MESSAGE}
 

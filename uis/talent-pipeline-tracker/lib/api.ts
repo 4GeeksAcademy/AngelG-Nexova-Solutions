@@ -40,8 +40,17 @@ async function request<T>(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Error HTTP ${response.status}`);
+    const errorBody = await response.text();
+    let detail = `Error HTTP ${response.status}`;
+    try {
+      const parsed = JSON.parse(errorBody);
+      if (parsed.detail) {
+        detail = typeof parsed.detail === "string" ? parsed.detail : (parsed.detail.message ?? detail);
+      }
+    } catch {
+      // Si no es JSON válido, usar mensaje genérico
+    }
+    throw new Error(detail);
   }
 
   if (response.status === 204) {
