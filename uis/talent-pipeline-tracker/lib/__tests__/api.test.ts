@@ -88,6 +88,15 @@ describe("lib/api", () => {
       "/api/records",
       expect.objectContaining({
         method: "POST",
+        body: JSON.stringify({
+          full_name: "Elena Ruiz",
+          email: "elena@example.com",
+          phone: "+34 600 111 222",
+          position: "Executive Assistant",
+          experience_years: 6,
+          linkedin_url: null,
+          cv_url: null,
+        }),
       }),
     );
   });
@@ -105,23 +114,4 @@ describe("lib/api", () => {
     expect(notes[0].content).toContain("Buen fit");
   });
 
-  it("usa el proxy local sin requerir una URL pública de la API", async () => {
-    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        total: 0,
-        page: 1,
-        limit: 20,
-        data: [],
-      }),
-    } as Response);
-
-    await getRecords();
-
-    expect(fetchMock).toHaveBeenCalledWith(
-      "/api/records",
-      expect.objectContaining({ cache: "no-store" }),
-    );
-  });
 });

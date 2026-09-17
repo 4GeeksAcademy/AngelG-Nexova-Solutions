@@ -54,15 +54,35 @@ def test_list_incidents_and_filters():
     assert response.json()[0]["origin"] == "customer"
 
 
+def test_list_incidents_applies_multiple_filters():
+    create_incident(category="technical_failure", origin="internal", branch="remote")
+    create_incident(category="technical_failure", origin="customer", branch="remote")
+    create_incident(category="client_complaint", origin="customer", branch="central")
+
+    response = client.get(
+        "/incidents",
+        params={"category": "technical_failure", "branch": "remote"},
+    )
+
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+    assert {item["origin"] for item in response.json()} == {"internal", "customer"}
+
+
 def test_invalid_filter_returns_400():
     response = client.get("/incidents", params={"status": "invalid"})
     assert response.status_code == 400
+    assert response.json()["detail"]["code"] == "INVALID_FILTER"
+    assert response.json()["detail"]["fields"] == {"status": ["invalid"]}
 
 
 def test_get_incident_by_id_and_missing_id():
     incident = create_incident()
 
-    assert client.get(f"/incidents/{incident['id']}").status_code == 200
+    found = client.get(f"/incidents/{incident['id']}")
+    assert found.status_code == 200
+    assert found.json()["id"] == incident["id"]
+    assert found.json()["title"] == incident["title"]
     missing = client.get("/incidents/not-found")
     assert missing.status_code == 404
     assert missing.json()["detail"]["code"] == "INCIDENT_NOT_FOUND"
@@ -92,6 +112,29 @@ def test_patch_status_rejects_invalid_transition_and_final_states():
     client.patch(f"/incidents/{incident['id']}/status", json={"status": "resolved"})
     final = client.patch(f"/incidents/{incident['id']}/status", json={"status": "open"})
     assert final.status_code == 400
+
+
+def test_patch_status_reports_missing_incident_and_service_failure(monkeypatch):
+    missing = client.patch(
+        "/incidents/not-found/status",
+        json={"status": "in_progress"},
+    )
+    assert missing.status_code == 404
+    assert missing.json()["detail"]["code"] == "INCIDENT_NOT_FOUND"
+
+    incident = create_incident()
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("status update failed")
+
+    monkeypatch.setattr("incidents.update_incident_status", fail)
+    failed = client.patch(
+        f"/incidents/{incident['id']}/status",
+        json={"status": "in_progress"},
+    )
+
+    assert failed.status_code == 500
+    assert failed.json()["detail"]["code"] == "STATUS_UPDATE_FAILED"
 
 
 def test_summary_works_with_zero_and_nonzero_records():

@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 
 
 API_DIR = Path(__file__).resolve().parent.parent
@@ -16,6 +17,12 @@ os.environ.setdefault("RESEND_API_KEY", "test-key")
 os.environ.setdefault("RESEND_FROM_EMAIL", "test@example.com")
 
 import database  # noqa: E402
+from main import app  # noqa: E402
+
+
+@pytest.fixture
+def client():
+    return TestClient(app)
 
 
 @pytest.fixture(autouse=True)

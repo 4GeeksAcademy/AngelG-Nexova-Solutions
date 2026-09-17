@@ -90,4 +90,16 @@ describe("lib/incidents-api", () => {
       "No se puede cambiar de resolved a open.",
     );
   });
+
+  it("propaga el error del backend al obtener incidencias", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: false,
+      status: 500,
+      text: async () => JSON.stringify({ detail: "No se pudieron obtener las incidencias" }),
+    } as Response);
+
+    await expect(getIncidents()).rejects.toThrow(
+      "No se pudieron obtener las incidencias",
+    );
+  });
 });
