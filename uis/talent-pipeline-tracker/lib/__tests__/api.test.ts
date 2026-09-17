@@ -4,8 +4,6 @@ import { createRecord, getNotes, getRecordById, getRecords } from "@/lib/api";
 import { Candidate } from "@/types/candidate";
 import { Note } from "@/types/note";
 
-const originalEnv = process.env;
-
 const candidateFixture: Candidate = {
   id: "abc-1",
   full_name: "Elena Ruiz",
@@ -32,10 +30,6 @@ const noteFixture: Note = {
 describe("lib/api", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    process.env = {
-      ...originalEnv,
-      NEXT_PUBLIC_API_URL: "https://api.nexova.local",
-    };
   });
 
   it("obtiene candidaturas desde /records y devuelve data", async () => {
@@ -53,7 +47,7 @@ describe("lib/api", () => {
     const records = await getRecords();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/records",
+      "/api/records",
       expect.objectContaining({ cache: "no-store" }),
     );
     expect(records).toHaveLength(1);
@@ -91,9 +85,18 @@ describe("lib/api", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/records",
+      "/api/records",
       expect.objectContaining({
         method: "POST",
+        body: JSON.stringify({
+          full_name: "Elena Ruiz",
+          email: "elena@example.com",
+          phone: "+34 600 111 222",
+          position: "Executive Assistant",
+          experience_years: 6,
+          linkedin_url: null,
+          cv_url: null,
+        }),
       }),
     );
   });
@@ -111,12 +114,4 @@ describe("lib/api", () => {
     expect(notes[0].content).toContain("Buen fit");
   });
 
-  it("lanza error si no existe NEXT_PUBLIC_API_URL", async () => {
-    process.env = { ...originalEnv };
-    delete process.env.NEXT_PUBLIC_API_URL;
-
-    await expect(getRecords()).rejects.toThrow(
-      "Falta NEXT_PUBLIC_API_URL en variables de entorno.",
-    );
-  });
 });

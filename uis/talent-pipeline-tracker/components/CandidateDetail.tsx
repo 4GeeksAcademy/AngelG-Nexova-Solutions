@@ -2,13 +2,21 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { AddNoteForm } from "@/components/AddNoteForm";
 import { CandidateForm } from "@/components/CandidateForm";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { Loading } from "@/components/Loading";
 import { NotesList } from "@/components/NotesList";
-import { addNote, deleteNote, patchRecord, updateRecord } from "@/lib/api";
+import {
+  addNote,
+  deleteNote,
+  getNotes,
+  getRecordById,
+  patchRecord,
+  updateRecord,
+} from "@/lib/api";
 import {
   Candidate,
   CandidateStage,
@@ -20,8 +28,7 @@ import {
 import { Note } from "@/types/note";
 
 interface CandidateDetailProps {
-  initialCandidate: Candidate;
-  initialNotes: Note[];
+  candidateId: string;
 }
 
 const STATUS_OPTIONS: CandidateStatus[] = [
@@ -39,12 +46,14 @@ const STAGE_OPTIONS: CandidateStage[] = [
   "offer_presented",
 ];
 
-export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDetailProps) {
+export function CandidateDetail({ candidateId }: CandidateDetailProps) {
   const searchParams = useSearchParams();
   const backHref = searchParams.toString() ? `/?${searchParams.toString()}` : "/";
 
-  const [candidate, setCandidate] = useState(initialCandidate);
-  const [notes, setNotes] = useState(initialNotes);
+  const [candidate, setCandidate] = useState<Candidate | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isPatching, setIsPatching] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
@@ -53,12 +62,67 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  async function loadCandidate() {
+    try {
+      const [loadedCandidate, loadedNotes] = await Promise.all([
+        getRecordById(candidateId),
+        getNotes(candidateId),
+      ]);
+      setCandidate(loadedCandidate);
+      setNotes(loadedNotes);
+    } catch (loadErr) {
+      setLoadError(
+        loadErr instanceof Error
+          ? loadErr.message
+          : "Error inesperado al consultar el detalle.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCandidate();
+  }, [candidateId]);
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen px-4 py-8 md:px-10">
+        <section className="mx-auto w-full max-w-4xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
+          <Loading />
+        </section>
+      </main>
+    );
+  }
+
+  if (loadError || !candidate) {
+    return (
+      <main className="min-h-screen px-4 py-8 md:px-10">
+        <section className="mx-auto w-full max-w-4xl rounded-3xl border border-red-200 bg-white p-6 shadow-lg md:p-8">
+          <ErrorMessage
+            title="No se pudo cargar la candidatura"
+            message={loadError ?? "No se encontro informacion de la candidatura."}
+          />
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={loadCandidate}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              Reintentar
+            </button>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   async function updateCandidateStatus(status: CandidateStatus) {
     try {
       setError(null);
       setSuccessMessage(null);
       setIsPatching(true);
-      const updated = await patchRecord(candidate.id, { status });
+      const updated = await patchRecord(candidateId, { status });
       setCandidate(updated);
       setSuccessMessage("Estado actualizado correctamente.");
     } catch (patchError) {
@@ -77,7 +141,7 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
       setError(null);
       setSuccessMessage(null);
       setIsPatching(true);
-      const updated = await patchRecord(candidate.id, { stage });
+      const updated = await patchRecord(candidateId, { stage });
       setCandidate(updated);
       setSuccessMessage("Etapa actualizada correctamente.");
     } catch (patchError) {
@@ -96,7 +160,7 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
       setError(null);
       setSuccessMessage(null);
       setIsAddingNote(true);
-      const created = await addNote(candidate.id, { content });
+      const created = await addNote(candidateId, { content });
       setNotes((previous) => [created, ...previous]);
       setSuccessMessage("Nota agregada correctamente.");
     } catch (noteError) {
@@ -115,7 +179,7 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
       setError(null);
       setSuccessMessage(null);
       setIsUpdating(true);
-      const updated = await updateRecord(candidate.id, payload);
+      const updated = await updateRecord(candidateId, payload);
       setCandidate(updated);
       setShowEditForm(false);
       setSuccessMessage("Candidatura actualizada correctamente.");
@@ -135,7 +199,7 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
       setError(null);
       setSuccessMessage(null);
       setDeletingNoteId(noteId);
-      await deleteNote(candidate.id, noteId);
+      await deleteNote(candidateId, noteId);
       setNotes((previous) => previous.filter((note) => note.id !== noteId));
       setSuccessMessage("Nota eliminada correctamente.");
     } catch (noteError) {
@@ -159,9 +223,9 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
           >
             ← Volver al pipeline
           </Link>
-          <h1 className="text-3xl font-bold text-slate-900">{candidate.full_name}</h1>
+          <h1 className="text-3xl font-bold text-slate-900">{candidate?.full_name ?? "Sin nombre"}</h1>
           <p className="text-sm text-slate-600">
-            {candidate.position} · {candidate.email} · {candidate.phone}
+            {candidate?.position ?? "—"} · {candidate?.email ?? "—"} · {candidate?.phone ?? "—"}
           </p>
         </header>
 
@@ -246,12 +310,12 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">LinkedIn</dt>
                 <dd className="mt-1 text-slate-800">
-                  {candidate.linkedin_url || "No disponible"}
+                  {candidate.linkedin_url ?? "No disponible"}
                 </dd>
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">CV URL</dt>
-                <dd className="mt-1 text-slate-800">{candidate.cv_url || "No disponible"}</dd>
+                <dd className="mt-1 text-slate-800">{candidate.cv_url ?? "No disponible"}</dd>
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Experiencia</dt>
@@ -260,13 +324,17 @@ export function CandidateDetail({ initialCandidate, initialNotes }: CandidateDet
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Fecha de aplicacion</dt>
                 <dd className="mt-1 text-slate-800">
-                  {new Date(candidate.applied_at).toLocaleString("es-ES")}
+                  {candidate?.applied_at
+                    ? new Date(candidate.applied_at).toLocaleString("es-ES")
+                    : "—"}
                 </dd>
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Actualizado</dt>
                 <dd className="mt-1 text-slate-800">
-                  {new Date(candidate.updated_at).toLocaleString("es-ES")}
+                  {candidate?.updated_at
+                    ? new Date(candidate.updated_at).toLocaleString("es-ES")
+                    : "—"}
                 </dd>
               </div>
             </dl>

@@ -14,31 +14,72 @@ interface RecordsResponse {
 }
 
 function getApiBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  return "/api";
+}
 
-  if (!baseUrl) {
-    throw new Error("Falta NEXT_PUBLIC_API_URL en variables de entorno.");
-  }
+function getToken(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
+}
 
-  return baseUrl;
+/**
+ * Callback que se invoca automáticamente ante un 401.
+ * Lo registra AuthProvider al montarse.
+ */
+let onUnauthorized: (() => void) | null = null;
+
+export function setOnUnauthorized(cb: () => void): void {
+  onUnauthorized = cb;
+}
+
+export function clearOnUnauthorized(): void {
+  onUnauthorized = null;
 }
 
 async function request<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
-    cache: "no-store",
-  });
+  // /records requiere sesión iniciada; se adjunta el token igual que en api-client.
+  const token = getToken();
+
+  let response: Response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(init?.headers ?? {}),
+      },
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error(
+      "No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.",
+    );
+  }
+
+  if (response.status === 401) {
+    localStorage.removeItem("token");
+    if (onUnauthorized) {
+      onUnauthorized();
+    }
+    throw new Error("Sesión expirada. Redirigiendo al inicio de sesión…");
+  }
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Error HTTP ${response.status}`);
+    const errorBody = await response.text();
+    let detail = `Error HTTP ${response.status}`;
+    try {
+      const parsed = JSON.parse(errorBody);
+      if (parsed.detail) {
+        detail = typeof parsed.detail === "string" ? parsed.detail : (parsed.detail.message ?? detail);
+      }
+    } catch {
+      // Si no es JSON válido, usar mensaje genérico
+    }
+    throw new Error(detail);
   }
 
   if (response.status === 204) {
