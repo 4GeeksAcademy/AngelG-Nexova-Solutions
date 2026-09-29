@@ -1,23 +1,37 @@
 import os
+from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlmodel import SQLModel
 
+import database
 from auth import router as auth_router
 from profiles import router as profiles_router
 from records import router as records_router
 from incidents import router as incidents_router
 from users import router as users_router
+from routers.inventory import router as inventory_router
+import models  # noqa: F401 — registers inventory tables in SQLModel.metadata
 
 
 load_dotenv()
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Create inventory tables at startup when PostgreSQL is configured."""
+    if database.engine is not None:
+        SQLModel.metadata.create_all(database.engine)
+    yield
+
+
 app = FastAPI(
-    title="Company API"
+    title="Company API",
+    lifespan=lifespan,
 )
 
 
@@ -26,13 +40,14 @@ async def request_validation_error_handler(
     request: Request,
     exc: RequestValidationError
 ):
-    del request
     fields = {}
     for error in exc.errors():
         location = [str(part) for part in error["loc"] if part not in {"body", "query"}]
         fields[".".join(location)] = error["msg"]
     return JSONResponse(
-        status_code=400,
+        # Inventory request schemas follow FastAPI's validation status (422).
+        # Preserve the API's existing 400 mapping for all other routers.
+        status_code=422 if request.url.path.startswith("/inventory/") else 400,
         content={
             "detail": {
                 "code": "VALIDATION_ERROR",
@@ -89,6 +104,7 @@ app.include_router(profiles_router)
 app.include_router(auth_router)
 app.include_router(records_router)
 app.include_router(incidents_router)
+app.include_router(inventory_router)
 
 
 @app.get("/")
