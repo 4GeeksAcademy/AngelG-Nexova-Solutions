@@ -23,7 +23,14 @@ function getToken(): string | null {
 let onUnauthorized: (() => void) | null = null;
 
 export class ApiRequestError extends Error {
+  status: number;
   fields?: Record<string, string>;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
 }
 
 export function setOnUnauthorized(cb: () => void): void {
@@ -34,7 +41,7 @@ export function clearOnUnauthorized(): void {
   onUnauthorized = null;
 }
 
-type RequestOptions = Omit<RequestInit, "headers"> & {
+export type RequestOptions = Omit<RequestInit, "headers"> & {
   headers?: Record<string, string>;
 };
 
@@ -67,7 +74,10 @@ export async function authRequest<T = unknown>(
     if (onUnauthorized) {
       onUnauthorized();
     }
-    throw new Error("Sesión expirada. Redirigiendo al inicio de sesión…");
+    throw new ApiRequestError(
+      "Sesión expirada. Redirigiendo al inicio de sesión…",
+      response.status,
+    );
   }
 
   if (!response.ok) {
@@ -81,6 +91,15 @@ export async function authRequest<T = unknown>(
       if (parsed.detail) {
         if (typeof parsed.detail === "string") {
           detail = parsed.detail;
+        } else if (Array.isArray(parsed.detail)) {
+          const messages = parsed.detail
+            .map((item: { msg?: unknown }) => item?.msg)
+            .filter((message: unknown): message is string =>
+              typeof message === "string" && message.trim().length > 0,
+            );
+          if (messages.length > 0) {
+            detail = messages.join("; ");
+          }
         } else {
           detail = parsed.detail.message ?? detail;
           if (parsed.detail.fields) {
@@ -111,7 +130,7 @@ export async function authRequest<T = unknown>(
       }
     }
 
-    const error = new ApiRequestError(detail);
+    const error = new ApiRequestError(detail, response.status);
     error.fields = fields;
     throw error;
   }
