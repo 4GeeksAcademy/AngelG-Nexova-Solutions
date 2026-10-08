@@ -1,0 +1,70 @@
+services:
+  interfaces:
+    build:
+      context: ./uis
+      dockerfile: Dockerfile
+    command: ["/usr/local/bin/start.sh"]
+    environment:
+      API_INTERNAL_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - type: bind
+        source: ./uis/talent-pipeline-tracker
+        target: /app
+      - type: volume
+        source: interfaces_node_modules
+        target: /app/node_modules
+      - type: volume
+        source: interfaces_next
+        target: /app/.next
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./services
+      dockerfile: Dockerfile
+    env_file:
+      - path: ./.env.example
+        required: true
+      - path: ./services/api/.env
+        required: false
+      - path: ./.env
+        required: false
+    environment:
+      PYTHONUNBUFFERED: "1"
+    working_dir: /workspace/services/api
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./services/api
+        target: /workspace/services/api
+      - type: bind
+        source: ./packages/shared
+        target: /workspace/packages/shared
+      - type: volume
+        source: backend_data
+        target: /workspace/services/api/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: nexova-development
+    driver: bridge
+
+volumes:
+  interfaces_node_modules:
+  interfaces_next:
+  backend_data:
