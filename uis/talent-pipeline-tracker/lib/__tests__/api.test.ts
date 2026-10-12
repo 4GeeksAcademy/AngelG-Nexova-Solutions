@@ -30,6 +30,10 @@ const noteFixture: Note = {
 describe("lib/api", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    process.env = {
+      ...originalEnv,
+      NEXT_PUBLIC_RECORDS_API_URL: "https://api.nexova.local",
+    };
   });
 
   it("obtiene candidaturas desde /records y devuelve data", async () => {
@@ -105,7 +109,11 @@ describe("lib/api", () => {
     expect(notes[0].content).toContain("Buen fit");
   });
 
-  it("usa el proxy local sin requerir una URL pública de la API", async () => {
+  it("usa fallback local en SSR si no existe NEXT_PUBLIC_RECORDS_API_URL", async () => {
+    process.env = { ...originalEnv };
+    delete process.env.NEXT_PUBLIC_RECORDS_API_URL;
+    process.env.PORT = "3000";
+
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
       status: 200,
