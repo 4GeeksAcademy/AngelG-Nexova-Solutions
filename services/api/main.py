@@ -6,6 +6,8 @@ Mounts the suppliers router and provides a health-check endpoint.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from .routes.suppliers import router as suppliers_router
 

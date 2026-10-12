@@ -5,7 +5,8 @@ from database import (
     password_reset_tokens_table,
     profiles_table,
     records_table,
-    users_table
+    users_table,
+    incidents_table
 )
 
 
@@ -14,6 +15,7 @@ Profile = Query()
 ResetToken = Query()
 Record = Query()
 Note = Query()
+Incident = Query()
 
 
 def get_user_by_id(user_id: str):
@@ -154,3 +156,29 @@ def set_record_notes_count(record_id: str, notes_count: int):
         {"notes_count": notes_count},
         Record.id == record_id
     )
+
+
+def get_incidents(filters: dict[str, str] | None = None):
+    records = incidents_table.all()
+    for field, value in (filters or {}).items():
+        records = [record for record in records if record.get(field) == value]
+    return records
+
+
+def get_incident_by_id(incident_id: str):
+    return incidents_table.get(Incident.id == incident_id)
+
+
+def create_incident(incident: dict[str, str]):
+    if get_incident_by_id(incident["id"]):
+        return None
+    incidents_table.insert(incident)
+    return incident
+
+
+def update_incident_status(incident_id: str, status: str, updated_at: str):
+    incidents_table.update(
+        {"status": status, "updated_at": updated_at},
+        Incident.id == incident_id
+    )
+    return get_incident_by_id(incident_id)
