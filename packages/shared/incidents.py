@@ -126,7 +126,7 @@ def validate_incident_values(values: dict[str, Any]) -> None:
             if datetime.fromisoformat(values["updated_at"]) < datetime.fromisoformat(values["created_at"]):
                 errors.append("updated_at cannot be earlier than created_at")
         except ValueError:
-            pass
+            errors.append("updated_at or created_at has an invalid ISO timestamp format")
 
     if errors:
         raise IncidentValidationError(errors)

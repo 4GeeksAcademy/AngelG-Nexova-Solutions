@@ -29,23 +29,24 @@ function ProfileContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await getMe();
-        setMe(data);
-        setName(data.profile?.name ?? "");
-        setPhone(data.profile?.phone ?? "");
-        setAddress(data.profile?.address ?? "");
-      } catch (err) {
-        setLoadError(
-          err instanceof Error ? err.message : "Error al cargar el perfil.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
+  async function loadProfile() {
+    try {
+      const data = await getMe();
+      setMe(data);
+      setName(data.profile?.name ?? "");
+      setPhone(data.profile?.phone ?? "");
+      setAddress(data.profile?.address ?? "");
+    } catch (err) {
+      setLoadError(
+        err instanceof Error ? err.message : "Error al cargar el perfil.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-    load();
+  }
+
+  useEffect(() => {
+    loadProfile();
   }, []);
 
   async function handleSave(event: FormEvent<HTMLFormElement>) {
@@ -77,10 +78,23 @@ function ProfileContent() {
 
   if (loadError) {
     return (
-      <ErrorMessage
-        title="No se pudo cargar el perfil"
-        message={loadError}
-      />
+      <main className="min-h-screen px-4 py-8 md:px-10">
+        <section className="mx-auto w-full max-w-2xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
+          <div className="space-y-3">
+            <ErrorMessage
+              title="No se pudo cargar el perfil"
+              message={loadError}
+            />
+            <button
+              type="button"
+              onClick={loadProfile}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              Reintentar
+            </button>
+          </div>
+        </section>
+      </main>
     );
   }
 

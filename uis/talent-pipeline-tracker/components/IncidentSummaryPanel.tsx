@@ -40,33 +40,35 @@ export function IncidentSummaryPanel() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  function load() {
+    setSummary(null);
+    setError(null);
+    setIsLoading(true);
 
     getIncidentsSummary()
       .then((data) => {
-        if (!cancelled) {
-          setSummary(data);
-        }
+        setSummary(data);
       })
       .catch((requestError: unknown) => {
-        if (!cancelled) {
-          setError(
-            requestError instanceof Error
-              ? requestError.message
-              : "No se pudo cargar el resumen de incidencias.",
-          );
-        }
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "No se pudo cargar el resumen de incidencias.",
+        );
       })
       .finally(() => {
-        if (!cancelled) {
-          setIsLoading(false);
-        }
+        setIsLoading(false);
       });
+  }
+
+  useEffect(() => {
+    load();
 
     return () => {
-      cancelled = true;
+      // cleanup implícito: si el componente se desmonta, los .then/.catch
+      // se ejecutan pero no actualizan estado porque el setter es no-op
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
@@ -74,7 +76,18 @@ export function IncidentSummaryPanel() {
   }
 
   if (error) {
-    return <ErrorMessage title="No se pudo cargar el resumen" message={error} />;
+    return (
+      <div className="space-y-3">
+        <ErrorMessage title="No se pudo cargar el resumen" message={error} />
+        <button
+          type="button"
+          onClick={load}
+          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
   }
 
   if (!summary || summary.total === 0) {

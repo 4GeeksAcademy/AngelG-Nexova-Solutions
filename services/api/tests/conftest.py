@@ -11,11 +11,6 @@ from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
-from tinydb import TinyDB
-
-from services.api.main import app
-from services.api.models import SupplierDict
-from services.api.seed import SUPPLIERS_SEED
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────
@@ -24,13 +19,13 @@ from services.api.seed import SUPPLIERS_SEED
 def _temp_db(monkeypatch: pytest.MonkeyPatch) -> Generator[TinyDB, None, None]:
     """Replace the production TinyDB with a temporary JSON file.
 
-    This fixture runs automatically for every test. It creates a temp file,
-    monkeypatches get_db() to point to it, and removes the file after the
-    test completes.
-    """
-    tmp = tempfile.NamedTemporaryFile(suffix=".json", delete=False)
-    tmp_path = Path(tmp.name)
-    tmp.close()
+import database  # noqa: E402
+from main import app  # noqa: E402
+
+
+@pytest.fixture
+def client():
+    return TestClient(app)
 
     tmp_db = TinyDB(str(tmp_path))
 

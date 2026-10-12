@@ -24,7 +24,9 @@ export function NotesList({ notes, onDelete, deletingNoteId }: NotesListProps) {
           <p className="mb-2 text-sm leading-6 text-slate-800">{note.content}</p>
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-500">
-              {new Date(note.created_at).toLocaleString("es-ES")}
+              {note.created_at
+                ? new Date(note.created_at).toLocaleString("es-ES")
+                : "—"}
             </span>
             <button
               type="button"

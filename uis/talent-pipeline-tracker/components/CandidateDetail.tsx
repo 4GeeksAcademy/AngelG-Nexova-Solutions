@@ -62,26 +62,27 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [loadedCandidate, loadedNotes] = await Promise.all([
-          getRecordById(candidateId),
-          getNotes(candidateId),
-        ]);
-        setCandidate(loadedCandidate);
-        setNotes(loadedNotes);
-      } catch (loadErr) {
-        setLoadError(
-          loadErr instanceof Error
-            ? loadErr.message
-            : "Error inesperado al consultar el detalle.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
+  async function loadCandidate() {
+    try {
+      const [loadedCandidate, loadedNotes] = await Promise.all([
+        getRecordById(candidateId),
+        getNotes(candidateId),
+      ]);
+      setCandidate(loadedCandidate);
+      setNotes(loadedNotes);
+    } catch (loadErr) {
+      setLoadError(
+        loadErr instanceof Error
+          ? loadErr.message
+          : "Error inesperado al consultar el detalle.",
+      );
+    } finally {
+      setIsLoading(false);
     }
-    load();
+  }
+
+  useEffect(() => {
+    loadCandidate();
   }, [candidateId]);
 
   if (isLoading) {
@@ -102,6 +103,15 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
             title="No se pudo cargar la candidatura"
             message={loadError ?? "No se encontro informacion de la candidatura."}
           />
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={loadCandidate}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+            >
+              Reintentar
+            </button>
+          </div>
         </section>
       </main>
     );
@@ -213,9 +223,9 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
           >
             ← Volver al pipeline
           </Link>
-          <h1 className="text-3xl font-bold text-slate-900">{candidate.full_name}</h1>
+          <h1 className="text-3xl font-bold text-slate-900">{candidate?.full_name ?? "Sin nombre"}</h1>
           <p className="text-sm text-slate-600">
-            {candidate.position} · {candidate.email} · {candidate.phone}
+            {candidate?.position ?? "—"} · {candidate?.email ?? "—"} · {candidate?.phone ?? "—"}
           </p>
         </header>
 
@@ -300,12 +310,12 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">LinkedIn</dt>
                 <dd className="mt-1 text-slate-800">
-                  {candidate.linkedin_url || "No disponible"}
+                  {candidate.linkedin_url ?? "No disponible"}
                 </dd>
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">CV URL</dt>
-                <dd className="mt-1 text-slate-800">{candidate.cv_url || "No disponible"}</dd>
+                <dd className="mt-1 text-slate-800">{candidate.cv_url ?? "No disponible"}</dd>
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Experiencia</dt>
@@ -314,13 +324,17 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Fecha de aplicacion</dt>
                 <dd className="mt-1 text-slate-800">
-                  {new Date(candidate.applied_at).toLocaleString("es-ES")}
+                  {candidate?.applied_at
+                    ? new Date(candidate.applied_at).toLocaleString("es-ES")
+                    : "—"}
                 </dd>
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Actualizado</dt>
                 <dd className="mt-1 text-slate-800">
-                  {new Date(candidate.updated_at).toLocaleString("es-ES")}
+                  {candidate?.updated_at
+                    ? new Date(candidate.updated_at).toLocaleString("es-ES")
+                    : "—"}
                 </dd>
               </div>
             </dl>

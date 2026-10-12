@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
@@ -17,6 +18,9 @@ from services import (
     get_user_by_id,
     update_user
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
@@ -81,13 +85,22 @@ def register(data: UserCreate):
 
     user_id = str(uuid4())
 
+    try:
+        hashed_password = bcrypt.hash(data.password)
+    except Exception:
+        logger.exception("Error al generar hash de contraseña durante registro")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "REGISTRATION_FAILED",
+                "message": "No se pudo completar el registro.",
+            }
+        )
+
     user = {
         "id": user_id,
         "email": data.email,
-
-        # bcrypt genera y guarda el hash.
-        "hashed_password": bcrypt.hash(data.password),
-
+        "hashed_password": hashed_password,
         "is_active": True,
         "role": "user",
         "created_at": datetime.now(timezone.utc).isoformat()
@@ -173,9 +186,19 @@ def edit_user(
             )
 
     if "password" in changes:
-        changes["hashed_password"] = bcrypt.hash(
-            changes.pop("password")
-        )
+        try:
+            changes["hashed_password"] = bcrypt.hash(
+                changes.pop("password")
+            )
+        except Exception:
+            logger.exception("Error al generar hash de contraseña al editar usuario %s", user_id)
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "code": "PASSWORD_UPDATE_FAILED",
+                    "message": "No se pudo actualizar la contraseña.",
+                }
+            )
 
     if "role" in changes:
 
