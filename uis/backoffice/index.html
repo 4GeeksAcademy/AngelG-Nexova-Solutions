@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111c28">
+  <meta name="description" content="Espacio interno de Nexova Solutions: áreas, líneas de negocio y acceso a herramientas operativas existentes.">
+  <title>Centro de operaciones · Nexova</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación del backoffice">
+      <a class="brand" href="#inicio" aria-label="Nexova, centro de operaciones">
+        <span class="brand-mark">n.</span><span class="brand-copy">NEXOVA<small>WORKSPACE</small></span>
+      </a>
+      <div class="workspace-label">ESPACIO DE TRABAJO</div>
+      <nav class="side-nav" aria-label="Secciones">
+        <button class="nav-item is-active" type="button" data-view="inicio"><span class="nav-icon">⌂</span>Resumen</button>
+        <button class="nav-item" type="button" data-view="organizacion"><span class="nav-icon">◫</span>Organización</button>
+        <button class="nav-item" type="button" data-view="servicios"><span class="nav-icon">◇</span>Líneas de negocio</button>
+        <button class="nav-item" type="button" data-view="herramientas"><span class="nav-icon">↗</span>Herramientas</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note"><span class="status-dot"></span><div><strong>Centro interno</strong><small>Información de referencia</small></div></div>
+        <a class="public-link" href="../website/" target="_blank" rel="noreferrer">Ver web pública <span aria-hidden="true">↗</span></a>
+        <span class="sidebar-version">NEXOVA SOLUTIONS · INTERNO</span>
+      </div>
+    </aside>
+
+    <div class="main-column">
+      <header class="topbar">
+        <button class="mobile-menu" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar"><span></span><span></span></button>
+        <div class="breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><strong id="current-section">Resumen</strong></div>
+        <div class="topbar-meta"><span class="context-pill"><span class="status-dot"></span>Vista de referencia</span><span class="avatar" aria-label="Nexova">N</span></div>
+      </header>
+
+      <main id="main" tabindex="-1">
+        <section class="view is-visible" id="view-inicio" data-title="Resumen" aria-labelledby="page-title">
+          <div class="page-heading" id="inicio"><div><p class="eyebrow">CENTRO DE OPERACIONES <span>·</span> NEXOVA SOLUTIONS</p><h1 id="page-title">Personas, servicios<br class="desktop-break"> y operaciones.</h1><p class="lede">Un punto de partida para conocer los equipos de Nexova y abrir las herramientas internas disponibles.</p></div><div class="date-chip"><span class="date-icon">◷</span><span><b>Workspace interno</b><small>Información empresarial documentada</small></span></div></div>
+
+          <div class="notice" role="note"><span class="notice-icon">i</span><p><strong>Contexto, no telemetría:</strong> los datos de esta página describen la organización según el contexto del proyecto. No son indicadores en tiempo real ni datos sincronizados de sistemas empresariales.</p><button class="notice-close" type="button" aria-label="Cerrar aviso">×</button></div>
+
+          <div class="section-title"><div><span class="eyebrow">NEXOVA EN CONTEXTO</span><h2>Una organización, tres especialidades</h2></div><button class="text-button" type="button" data-navigate="organizacion">Explorar equipos <span aria-hidden="true">→</span></button></div>
+          <div class="overview-grid">
+            <article class="metric-card"><span class="metric-label">EQUIPO DOCUMENTADO</span><strong>120</strong><span class="metric-foot"><span class="mini-mark">↗</span>Personas en la organización</span></article>
+            <article class="metric-card"><span class="metric-label">PRESENCIA</span><strong class="metric-places">Valencia <i>·</i> Miami</strong><span class="metric-foot"><span class="mini-mark">◎</span>España y Estados Unidos</span></article>
+            <article class="metric-card"><span class="metric-label">FUNDACIÓN</span><strong>2011</strong><span class="metric-foot"><span class="mini-mark">✳</span>Trayectoria de Nexova</span></article>
+          </div>
+
+          <div class="section-title section-title-spaced"><div><span class="eyebrow">ACCESOS OPERATIVOS</span><h2>Continúa donde trabaja el equipo</h2></div><span class="muted-caption">Aplicaciones existentes</span></div>
+          <div class="tools-grid">
+            <a class="tool-card tool-candidates" data-tracker-path="/" href="http://localhost:3000/" aria-label="Abrir Talent Pipeline Tracker"><span class="tool-icon">↗</span><span class="tool-category">SELECCIÓN</span><h3>Talent Pipeline Tracker</h3><p>Seguimiento de candidaturas y etapas de selección.</p><span class="tool-action">Abrir aplicación <b aria-hidden="true">→</b></span></a>
+            <a class="tool-card tool-incidents" data-tracker-path="/incidents" href="http://localhost:3000/incidents" aria-label="Abrir gestión de incidencias"><span class="tool-icon">⌁</span><span class="tool-category">OPERACIONES</span><h3>Incidencias</h3><p>Consulta y registro de incidencias operativas.</p><span class="tool-action">Abrir aplicación <b aria-hidden="true">→</b></span></a>
+            <a class="tool-card tool-inventory" data-tracker-path="/backoffice/inventory/products" href="http://localhost:3000/backoffice/inventory/products" aria-label="Abrir inventario"><span class="tool-icon">▦</span><span class="tool-category">IT · ACTIVOS</span><h3>Inventario</h3><p>Stock de activos y registro de movimientos.</p><span class="tool-action">Abrir aplicación <b aria-hidden="true">→</b></span></a>
+          </div>
+          <p class="footnote"><span aria-hidden="true">↗</span> Los accesos abren funciones del Talent Pipeline Tracker existente. Pueden requerir inicio de sesión y configuración del backend.</p>
+
+          <div class="section-title section-title-spaced"><div><span class="eyebrow">NEGOCIO</span><h2>Qué hace Nexova</h2></div><button class="text-button" type="button" data-navigate="servicios">Ver líneas de negocio <span aria-hidden="true">→</span></button></div>
+          <div class="business-strip"><article><span class="strip-number">01</span><div><h3>Headhunting &amp; selección</h3><p>Conexión de empresas con talento especializado.</p></div><span class="strip-arrow">↗</span></article><article><span class="strip-number">02</span><div><h3>Outsourcing de soporte</h3><p>Equipos dedicados de atención al cliente.</p></div><span class="strip-arrow">↗</span></article><article><span class="strip-number">03</span><div><h3>Formación corporativa</h3><p>Programas para desarrollar equipos y liderazgo.</p></div><span class="strip-arrow">↗</span></article></div>
+        </section>
+
+        <section class="view" id="view-organizacion" data-title="Organización" aria-labelledby="org-title" hidden>
+          <div class="page-heading compact-heading"><div><p class="eyebrow">EQUIPOS <span>·</span> ORGANIZACIÓN</p><h1 id="org-title">Las personas detrás<br class="desktop-break"> de cada servicio.</h1><p class="lede">Áreas y tamaños documentados en el contexto empresarial de Nexova.</p></div><span class="context-pill"><span class="status-dot"></span>Cifras contextuales</span></div>
+          <div class="notice" role="note"><span class="notice-icon">i</span><p>Los tamaños indicados son referencias del briefing empresarial, no un directorio de empleados ni un censo actualizado.</p><button class="notice-close" type="button" aria-label="Cerrar aviso">×</button></div>
+          <div class="team-toolbar"><div><span class="eyebrow">ÁREAS DE NEXOVA</span><h2>Equipos y responsabilidades</h2></div><label class="search-box"><span aria-hidden="true">⌕</span><input id="team-search" type="search" placeholder="Buscar un área…" aria-label="Buscar áreas"></label></div>
+          <div class="team-grid" id="team-grid">
+            <article class="team-card" data-search="selección reclutamiento javier almeida consultores"><div class="team-card-top"><span class="team-icon icon-blue">◎</span><span class="team-size">40 <small>consultores</small></span></div><p class="team-dept">OPERACIONES</p><h3>Operaciones de Selección</h3><p>Procesos de reclutamiento desde el briefing hasta la contratación.</p><div class="team-lead"><span class="lead-avatar">JA</span><span><small>Responsable documentado</small><b>Javier Almeida</b></span></div></article>
+            <article class="team-card" data-search="soporte cliente roberto diaz agentes outsourcing"><div class="team-card-top"><span class="team-icon icon-violet">◌</span><span class="team-size">30 <small>agentes</small></span></div><p class="team-dept">SERVICIO AL CLIENTE</p><h3>Soporte al Cliente</h3><p>Equipos de atención externalizada para clientes de Nexova.</p><div class="team-lead"><span class="lead-avatar">RD</span><span><small>Responsable documentado</small><b>Roberto Díaz</b></span></div></article>
+            <article class="team-card" data-search="formación corporativa elena vargas cursos talleres"><div class="team-card-top"><span class="team-icon icon-amber">✳</span><span class="team-size">12 <small>personas</small></span></div><p class="team-dept">DESARROLLO</p><h3>Formación Corporativa</h3><p>Cursos y talleres de liderazgo, comunicación y gestión.</p><div class="team-lead"><span class="lead-avatar">EV</span><span><small>Responsable documentada</small><b>Elena Vargas</b></span></div></article>
+            <article class="team-card" data-search="ventas negocio megan clarke marcos ibañez account managers sdr"><div class="team-card-top"><span class="team-icon icon-green">↗</span><span class="team-size">18 <small>personas</small></span></div><p class="team-dept">CRECIMIENTO</p><h3>Ventas y Desarrollo</h3><p>Gestión de cuentas actuales y desarrollo de nuevos clientes.</p><div class="team-lead"><span class="lead-avatar">MI</span><span><small>Responsable en contexto</small><b>Marcos Ibáñez</b></span></div></article>
+            <article class="team-card" data-search="recursos humanos rrhh patricia solis personas"><div class="team-card-top"><span class="team-icon icon-rose">♡</span><span class="team-size">4 <small>personas</small></span></div><p class="team-dept">PERSONAS</p><h3>Recursos Humanos</h3><p>Gestión de contratos, onboarding y ciclo del empleado.</p><div class="team-lead"><span class="lead-avatar">PS</span><span><small>Responsable documentada</small><b>Patricia Solís</b></span></div></article>
+            <article class="team-card" data-search="tecnología infraestructura it sergio molina cto"><div class="team-card-top"><span class="team-icon icon-cyan">⌘</span><span class="team-size">6 <small>personas</small></span></div><p class="team-dept">TECNOLOGÍA</p><h3>Tecnología e Infraestructura</h3><p>Sistemas e infraestructura tecnológica de la organización.</p><div class="team-lead"><span class="lead-avatar">SM</span><span><small>CTO documentado</small><b>Sergio Molina</b></span></div></article>
+            <article class="team-card team-card-no-count" data-search="marketing comunicación carmen ruiz"><div class="team-card-top"><span class="team-icon icon-orange">✦</span><span class="team-size team-size-label">Equipo pequeño</span></div><p class="team-dept">COMUNICACIÓN</p><h3>Marketing y Comunicación</h3><p>Presencia externa, contenidos y comunicación corporativa.</p><div class="team-lead"><span class="lead-avatar">CR</span><span><small>Responsable documentada</small><b>Carmen Ruiz</b></span></div></article>
+            <article class="team-card team-card-no-count" data-search="dirección ejecutiva ceo laura mendoza"><div class="team-card-top"><span class="team-icon icon-slate">⌂</span><span class="team-size team-size-label">Dirección</span></div><p class="team-dept">LIDERAZGO</p><h3>Dirección Ejecutiva</h3><p>Dirección general y orientación estratégica de Nexova.</p><div class="team-lead"><span class="lead-avatar">LM</span><span><small>CEO documentada</small><b>Laura Mendoza</b></span></div></article>
+          </div>
+          <p class="empty-search" id="empty-search" hidden>No se encontraron áreas para esa búsqueda.</p>
+        </section>
+
+        <section class="view" id="view-servicios" data-title="Líneas de negocio" aria-labelledby="services-title" hidden>
+          <div class="page-heading compact-heading"><div><p class="eyebrow">ACTIVIDAD <span>·</span> NEXOVA SOLUTIONS</p><h1 id="services-title">Tres líneas.<br class="desktop-break"> Un mismo propósito.</h1><p class="lede">Servicios descritos en el briefing corporativo para acompañar a personas y organizaciones.</p></div></div>
+          <div class="service-list">
+            <article class="service-detail"><span class="service-index">01</span><div><p class="team-dept">TALENTO</p><h2>Headhunting &amp; Selección</h2><p>Identificación y selección de talento para posiciones de mandos medios y directivos. El equipo de Operaciones de Selección acompaña el proceso desde el briefing del cliente hasta la contratación.</p><div class="service-tags"><span>Reclutamiento</span><span>Selección especializada</span><span>Gestión de candidaturas</span></div></div><a data-tracker-path="/" href="http://localhost:3000/" class="service-link">Abrir herramienta <span>↗</span></a></article>
+            <article class="service-detail"><span class="service-index">02</span><div><p class="team-dept">EXPERIENCIA DE CLIENTE</p><h2>Outsourcing de soporte</h2><p>Equipos dedicados de atención al cliente para empresas de tecnología, retail y servicios financieros, con atención a través de distintos canales.</p><div class="service-tags"><span>Equipos dedicados</span><span>Atención al cliente</span><span>Operaciones</span></div></div><a data-tracker-path="/incidents" href="http://localhost:3000/incidents" class="service-link">Ver incidencias <span>↗</span></a></article>
+            <article class="service-detail"><span class="service-index">03</span><div><p class="team-dept">DESARROLLO</p><h2>Formación corporativa</h2><p>Diseño e impartición de cursos, talleres y webinars en liderazgo, comunicación y gestión de equipos para organizaciones clientes.</p><div class="service-tags"><span>Liderazgo</span><span>Comunicación</span><span>Desarrollo de equipos</span></div></div><span class="service-link service-link-muted">Catálogo no conectado</span></article>
+          </div>
+          <div class="future-note"><span>↗</span><p><strong>Sobre la tecnología:</strong> los objetivos de IA, dashboards y automatización descritos en el contexto son líneas de evolución; esta interfaz no afirma que ya estén implementados.</p></div>
+        </section>
+
+        <section class="view" id="view-herramientas" data-title="Herramientas" aria-labelledby="tools-title" hidden>
+          <div class="page-heading compact-heading"><div><p class="eyebrow">APLICACIONES <span>·</span> ACCESOS</p><h1 id="tools-title">Herramientas<br class="desktop-break"> disponibles.</h1><p class="lede">Accesos a módulos existentes en el repositorio. Su disponibilidad depende de que la aplicación y sus servicios estén en ejecución.</p></div></div>
+          <div class="notice" role="note"><span class="notice-icon">i</span><p>Este portal de referencia no sustituye al tracker ni presenta datos de backend. Algunos módulos pueden requerir una sesión activa o base de datos configurada.</p><button class="notice-close" type="button" aria-label="Cerrar aviso">×</button></div>
+          <div class="tools-grid tools-grid-page">
+            <a class="tool-card tool-candidates" data-tracker-path="/" href="http://localhost:3000/"><span class="tool-icon">↗</span><span class="tool-category">TALENTO</span><h3>Talent Pipeline Tracker</h3><p>Gestión existente de candidaturas, etapas, perfiles de cuenta y notas.</p><span class="tool-action">Abrir módulo <b>→</b></span></a>
+            <a class="tool-card tool-incidents" data-tracker-path="/incidents" href="http://localhost:3000/incidents"><span class="tool-icon">⌁</span><span class="tool-category">OPERACIONES</span><h3>Incidencias</h3><p>Registro y consulta de incidencias operativas en la aplicación actual.</p><span class="tool-action">Abrir módulo <b>→</b></span></a>
+            <a class="tool-card tool-inventory" data-tracker-path="/backoffice/inventory/products" href="http://localhost:3000/backoffice/inventory/products"><span class="tool-icon">▦</span><span class="tool-category">IT · ACTIVOS</span><h3>Inventario de activos</h3><p>Consulta de stock, registro de entradas y salidas, e historial de movimientos.</p><span class="tool-action">Abrir módulo <b>→</b></span></a>
+          </div>
+          <div class="service-detail future-tool"><span class="service-index">+</span><div><p class="team-dept">SIN INTEGRACIÓN DISPONIBLE</p><h2>Otros sistemas empresariales</h2><p>El contexto menciona CRM, helpdesk y herramientas de colaboración, pero este repositorio no acredita una integración operativa desde este workspace.</p></div></div>
+        </section>
+      </main>
+      <footer class="app-footer"><span>© <span id="year"></span> Nexova Solutions</span><span>Workspace interno · Datos de contexto, no métricas en vivo</span></footer>
+    </div>
+  </div>
+</body>
+</html>
