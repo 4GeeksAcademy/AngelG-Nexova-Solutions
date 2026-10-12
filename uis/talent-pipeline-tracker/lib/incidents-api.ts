@@ -1,43 +1,70 @@
-import { authRequest } from "@/lib/api-client";
-import { CreateIncidentPayload, Incident, IncidentStatus, IncidentSummary } from "@/types/incident";
+import { IncidentAnalysisResult } from "@/types/incidents";
 
-export interface IncidentFilters {
-  status?: IncidentStatus | "all";
-  origin?: string | "all";
-  branch?: string | "all";
-  category?: string | "all";
+function getApiBaseUrl(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_INCIDENTS_API_URL ?? process.env.NEXT_PUBLIC_API_URL;
+  if (!baseUrl) {
+    throw new Error("Falta NEXT_PUBLIC_INCIDENTS_API_URL o NEXT_PUBLIC_API_URL en variables de entorno.");
+  }
+  return baseUrl.replace(/\/$/, "");
 }
 
-export async function createIncident(payload: CreateIncidentPayload): Promise<Incident> {
-  return authRequest<Incident>("/incidents", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-}
+function buildIncidentsUrl(path: string): string {
+  const baseUrl = getApiBaseUrl();
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-export async function getIncidents(filters: IncidentFilters = {}): Promise<Incident[]> {
-  const params = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(filters)) {
-    if (value && value !== "all") {
-      params.set(key, value);
-    }
+  if (baseUrl.endsWith("/api")) {
+    return `${baseUrl}/incidents${normalizedPath}`;
   }
 
-  const query = params.toString();
-  return authRequest<Incident[]>(`/incidents${query ? `?${query}` : ""}`);
+  return `${baseUrl}/api/incidents${normalizedPath}`;
 }
 
-export async function updateIncidentStatus(
-  id: string,
-  status: IncidentStatus,
-): Promise<Incident> {
-  return authRequest<Incident>(`/incidents/${id}/status`, {
-    method: "PATCH",
-    body: JSON.stringify({ status }),
+async function parseError(response: Response, fallback: string): Promise<string> {
+  try {
+    const payload = await response.json();
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "error" in payload &&
+      payload.error?.message
+    ) {
+      return String(payload.error.message);
+    }
+  } catch {
+    return fallback;
+  }
+
+  return fallback;
+}
+
+export async function analyzeIncidentsFile(file: File): Promise<IncidentAnalysisResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(buildIncidentsUrl("/analyze"), {
+    method: "POST",
+    body: formData,
+    cache: "no-store",
   });
+
+  if (!response.ok) {
+    const message = await parseError(response, "No se pudo analizar el CSV.");
+    throw new Error(message);
+  }
+
+  return (await response.json()) as IncidentAnalysisResult;
 }
 
-export async function getIncidentsSummary(): Promise<IncidentSummary> {
-  return authRequest<IncidentSummary>("/incidents/summary");
+export async function downloadIncidentsCsv(): Promise<Blob> {
+  const response = await fetch(buildIncidentsUrl("/results/export"), {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const message = await parseError(response, "No se pudo descargar el CSV.");
+    throw new Error(message);
+  }
+
+  return await response.blob();
 }

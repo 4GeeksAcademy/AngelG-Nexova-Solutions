@@ -1,8 +1,8 @@
-# API
+# incidents-api
 
-## Variables de entorno
+Backend API service for incident analysis integration.
 
-Copiar `.env.example` a `.env` y completar los valores:
+## Endpoints
 
 - `JWT_SECRET`: secreto usado para firmar los tokens de acceso.
 - `ACCESS_TOKEN_EXPIRE_MINUTES`: minutos de validez del token de acceso (default `30`).
@@ -17,5 +17,5 @@ La conexión PostgreSQL se inicializa como engine SQLModel en `database.py`. Los
 ## Tests
 
 ```bash
-pytest
+python -m unittest services/api/tests/test_incidents_api.py
 ```

@@ -92,7 +92,7 @@ async def unexpected_error_handler(request: Request, exc: Exception):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:3000")],
+    allow_origins=["*"],  # In production, restrict to actual frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -107,8 +107,7 @@ app.include_router(incidents_router)
 app.include_router(inventory_router)
 
 
-@app.get("/")
-def home():
-    return {
-        "message": "API funcionando"
-    }
+@app.get("/health", tags=["health"])
+def health_check():
+    """Simple health-check endpoint."""
+    return {"status": "ok"}
