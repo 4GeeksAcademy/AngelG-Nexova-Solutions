@@ -1,16 +1,19 @@
+"""
+database.py — TinyDB initialization for Nexova Suppliers API.
+
+Uses a JSON file stored in the `data/` directory that survives restarts.
+The path is resolved relative to this file, so it works regardless of
+the working directory from which the application is launched.
+"""
+
 from pathlib import Path
 from tinydb import TinyDB
 
+DB_DIR = Path(__file__).resolve().parent / "data"
+DB_PATH = DB_DIR / "db.json"
 
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
 
-DATA_DIR.mkdir(exist_ok=True)
-
-db = TinyDB(DATA_DIR / "db.json")
-
-users_table = db.table("users")
-profiles_table = db.table("profiles")
-password_reset_tokens_table = db.table("password_reset_tokens")
-records_table = db.table("records")
-notes_table = db.table("notes")
+def get_db() -> TinyDB:
+    """Return a TinyDB instance backed by db.json in the data/ directory."""
+    DB_DIR.mkdir(parents=True, exist_ok=True)
+    return TinyDB(str(DB_PATH))

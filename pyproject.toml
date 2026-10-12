@@ -1,0 +1,21 @@
+[project]
+name = "nexova-suppliers-api"
+version = "0.1.0"
+description = "Directorio de Proveedores API - Nexova Solutions"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "pydantic",
+    "tinydb",
+    "uvicorn",
+    "httpx",
+]
+
+[project.scripts]
+seed = "services.api.seed:main"
+
+[tool.setuptools.packages.find]
+include = ["services*"]
+
+[tool.pytest.ini_options]
+testpaths = ["services/api/tests"]

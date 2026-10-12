@@ -14,22 +14,37 @@ interface RecordsResponse {
 }
 
 function getApiBaseUrl(): string {
-  return "/api";
-}
+  const baseUrl = process.env.NEXT_PUBLIC_RECORDS_API_URL?.trim();
 
-function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("token");
+  if (!baseUrl) {
+    if (typeof window !== "undefined") {
+      return "/api";
+    }
+    const port = process.env.PORT ?? "3000";
+    return `http://127.0.0.1:${port}/api`;
+  }
+
+  if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) {
+    return baseUrl.replace(/\/$/, "");
+  }
+
+  if (baseUrl.startsWith("/")) {
+    if (typeof window !== "undefined") {
+      return baseUrl.replace(/\/$/, "");
+    }
+    const port = process.env.PORT ?? "3000";
+    return `http://127.0.0.1:${port}${baseUrl.replace(/\/$/, "")}`;
+  }
+
+  return baseUrl.replace(/\/$/, "");
 }
 
 async function request<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  // /records requiere sesión iniciada; se adjunta el token igual que en api-client.
-  const token = getToken();
-
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const response = await fetch(`${getApiBaseUrl()}${normalizedPath}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
