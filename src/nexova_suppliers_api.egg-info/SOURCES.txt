@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+src/nexova_suppliers_api.egg-info/PKG-INFO
+src/nexova_suppliers_api.egg-info/SOURCES.txt
+src/nexova_suppliers_api.egg-info/dependency_links.txt
+src/nexova_suppliers_api.egg-info/entry_points.txt
+src/nexova_suppliers_api.egg-info/requires.txt
+src/nexova_suppliers_api.egg-info/top_level.txt
