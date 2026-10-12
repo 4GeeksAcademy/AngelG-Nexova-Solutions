@@ -34,7 +34,7 @@ describe("lib/api", () => {
     vi.restoreAllMocks();
     process.env = {
       ...originalEnv,
-      NEXT_PUBLIC_API_URL: "https://api.nexova.local",
+      NEXT_PUBLIC_RECORDS_API_URL: "https://api.nexova.local",
     };
   });
 
@@ -111,12 +111,27 @@ describe("lib/api", () => {
     expect(notes[0].content).toContain("Buen fit");
   });
 
-  it("lanza error si no existe NEXT_PUBLIC_API_URL", async () => {
+  it("usa fallback local en SSR si no existe NEXT_PUBLIC_RECORDS_API_URL", async () => {
     process.env = { ...originalEnv };
-    delete process.env.NEXT_PUBLIC_API_URL;
+    delete process.env.NEXT_PUBLIC_RECORDS_API_URL;
+    process.env.PORT = "3000";
 
-    await expect(getRecords()).rejects.toThrow(
-      "Falta NEXT_PUBLIC_API_URL en variables de entorno.",
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        total: 0,
+        page: 1,
+        limit: 20,
+        data: [],
+      }),
+    } as Response);
+
+    await getRecords();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/records",
+      expect.objectContaining({ cache: "no-store" }),
     );
   });
 });
