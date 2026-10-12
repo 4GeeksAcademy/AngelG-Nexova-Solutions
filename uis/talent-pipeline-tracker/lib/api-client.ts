@@ -8,13 +8,7 @@
  */
 
 function getApiBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!baseUrl) {
-    throw new Error("Falta NEXT_PUBLIC_API_URL en variables de entorno.");
-  }
-
-  return baseUrl;
+  return "/api";
 }
 
 function getToken(): string | null {
@@ -186,5 +180,77 @@ export async function updateMyProfile(
   return authRequest<ProfileData>("/profiles/me", {
     method: "PUT",
     body: JSON.stringify(payload),
+  });
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+export async function forgotPasswordRequest(
+  email: string,
+): Promise<MessageResponse> {
+  const response = await fetch(`${getApiBaseUrl()}/auth/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    let detail = `Error HTTP ${response.status}`;
+    try {
+      const parsed = JSON.parse(errorText);
+      if (parsed.detail) detail = parsed.detail;
+    } catch {
+      if (errorText) detail = errorText;
+    }
+    throw new Error(detail);
+  }
+
+  return (await response.json()) as MessageResponse;
+}
+
+export async function resetPasswordRequest(
+  token: string,
+  newPassword: string,
+): Promise<MessageResponse> {
+  const response = await fetch(`${getApiBaseUrl()}/auth/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token, new_password: newPassword }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    let detail = `Error HTTP ${response.status}`;
+    try {
+      const parsed = JSON.parse(errorText);
+      if (parsed.detail) detail = parsed.detail;
+    } catch {
+      if (errorText) detail = errorText;
+    }
+    throw new Error(detail);
+  }
+
+  return (await response.json()) as MessageResponse;
+}
+
+export async function changePasswordRequest(
+  currentPassword: string,
+  newPassword: string,
+): Promise<MessageResponse> {
+  return authRequest<MessageResponse>("/auth/change-password", {
+    method: "POST",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
   });
 }

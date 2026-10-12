@@ -9,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.suppliers import router as suppliers_router
 
+load_dotenv()
+
+
 app = FastAPI(
     title="Nexova - Directorio de Proveedores API",
     description="API REST para el directorio centralizado de proveedores de Nexova Solutions.",

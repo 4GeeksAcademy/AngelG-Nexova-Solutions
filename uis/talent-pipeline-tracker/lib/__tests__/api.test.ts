@@ -4,8 +4,6 @@ import { createRecord, getNotes, getRecordById, getRecords } from "@/lib/api";
 import { Candidate } from "@/types/candidate";
 import { Note } from "@/types/note";
 
-const originalEnv = process.env;
-
 const candidateFixture: Candidate = {
   id: "abc-1",
   full_name: "Elena Ruiz",
@@ -53,7 +51,7 @@ describe("lib/api", () => {
     const records = await getRecords();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/records",
+      "/api/records",
       expect.objectContaining({ cache: "no-store" }),
     );
     expect(records).toHaveLength(1);
@@ -91,7 +89,7 @@ describe("lib/api", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.nexova.local/records",
+      "/api/records",
       expect.objectContaining({
         method: "POST",
       }),

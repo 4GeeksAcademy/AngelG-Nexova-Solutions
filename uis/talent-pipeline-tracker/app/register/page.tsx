@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { registerRequest } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
 interface FieldErrors {
@@ -16,7 +17,7 @@ interface FieldErrors {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,7 +66,7 @@ export default function RegisterPage() {
     }
 
     try {
-      await register({
+      await registerRequest({
         email: email.trim(),
         password,
         name: name.trim() || null,
@@ -73,7 +74,8 @@ export default function RegisterPage() {
         address: address.trim() || null,
       });
 
-      router.push("/");
+      // Sin auto-login: el usuario inicia sesión manualmente tras registrarse.
+      router.push("/login");
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Error al registrarse.";
