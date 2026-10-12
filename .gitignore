@@ -2,3 +2,8 @@
 .env.*
 !.env.example
 __pycache__/
+gitignore
+.venv/
+__pycache__/
+*.py[cod]
+results.csv

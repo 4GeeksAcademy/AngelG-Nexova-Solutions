@@ -30,6 +30,10 @@ const noteFixture: Note = {
 describe("lib/api", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    process.env = {
+      ...originalEnv,
+      NEXT_PUBLIC_RECORDS_API_URL: "https://api.nexova.local",
+    };
   });
 
   it("obtiene candidaturas desde /records y devuelve data", async () => {

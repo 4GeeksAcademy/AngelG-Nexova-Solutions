@@ -1,4 +1,5 @@
-import os
+"""
+main.py — FastAPI application for Nexova Solutions Supplier Directory.
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -6,18 +7,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from auth import router as auth_router
-from profiles import router as profiles_router
-from records import router as records_router
-from incidents import router as incidents_router
-from users import router as users_router
-
+from .routes.suppliers import router as suppliers_router
 
 load_dotenv()
 
 
 app = FastAPI(
-    title="Company API"
+    title="Nexova - Directorio de Proveedores API",
+    description="API REST para el directorio centralizado de proveedores de Nexova Solutions.",
+    version="0.1.0",
 )
 
 
@@ -77,22 +75,17 @@ async def unexpected_error_handler(request: Request, exc: Exception):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:3000")],
+    allow_origins=["*"],  # In production, restrict to actual frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-app.include_router(users_router)
-app.include_router(profiles_router)
-app.include_router(auth_router)
-app.include_router(records_router)
-app.include_router(incidents_router)
+# ── Routers ────────────────────────────────────────────────────────────────
+app.include_router(suppliers_router)
 
 
-@app.get("/")
-def home():
-    return {
-        "message": "API funcionando"
-    }
+@app.get("/health", tags=["health"])
+def health_check():
+    """Simple health-check endpoint."""
+    return {"status": "ok"}
