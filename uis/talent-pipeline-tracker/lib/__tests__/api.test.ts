@@ -27,16 +27,18 @@ const noteFixture: Note = {
   created_at: "2026-07-02T11:00:00Z",
 };
 
+const originalEnv = { ...process.env };
+
 describe("lib/api", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    process.env = {
-      ...originalEnv,
-      NEXT_PUBLIC_RECORDS_API_URL: "https://api.nexova.local",
-    };
+    localStorage.clear();
+    process.env = { ...originalEnv };
+    delete process.env.NEXT_PUBLIC_RECORDS_API_URL;
   });
 
   it("obtiene candidaturas desde /records y devuelve data", async () => {
+    localStorage.setItem("token", "test-access-token");
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
       status: 200,
@@ -52,7 +54,12 @@ describe("lib/api", () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/records",
-      expect.objectContaining({ cache: "no-store" }),
+      expect.objectContaining({
+        cache: "no-store",
+        headers: expect.objectContaining({
+          Authorization: "Bearer test-access-token",
+        }),
+      }),
     );
     expect(records).toHaveLength(1);
     expect(records[0].full_name).toBe("Elena Ruiz");
@@ -116,6 +123,28 @@ describe("lib/api", () => {
 
     expect(notes).toHaveLength(1);
     expect(notes[0].content).toContain("Buen fit");
+  });
+
+  it("expone errores HTTP del backend en la respuesta", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: false,
+      status: 500,
+      text: async () => JSON.stringify({ detail: { message: "Error del servidor" } }),
+    } as Response);
+
+    await expect(getRecords()).rejects.toThrow("Error del servidor");
+  });
+
+  it("limpia el token y rechaza la carga cuando el backend responde 401", async () => {
+    localStorage.setItem("token", "expired-test-token");
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: false,
+      status: 401,
+      text: async () => JSON.stringify({ detail: "No autorizado" }),
+    } as Response);
+
+    await expect(getRecords()).rejects.toThrow("Sesión expirada");
+    expect(localStorage.getItem("token")).toBeNull();
   });
 
 });

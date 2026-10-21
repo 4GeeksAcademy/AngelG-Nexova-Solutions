@@ -17,12 +17,20 @@ export default function IncidentsPage() {
             </p>
             <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">Incidencias</h1>
           </div>
-          <Link
-            href="/incidents/new"
-            className="rounded-xl bg-cyan-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
-          >
-            Nueva incidencia
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/incidents/new"
+              className="rounded-xl bg-cyan-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
+            >
+              Nueva incidencia
+            </Link>
+            <Link
+              href="/incidents/analyzer"
+              className="rounded-xl border border-cyan-700 px-3 py-2 text-sm font-semibold text-cyan-800 transition hover:bg-cyan-50"
+            >
+              Analizar CSV
+            </Link>
+          </div>
         </header>
 
         <div className="mb-8">

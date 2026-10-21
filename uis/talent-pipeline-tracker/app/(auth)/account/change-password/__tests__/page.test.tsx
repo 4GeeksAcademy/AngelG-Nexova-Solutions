@@ -2,24 +2,20 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ChangePasswordPage from "@/app/(auth)/account/change-password/page";
+import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import { changePasswordRequest } from "@/lib/api-client";
 
-const pushMock = vi.fn();
-const replaceMock = vi.fn();
 const logoutMock = vi.fn();
-let isAuthenticatedValue = true;
-let isReadyValue = true;
+const { redirectMock } = vi.hoisted(() => ({
+  redirectMock: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: pushMock, replace: replaceMock }),
+  redirect: redirectMock,
 }));
 
 vi.mock("@/lib/auth-context", () => ({
-  useAuth: () => ({
-    isAuthenticated: isAuthenticatedValue,
-    isReady: isReadyValue,
-    logout: logoutMock,
-  }),
+  useAuth: () => ({ logout: logoutMock }),
 }));
 
 vi.mock("@/lib/api-client", () => ({
@@ -28,18 +24,21 @@ vi.mock("@/lib/api-client", () => ({
 
 const changePasswordRequestMock = vi.mocked(changePasswordRequest);
 
-describe("ChangePasswordPage", () => {
+describe("Cambio de contraseña", () => {
   beforeEach(() => {
-    pushMock.mockReset();
-    replaceMock.mockReset();
+    redirectMock.mockReset();
     changePasswordRequestMock.mockReset();
     logoutMock.mockReset();
-    isAuthenticatedValue = true;
-    isReadyValue = true;
   });
 
-  it("renderiza los tres campos del formulario cuando el usuario está autenticado", () => {
-    render(<ChangePasswordPage />);
+  it("redirige la ruta anterior al perfil", () => {
+    ChangePasswordPage();
+
+    expect(redirectMock).toHaveBeenCalledWith("/account/profile");
+  });
+
+  it("renderiza los tres campos del formulario dentro del perfil", () => {
+    render(<ChangePasswordForm />);
 
     expect(screen.getByLabelText("Contraseña actual")).toBeInTheDocument();
     expect(screen.getByLabelText("Nueva contraseña")).toBeInTheDocument();
@@ -48,21 +47,8 @@ describe("ChangePasswordPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("redirige a /login si el usuario no está autenticado (protección de ruta existente)", async () => {
-    isAuthenticatedValue = false;
-
-    render(<ChangePasswordPage />);
-
-    await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith("/login");
-    });
-    expect(
-      screen.queryByLabelText("Contraseña actual"),
-    ).not.toBeInTheDocument();
-  });
-
   it("valida coincidencia de contraseñas y no llama a la API si no coinciden", () => {
-    render(<ChangePasswordPage />);
+    render(<ChangePasswordForm />);
 
     fireEvent.change(screen.getByLabelText("Contraseña actual"), {
       target: { value: "OldPassword123!" },
@@ -84,7 +70,7 @@ describe("ChangePasswordPage", () => {
   it("cierra sesión después de actualizar la contraseña", async () => {
     changePasswordRequestMock.mockResolvedValue({ message: "ok" });
 
-    render(<ChangePasswordPage />);
+    render(<ChangePasswordForm />);
 
     fireEvent.change(screen.getByLabelText("Contraseña actual"), {
       target: { value: "OldPassword123!" },
@@ -116,7 +102,7 @@ describe("ChangePasswordPage", () => {
       new Error("La contraseña actual es incorrecta"),
     );
 
-    render(<ChangePasswordPage />);
+    render(<ChangePasswordForm />);
 
     fireEvent.change(screen.getByLabelText("Contraseña actual"), {
       target: { value: "WrongPassword123!" },

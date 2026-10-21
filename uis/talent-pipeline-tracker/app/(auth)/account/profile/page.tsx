@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 import { Loading } from "@/components/Loading";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
@@ -15,7 +16,7 @@ import {
 } from "@/lib/api-client";
 
 function ProfileContent() {
-  const { user, logout } = useAuth();
+  const { updateProfileName } = useAuth();
 
   const [me, setMe] = useState<MeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -61,7 +62,11 @@ function ProfileContent() {
       if (phone.trim()) payload.phone = phone.trim();
       if (address.trim()) payload.address = address.trim();
 
-      await updateMyProfile(payload);
+      const updatedProfile = await updateMyProfile(payload);
+      updateProfileName(updatedProfile.name);
+      setMe((current) =>
+        current ? { ...current, profile: updatedProfile } : current,
+      );
       setSaveSuccess(true);
     } catch (err) {
       setSaveError(
@@ -220,15 +225,9 @@ function ProfileContent() {
               {isSaving ? "Guardando…" : "Guardar cambios"}
             </button>
 
-            <button
-              type="button"
-              onClick={logout}
-              className="rounded-xl border border-red-200 px-6 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-            >
-              Cerrar sesión
-            </button>
           </div>
         </form>
+        <ChangePasswordForm />
       </section>
     </main>
   );

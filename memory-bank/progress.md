@@ -80,3 +80,13 @@ Tras cada cambio significativo, actualizar este documento en el mismo conjunto d
 - El usuario confirmó que todas las eliminaciones locales, incluida `CONTEXT-company.md`, son permanentes. No restaurarlas.
 - Se añadieron `WebSide.png` y `BackOffice.png`. El usuario pidió adjuntar ambas imágenes al PR tal como están. La captura de backoffice corresponde visualmente a `uis/backoffice/`; `WebSide.png` muestra controles y mensajes ausentes de `uis/website/index.html`, por lo que se adjuntará como imagen proporcionada, no como validación visual de esa fuente.
 - Se creó el commit local `a7b5e47` (`feat: add Nexova website and backoffice`). La cuenta GitHub autenticada es `Angel-G7`, pero `gh repo fork --remote --remote-name fork --clone=false` falló con HTTP 403 (`Resource not accessible by integration`); no hay fork remoto, push ni PR. Se necesita crear el fork con una cuenta/autorización que tenga ese permiso antes de publicar la rama.
+
+## Arranque local comprobado — 2026-10-14
+
+- Se reparó `services/api/database.py`: apertura de la cadena de documentación e inicialización de TinyDB en su ruta existente. No se cambiaron modelos, manifests, lockfiles ni configuración de producción.
+- Las dependencias ya estaban instaladas al iniciar esta continuación: `services/api/.venv/bin/python -m pip check` pasó. Se conservaron los cambios previos en ejecutables del entorno virtual; no hubo instalaciones nuevas en esta continuación.
+- Comprobación AST de `database.py` e importación de `main` con el entorno virtual: ambas pasaron. El editor no informó errores en el archivo reparado.
+- API iniciada con `services/api/.venv/bin/python -B -m uvicorn main:app --app-dir services/api --host 127.0.0.1 --port 8000`: startup completo; `/health` respondió HTTP 200 con `{"status":"ok"}` y `/docs` respondió HTTP 200.
+- Website y backoffice servidos por `python3 -B audit/before/serve.py --port 8001`: HTML, CSS y JavaScript de `/uis/website/` y `/uis/backoffice/` respondieron HTTP 200, con marcadores de contenido comprobados mediante `urllib.request`.
+- Ambos servidores están restringidos a loopback; reenviar 8000 y 8001 de forma privada para abrirlos desde el equipo anfitrión. El sitio corporativo y el backoffice comparten 8001; el tracker Next.js no se inició.
+- Estas comprobaciones son de arranque y entrega HTTP, no validación visual, pruebas completas de API, integración PostgreSQL ni mediciones Lighthouse. No se ejecutó la suite completa y no se crearon commits ni publicaciones.

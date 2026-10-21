@@ -29,12 +29,15 @@ import {
 export interface User {
   id: string;
   email: string;
+  name: string | null;
   role: string;
 }
 
 interface AuthContextValue {
   /** Usuario autenticado (null si no hay sesión). */
   user: User | null;
+  /** Actualiza el nombre de perfil del usuario autenticado. */
+  updateProfileName: (name: string | null) => void;
   /** Indica si ya se verificó localStorage. */
   isReady: boolean;
   /** Login: recibe email + password, guarda token y actualiza estado. */
@@ -76,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: me.id,
           email: me.email,
+          name: me.profile?.name?.trim() || null,
           role: me.role,
         });
       })
@@ -116,6 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser({
           id: me.id,
           email: me.email,
+          name: me.profile?.name?.trim() || null,
           role: me.role,
         });
       } catch {
@@ -126,6 +131,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
+
+  const updateProfileName = useCallback((name: string | null) => {
+    setUser((current) =>
+      current ? { ...current, name: name?.trim() || null } : current,
+    );
+  }, []);
 
   const register = useCallback(
     async (payload: RegisterPayload) => {
@@ -148,13 +159,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
+      updateProfileName,
       isReady,
       login,
       register,
       logout,
       isAuthenticated,
     }),
-    [user, isReady, login, register, logout, isAuthenticated],
+    [user, updateProfileName, isReady, login, register, logout, isAuthenticated],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -7,6 +7,7 @@ from fastapi import Depends
 from sqlmodel import Session, create_engine
 from tinydb import TinyDB
 
+"""
 Uses a JSON file stored in the `data/` directory that survives restarts.
 The path is resolved relative to this file, so it works regardless of
 the working directory from which the application is launched.
@@ -28,6 +29,8 @@ DATA_DIR = BASE_DIR / "data"
 DB_DIR = Path(__file__).resolve().parent / "data"
 DB_PATH = DB_DIR / "db.json"
 
+DB_DIR.mkdir(parents=True, exist_ok=True)
+db = TinyDB(DB_PATH)
 
 users_table = db.table("users")
 profiles_table = db.table("profiles")

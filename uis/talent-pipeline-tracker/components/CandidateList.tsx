@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CandidateCard } from "@/components/CandidateCard";
@@ -9,7 +9,7 @@ import { CandidateForm } from "@/components/CandidateForm";
 import { CandidateSearch } from "@/components/CandidateSearch";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Loading } from "@/components/Loading";
-import { createRecord, getRecords } from "@/lib/api";
+import { createRecord, deleteRecord, getRecords } from "@/lib/api";
 import { Candidate, CandidateStage, CandidateStatus } from "@/types/candidate";
 
 function isCandidateStatus(value: string): value is CandidateStatus {
@@ -26,7 +26,17 @@ function isCandidateStage(value: string): value is CandidateStage {
   ].includes(value);
 }
 
-export function CandidateList() {
+interface CandidateListProps {
+  isCreateFormOpen: boolean;
+  onToggleCreateForm: () => void;
+  isDeleteMode: boolean;
+}
+
+export function CandidateList({
+  isCreateFormOpen,
+  onToggleCreateForm,
+  isDeleteMode,
+}: CandidateListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -50,29 +60,56 @@ export function CandidateList() {
   const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<CandidateStatus | "all">(initialStatus);
   const [stageFilter, setStageFilter] = useState<CandidateStage | "all">(initialStage);
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [deletingCandidateId, setDeletingCandidateId] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  async function loadCandidates() {
+  const setCandidateLoadError = useCallback((error: unknown) => {
+    setLoadError(
+      error instanceof Error
+        ? error.message
+        : "Error inesperado al consultar candidaturas.",
+    );
+  }, []);
+
+  const loadCandidates = useCallback(async () => {
     try {
       const records = await getRecords();
       setCandidates(records);
     } catch (error) {
-      setLoadError(
-        error instanceof Error
-          ? error.message
-          : "Error inesperado al consultar candidaturas.",
-      );
+      setCandidateLoadError(error);
     } finally {
       setIsLoading(false);
     }
+  }, [setCandidateLoadError]);
+
+  function handleRetry() {
+    setLoadError(null);
+    setIsLoading(true);
+    void loadCandidates();
   }
 
   useEffect(() => {
-    loadCandidates();
-  }, []);
+    let isMounted = true;
+
+    getRecords()
+      .then((records) => {
+        if (isMounted) setCandidates(records);
+      })
+      .catch((error: unknown) => {
+        if (isMounted) setCandidateLoadError(error);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [setCandidateLoadError]);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -118,7 +155,7 @@ export function CandidateList() {
       setIsCreating(true);
       const created = await createRecord(payload);
       setCandidates((previous) => [created, ...previous]);
-      setShowCreateForm(false);
+      onToggleCreateForm();
       setSuccessMessage("Candidatura registrada correctamente.");
     } catch (error) {
       setCreateError(
@@ -128,6 +165,32 @@ export function CandidateList() {
       );
     } finally {
       setIsCreating(false);
+    }
+  }
+
+  async function handleDeleteCandidate(candidate: Candidate) {
+    if (!window.confirm(`¿Eliminar la candidatura de ${candidate.full_name}?`)) {
+      return;
+    }
+
+    setDeleteError(null);
+    setDeleteSuccess(null);
+    setDeletingCandidateId(candidate.id);
+
+    try {
+      await deleteRecord(candidate.id);
+      setCandidates((previous) =>
+        previous.filter((item) => item.id !== candidate.id),
+      );
+      setDeleteSuccess(`Candidatura de ${candidate.full_name} eliminada.`);
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar la candidatura.",
+      );
+    } finally {
+      setDeletingCandidateId(null);
     }
   }
 
@@ -164,7 +227,7 @@ export function CandidateList() {
         />
         <button
           type="button"
-          onClick={loadCandidates}
+          onClick={handleRetry}
           className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
         >
           Reintentar
@@ -185,16 +248,9 @@ export function CandidateList() {
               Alta rapida de candidatos recomendados para el proceso Executive Assistant.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowCreateForm((value) => !value)}
-            className="rounded-lg bg-cyan-700 px-3.5 py-2 text-sm font-medium text-white transition hover:bg-cyan-600"
-          >
-            {showCreateForm ? "Ocultar formulario" : "Registrar candidatura"}
-          </button>
         </div>
 
-        {showCreateForm ? (
+        {isCreateFormOpen ? (
           <div className="mt-4 space-y-3 rounded-xl border border-cyan-100 bg-white p-4">
             {successMessage ? (
               <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
@@ -229,7 +285,16 @@ export function CandidateList() {
         {filteredCandidates.length} candidatura(s) visible(s) para Executive Assistant.
       </p>
 
-      {successMessage && !showCreateForm ? (
+      {deleteError ? (
+        <ErrorMessage title="No se pudo eliminar la candidatura" message={deleteError} />
+      ) : null}
+      {deleteSuccess ? (
+        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          {deleteSuccess}
+        </p>
+      ) : null}
+
+      {successMessage && !isCreateFormOpen ? (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {successMessage}
         </p>
@@ -245,6 +310,9 @@ export function CandidateList() {
             <CandidateCard
               key={candidate.id}
               candidate={candidate}
+              isDeleteMode={isDeleteMode}
+              isDeleting={deletingCandidateId === candidate.id}
+              onDelete={() => handleDeleteCandidate(candidate)}
               detailHref={
                 detailQuery
                   ? `/candidates/${candidate.id}?${detailQuery}`

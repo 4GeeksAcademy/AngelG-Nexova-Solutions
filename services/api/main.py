@@ -111,3 +111,8 @@ app.include_router(inventory_router)
 def health_check():
     """Simple health-check endpoint."""
     return {"status": "ok"}
+
+
+@app.get("/", tags=["health"])
+def root():
+    return {"message": "API Encendida y funcionando correctamente"}

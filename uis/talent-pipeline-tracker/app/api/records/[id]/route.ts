@@ -78,3 +78,20 @@ export async function PUT(
 
   return NextResponse.json(candidate);
 }
+
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  const { id } = await context.params;
+  const candidateIndex = db.candidates.findIndex((candidate) => candidate.id === id);
+
+  if (candidateIndex === -1) {
+    return NextResponse.json({ detail: "Not Found" }, { status: 404 });
+  }
+
+  db.candidates.splice(candidateIndex, 1);
+  delete db.notesByRecord[id];
+
+  return new NextResponse(null, { status: 204 });
+}

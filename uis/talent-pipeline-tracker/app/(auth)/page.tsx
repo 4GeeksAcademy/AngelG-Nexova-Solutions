@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { useState } from "react";
 
 import { CandidateList } from "@/components/CandidateList";
-import { useAuth } from "@/lib/auth-context";
 
 export default function Home() {
-  const { user, logout } = useAuth();
+  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
 
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
@@ -27,48 +27,36 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-3 lg:items-end">
-              <p className="text-sm text-slate-600">{user?.email}</p>
-              <nav
-                aria-label="Opciones de cuenta"
-                className="flex flex-wrap items-center gap-2"
+              <button
+                type="button"
+                onClick={() => setIsCreateFormOpen((current) => !current)}
+                className="rounded-xl bg-cyan-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
               >
-                <Link
-                  href="/incidents"
-                  className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
-                >
-                  Incidencias
-                </Link>
-                <Link
-                  href="/incidents/new"
-                  className="rounded-xl bg-cyan-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
-                >
-                  Nueva incidencia
-                </Link>
-                <Link
-                  href="/account/profile"
-                  className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
-                >
-                  Mi perfil
-                </Link>
-                <Link
-                  href="/account/change-password"
-                  className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-cyan-600 hover:text-cyan-700"
-                >
-                  Cambiar contraseña
-                </Link>
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
-                >
-                  Cerrar sesión
-                </button>
-              </nav>
+                {isCreateFormOpen ? "Ocultar registro" : "Registrar candidatura"}
+              </button>
+              <button
+                type="button"
+                aria-pressed={isDeleteMode}
+                onClick={() => setIsDeleteMode((current) => !current)}
+                className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
+                  isDeleteMode
+                    ? "border-red-300 bg-red-50 text-red-700"
+                    : "border-slate-300 text-slate-700 hover:border-red-300 hover:text-red-700"
+                }`}
+              >
+                Eliminar candidaturas
+              </button>
             </div>
           </div>
         </header>
 
-        <CandidateList />
+        <CandidateList
+          isCreateFormOpen={isCreateFormOpen}
+          onToggleCreateForm={() =>
+            setIsCreateFormOpen((current) => !current)
+          }
+          isDeleteMode={isDeleteMode}
+        />
       </section>
     </main>
   );

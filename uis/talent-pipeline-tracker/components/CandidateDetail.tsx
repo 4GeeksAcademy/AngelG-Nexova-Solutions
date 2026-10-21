@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AddNoteForm } from "@/components/AddNoteForm";
@@ -11,6 +11,7 @@ import { Loading } from "@/components/Loading";
 import { NotesList } from "@/components/NotesList";
 import {
   addNote,
+  deleteRecord,
   deleteNote,
   getNotes,
   getRecordById,
@@ -47,6 +48,7 @@ const STAGE_OPTIONS: CandidateStage[] = [
 ];
 
 export function CandidateDetail({ candidateId }: CandidateDetailProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const backHref = searchParams.toString() ? `/?${searchParams.toString()}` : "/";
 
@@ -56,6 +58,7 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isPatching, setIsPatching] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeletingCandidate, setIsDeletingCandidate] = useState(false);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -213,20 +216,54 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
     }
   }
 
+  async function handleDeleteCandidate() {
+    if (!candidate) return;
+
+    if (!window.confirm(`¿Eliminar la candidatura de ${candidate.full_name}?`)) {
+      return;
+    }
+
+    setError(null);
+    setIsDeletingCandidate(true);
+
+    try {
+      await deleteRecord(candidateId);
+      router.push(backHref);
+    } catch (deleteError) {
+      setError(
+        deleteError instanceof Error
+          ? deleteError.message
+          : "No se pudo eliminar la candidatura.",
+      );
+    } finally {
+      setIsDeletingCandidate(false);
+    }
+  }
+
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
       <section className="mx-auto w-full max-w-4xl space-y-6 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
-        <header className="space-y-2">
-          <Link
-            href={backHref}
-            className="inline-flex text-sm font-medium text-cyan-700 transition hover:text-cyan-600"
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-2">
+            <Link
+              href={backHref}
+              className="inline-flex text-sm font-medium text-cyan-700 transition hover:text-cyan-600"
+            >
+              ← Volver al pipeline
+            </Link>
+            <h1 className="text-3xl font-bold text-slate-900">{candidate?.full_name ?? "Sin nombre"}</h1>
+            <p className="text-sm text-slate-600">
+              {candidate?.position ?? "—"} · {candidate?.email ?? "—"} · {candidate?.phone ?? "—"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDeleteCandidate}
+            disabled={isDeletingCandidate}
+            className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            ← Volver al pipeline
-          </Link>
-          <h1 className="text-3xl font-bold text-slate-900">{candidate?.full_name ?? "Sin nombre"}</h1>
-          <p className="text-sm text-slate-600">
-            {candidate?.position ?? "—"} · {candidate?.email ?? "—"} · {candidate?.phone ?? "—"}
-          </p>
+            {isDeletingCandidate ? "Eliminando..." : "Eliminar candidatura"}
+          </button>
         </header>
 
         {error ? <ErrorMessage message={error} /> : null}

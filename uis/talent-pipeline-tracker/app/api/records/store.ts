@@ -34,7 +34,96 @@ const initialCandidates: Candidate[] = [
     applied_at: now,
     updated_at: now,
   },
+  {
+    id: "cand-003",
+    full_name: "Marina Santos",
+    email: "marina.santos@example.com",
+    phone: "+34 600 000 003",
+    position: "Executive Assistant",
+    linkedin_url: null,
+    cv_url: null,
+    status: "selected",
+    stage: "offer_presented",
+    experience_years: 7,
+    notes_count: 0,
+    applied_at: now,
+    updated_at: now,
+  },
+  {
+    id: "cand-004",
+    full_name: "Diego Navarro",
+    email: "diego.navarro@example.com",
+    phone: "+34 600 000 004",
+    position: "Executive Assistant",
+    linkedin_url: null,
+    cv_url: null,
+    status: "discarded",
+    stage: "personal_interview",
+    experience_years: 4,
+    notes_count: 0,
+    applied_at: now,
+    updated_at: now,
+  },
+  {
+    id: "cand-005",
+    full_name: "Paula Medina",
+    email: "paula.medina@example.com",
+    phone: "+34 600 000 005",
+    position: "Executive Assistant",
+    linkedin_url: null,
+    cv_url: null,
+    status: "in_progress",
+    stage: "technical_interview",
+    experience_years: 6,
+    notes_count: 0,
+    applied_at: now,
+    updated_at: now,
+  },
 ];
+
+const filterStatuses: Candidate["status"][] = [
+  "received",
+  "in_progress",
+  "selected",
+  "discarded",
+];
+
+const filterStages: Candidate["stage"][] = [
+  "pending",
+  "review",
+  "personal_interview",
+  "technical_interview",
+  "offer_presented",
+];
+
+const coveredCombinations = new Set(
+  initialCandidates.map(({ status, stage }) => `${status}:${stage}`),
+);
+
+const additionalCandidates = filterStatuses.flatMap((status) =>
+  filterStages
+    .filter((stage) => !coveredCombinations.has(`${status}:${stage}`))
+    .map((stage, index) => {
+      const id = `demo-${status}-${stage}`;
+      return {
+        id,
+        full_name: `Demo ${status} ${stage}`,
+        email: `${id}@example.com`,
+        phone: "+34 600 000 000",
+        position: "Executive Assistant",
+        linkedin_url: null,
+        cv_url: null,
+        status,
+        stage,
+        experience_years: index + 1,
+        notes_count: 0,
+        applied_at: now,
+        updated_at: now,
+      };
+    }),
+);
+
+initialCandidates.push(...additionalCandidates);
 
 const initialNotes: Record<string, Note[]> = {
   "cand-001": [
@@ -46,6 +135,10 @@ const initialNotes: Record<string, Note[]> = {
     },
   ],
   "cand-002": [],
+  "cand-003": [],
+  "cand-004": [],
+  "cand-005": [],
+  ...Object.fromEntries(additionalCandidates.map(({ id }) => [id, [] as Note[]])),
 };
 
 export const db = {

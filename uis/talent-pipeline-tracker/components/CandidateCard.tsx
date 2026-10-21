@@ -5,9 +5,18 @@ import { Candidate, STAGE_LABELS, STATUS_LABELS } from "@/types/candidate";
 interface CandidateCardProps {
   candidate: Candidate;
   detailHref?: string;
+  isDeleteMode?: boolean;
+  isDeleting?: boolean;
+  onDelete?: () => void;
 }
 
-export function CandidateCard({ candidate, detailHref }: CandidateCardProps) {
+export function CandidateCard({
+  candidate,
+  detailHref,
+  isDeleteMode = false,
+  isDeleting = false,
+  onDelete,
+}: CandidateCardProps) {
   const targetHref = detailHref ?? `/candidates/${candidate?.id ?? ""}`;
 
   return (
@@ -33,12 +42,26 @@ export function CandidateCard({ candidate, detailHref }: CandidateCardProps) {
         </p>
       </div>
 
-      <Link
-        href={targetHref}
-        className="inline-flex rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-      >
-        Ver detalle
-      </Link>
+      <div className="flex items-center gap-2">
+        <Link
+          href={targetHref}
+          className="inline-flex rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+        >
+          Ver detalle
+        </Link>
+        {isDeleteMode ? (
+          <button
+            type="button"
+            onClick={onDelete}
+            disabled={isDeleting}
+            aria-label={`Eliminar candidatura de ${candidate.full_name}`}
+            title="Eliminar candidatura"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-lg font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            X
+          </button>
+        ) : null}
+      </div>
     </article>
   );
 }

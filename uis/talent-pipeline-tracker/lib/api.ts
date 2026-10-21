@@ -5,6 +5,7 @@ import {
   UpdateCandidatePayload,
 } from "@/types/candidate";
 import { AddNotePayload, Note, NotesResponse } from "@/types/note";
+import { getToken } from "@/lib/api-client";
 
 interface RecordsResponse {
   total: number;
@@ -141,6 +142,12 @@ export async function updateRecord(
   return request<Candidate>(`/records/${id}`, {
     method: "PUT",
     body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteRecord(id: string): Promise<void> {
+  await request<void>(`/records/${id}`, {
+    method: "DELETE",
   });
 }
 
