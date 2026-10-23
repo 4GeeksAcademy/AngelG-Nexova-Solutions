@@ -17,7 +17,7 @@ const { replace, logout, pathname } = vi.hoisted(() => ({
 const authState = vi.hoisted(() => ({
   isAuthenticated: false,
   isReady: false,
-  user: { email: "person@example.com" },
+  user: { name: "Prueba", email: "person@example.com" },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -108,11 +108,23 @@ describe("authenticated navigation", () => {
     expect(within(nav).getByRole("link", { name: "Pipeline" })).toHaveAttribute("aria-current", "page");
     expect(within(nav).getByRole("link", { name: "Gestión de incidencias" })).not.toHaveAttribute("aria-current");
     expect(within(nav).getByRole("link", { name: "Analizador de incidencias" })).not.toHaveAttribute("aria-current");
+    const userMenuButton = within(nav).getByRole("button", { name: "Menú de usuario: Prueba" });
+    expect(userMenuButton).toHaveAttribute("aria-expanded", "false");
+    expect(within(nav).queryByRole("link", { name: "Mi perfil" })).not.toBeInTheDocument();
+    fireEvent.click(userMenuButton);
+    expect(userMenuButton).toHaveAttribute("aria-expanded", "true");
     expect(within(nav).getByRole("link", { name: "Mi perfil" })).toHaveAttribute("href", "/account/profile");
     expect(within(nav).queryByRole("link", { name: "Cambiar contraseña" })).not.toBeInTheDocument();
     expect(within(nav).getByRole("button", { name: "Cerrar sesión" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Registrar candidatura" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Nueva incidencia" })).not.toBeInTheDocument();
+
+    fireEvent.pointerDown(document.body);
+    expect(userMenuButton).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(userMenuButton);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(userMenuButton).toHaveAttribute("aria-expanded", "false");
+    expect(userMenuButton).toHaveFocus();
 
     pathname.current = "/incidents";
     rerender(renderNavigation());
@@ -126,6 +138,7 @@ describe("authenticated navigation", () => {
 
     pathname.current = "/account/profile";
     rerender(renderNavigation());
+    fireEvent.click(userMenuButton);
     expect(within(nav).getByRole("link", { name: "Mi perfil" })).toHaveAttribute("aria-current", "page");
 
     fireEvent.click(within(nav).getByRole("button", { name: "Cerrar sesión" }));

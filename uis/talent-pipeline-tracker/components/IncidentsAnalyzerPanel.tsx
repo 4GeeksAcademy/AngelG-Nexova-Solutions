@@ -132,7 +132,7 @@ export function IncidentsAnalyzerPanel() {
               type="button"
               onClick={onAnalyze}
               disabled={isLoading}
-              className="rounded-lg bg-cyan-700 px-3.5 py-2 text-sm font-medium text-white transition hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-cyan-400 px-3.5 py-2 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-cyan-300 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 dark:bg-cyan-300 dark:text-[#060b18] dark:hover:bg-cyan-200"
             >
               {isLoading ? "Analizando..." : "Analizar CSV"}
             </button>

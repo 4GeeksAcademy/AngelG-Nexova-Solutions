@@ -11,6 +11,7 @@ from auth import get_current_user
 from services import (
     create_note,
     create_record,
+    delete_record,
     delete_note,
     get_notes_by_record,
     get_record_by_id,
@@ -202,6 +203,36 @@ def patch_candidate(
                 "message": "No se pudo modificar la candidatura.",
             }
         )
+
+
+@router.delete("/{record_id}")
+def remove_candidate(
+    record_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        deleted = delete_record(record_id)
+    except Exception:
+        logger.exception(
+            "Error al eliminar candidatura %s para usuario %s",
+            record_id,
+            current_user["id"],
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "RECORD_DELETE_FAILED",
+                "message": "No se pudo eliminar la candidatura.",
+            }
+        )
+
+    if not deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="Candidatura no encontrada"
+        )
+
+    return Response(status_code=204)
 
 
 @router.get("/{record_id}/notes")

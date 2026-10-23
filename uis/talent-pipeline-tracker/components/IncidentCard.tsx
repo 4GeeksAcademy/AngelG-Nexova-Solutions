@@ -16,6 +16,13 @@ interface IncidentCardProps {
   onChangeStatus: (nextStatus: IncidentStatus) => void;
 }
 
+const INCIDENT_STATUS_BADGE_CLASSES: Record<IncidentStatus, string> = {
+  open: "bg-blue-100 text-blue-800 dark:bg-sky-300 dark:text-sky-950",
+  in_progress: "bg-gray-100 text-gray-800 dark:bg-gray-300 dark:text-gray-950",
+  resolved: "bg-green-100 text-green-800 dark:bg-green-300 dark:text-green-950",
+  discarded: "bg-red-100 text-red-800 dark:bg-red-300 dark:text-red-950",
+};
+
 export function IncidentCard({ incident, isUpdating, onChangeStatus }: IncidentCardProps) {
   const nextStatuses = incident ? INCIDENT_STATUS_TRANSITIONS[incident.status] : [];
 
@@ -26,7 +33,9 @@ export function IncidentCard({ incident, isUpdating, onChangeStatus }: IncidentC
           <h3 className="text-lg font-semibold text-slate-900">{incident?.title ?? "—"}</h3>
           <p className="text-sm text-slate-600">{incident?.description ?? "—"}</p>
         </div>
-        <span className="rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-semibold text-cyan-800">
+        <span
+          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${INCIDENT_STATUS_BADGE_CLASSES[incident.status]}`}
+        >
           {incident ? INCIDENT_STATUS_LABELS[incident.status] : "—"}
         </span>
       </div>

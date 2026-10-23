@@ -127,6 +127,23 @@ def test_records_group_reports_note_creation_failure(monkeypatch):
     assert response.json()["detail"]["code"] == "NOTE_CREATE_FAILED"
 
 
+def test_records_group_deletes_candidate_and_its_notes():
+    headers = auth_headers()
+    record = create_record(headers)
+    note = client.post(
+        f"/records/{record['id']}/notes",
+        headers=headers,
+        json={"content": "Nota que debe eliminarse con la candidatura."},
+    )
+
+    deleted = client.delete(f"/records/{record['id']}", headers=headers)
+
+    assert note.status_code == 200
+    assert deleted.status_code == 204
+    assert client.get(f"/records/{record['id']}", headers=headers).status_code == 404
+    assert client.get(f"/records/{record['id']}/notes", headers=headers).status_code == 404
+
+
 def test_records_group_updates_candidate_and_handles_service_error(monkeypatch):
     headers = auth_headers()
     record = create_record(headers)

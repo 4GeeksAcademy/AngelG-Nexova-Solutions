@@ -133,6 +133,15 @@ def update_record(record_id: str, changes: dict):
     return get_record_by_id(record_id)
 
 
+def delete_record(record_id: str):
+    deleted_ids = records_table.remove(Record.id == record_id)
+    if not deleted_ids:
+        return False
+
+    notes_table.remove(Note.record_id == record_id)
+    return True
+
+
 def get_notes_by_record(record_id: str):
     return notes_table.search(
         Note.record_id == record_id

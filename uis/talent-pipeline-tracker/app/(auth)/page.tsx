@@ -40,8 +40,8 @@ export default function Home() {
                 onClick={() => setIsDeleteMode((current) => !current)}
                 className={`rounded-xl border px-3 py-2 text-sm font-semibold transition ${
                   isDeleteMode
-                    ? "border-red-300 bg-red-50 text-red-700"
-                    : "border-slate-300 text-slate-700 hover:border-red-300 hover:text-red-700"
+                    ? "border-red-500 bg-red-600 text-white shadow-sm hover:bg-red-700 dark:border-red-400 dark:bg-red-500 dark:text-red-950 dark:hover:bg-red-400"
+                    : "border-red-400 bg-red-50 text-red-800 hover:bg-red-100 dark:border-red-400 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900"
                 }`}
               >
                 Eliminar candidaturas

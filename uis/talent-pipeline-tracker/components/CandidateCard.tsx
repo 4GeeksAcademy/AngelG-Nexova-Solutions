@@ -56,7 +56,7 @@ export function CandidateCard({
             disabled={isDeleting}
             aria-label={`Eliminar candidatura de ${candidate.full_name}`}
             title="Eliminar candidatura"
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-red-200 text-lg font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-red-300 bg-red-100 text-lg font-semibold text-red-800 shadow-sm transition hover:bg-red-200 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-300 dark:bg-red-400 dark:text-red-950 dark:hover:bg-red-300"
           >
             X
           </button>
