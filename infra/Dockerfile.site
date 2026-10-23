@@ -1,0 +1,6 @@
+FROM nginx:alpine
+
+COPY uis/website/ /usr/share/nginx/html/
+COPY application.html i18n.js validation.js /usr/share/nginx/html/
+
+EXPOSE 80

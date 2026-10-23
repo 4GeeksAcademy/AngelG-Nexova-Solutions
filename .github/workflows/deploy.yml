@@ -1,0 +1,90 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate production Compose
+        run: docker compose --env-file infra/production.env.example -f infra/compose.production.yml config --quiet
+
+      - name: Build and publish images to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          owner="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          registry="ghcr.io/$owner"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+
+          docker build --pull --file infra/Dockerfile.api --tag "$registry/nexova-api:$GITHUB_SHA" .
+          docker build --pull --file infra/Dockerfile.tracker --build-arg API_INTERNAL_URL=http://api:8000 --tag "$registry/nexova-tracker:$GITHUB_SHA" .
+          docker build --pull --file infra/Dockerfile.site --tag "$registry/nexova-site:$GITHUB_SHA" .
+
+          docker push "$registry/nexova-api:$GITHUB_SHA"
+          docker push "$registry/nexova-tracker:$GITHUB_SHA"
+          docker push "$registry/nexova-site:$GITHUB_SHA"
+
+      - name: Prepare SSH access
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$VPS_SSH_PRIVATE_KEY"
+          test -n "$VPS_KNOWN_HOSTS"
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/nexova_deploy"
+          chmod 600 "$HOME/.ssh/nexova_deploy"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Copy deployment files to VPS
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_SSH_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          test -n "$VPS_HOST"
+          test -n "$VPS_USER"
+          scp -i "$HOME/.ssh/nexova_deploy" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -P "$VPS_SSH_PORT" \
+            infra/compose.production.yml infra/deploy.sh \
+            "$VPS_USER@$VPS_HOST:/opt/nexova/infra/"
+
+      - name: Deploy on VPS
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_SSH_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          owner="$(printf '%s' "$GHCR_OWNER" | tr '[:upper:]' '[:lower:]')"
+          printf '%s\n' "$GHCR_TOKEN" | ssh -i "$HOME/.ssh/nexova_deploy" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -p "$VPS_SSH_PORT" \
+            "$VPS_USER@$VPS_HOST" \
+            "sh /opt/nexova/infra/deploy.sh '$GITHUB_SHA' '$owner'"

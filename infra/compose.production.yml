@@ -1,0 +1,117 @@
+name: nexova
+
+services:
+  site:
+    image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-site:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.site
+    restart: unless-stopped
+    ports:
+      - "${SITE_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  tracker:
+    image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-tracker:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.tracker
+      args:
+        API_INTERNAL_URL: http://api:8000
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:8000
+    ports:
+      - "${TRACKER_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - 'fetch("http://127.0.0.1:3000").then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-api:${IMAGE_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:?Set POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES: ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES:-15}
+      FRONTEND_URL: ${FRONTEND_URL:?Set FRONTEND_URL}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+    volumes:
+      - backend_data:/workspace/services/api/data
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+
+  incidents-api:
+    image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+    working_dir: /workspace/services/api
+    environment:
+      PYTHONPATH: /workspace
+    ports:
+      - "127.0.0.1:${INCIDENTS_API_PORT:-8001}:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/openapi.json', timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  backend_data:
+  postgres_data:
