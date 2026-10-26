@@ -5,6 +5,7 @@ from typing import Annotated, Generator
 from dotenv import load_dotenv
 from fastapi import Depends
 from sqlmodel import Session, create_engine
+from sqlalchemy.engine import make_url
 from tinydb import TinyDB
 
 """
@@ -17,7 +18,10 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    database_url = make_url(DATABASE_URL)
+    if database_url.drivername == "postgresql":
+        database_url = database_url.set(drivername="postgresql+psycopg2")
+    engine = create_engine(database_url, pool_pre_ping=True)
 else:
     # The API and TinyDB remain usable without PostgreSQL configuration.
     engine = None

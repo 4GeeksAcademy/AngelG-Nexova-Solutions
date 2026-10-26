@@ -1,21 +1,24 @@
 # Nexova public website
 
-Standalone responsive public-facing website, visually based on the root `index.html`. This folder is intentionally independent of the internal Talent Pipeline Tracker and the talent registration page.
+Standalone public-facing application built with the Next.js App Router, React, TypeScript, and Tailwind CSS 4. It is independent of the internal Talent Pipeline Tracker and does not require backend credentials.
 
 ## Run locally
 
-From the repository root, start a static server, for example:
+From this directory:
 
 ```bash
-python -m http.server 8000
+npm ci
+npm run dev
 ```
 
-Then open `http://localhost:8000/uis/website/`. The existing registration page is linked at `/application.html`.
+Open `http://localhost:3001/`. The talent registration form is available at `/application`.
 
-## Files
+## Structure
 
-- `index.html`: semantic page content, metadata, organization JSON-LD.
-- `styles.css`: responsive styles and visual design.
-- `script.js`: mobile navigation and current copyright year.
+- `app/page.tsx`: public landing page.
+- `app/application/page.tsx`: talent registration form.
+- `app/layout.tsx`: metadata and root layout.
+- `app/globals.css` and `styles.css`: Tailwind and shared visual styles.
+- `components/`: shared navigation and interactive components.
 
-No build step or additional project dependencies are required. Fonts are loaded from Google Fonts when network access is available; system fallbacks are provided. Business facts are limited to information supported by repository context; unsupported contact details, performance claims, and street-level address from the root reference have been omitted.
+The registration form is served by this application; there is no dependency on the root static server.

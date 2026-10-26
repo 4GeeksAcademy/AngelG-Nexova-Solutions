@@ -1,21 +1,24 @@
 # Sitio web público de Nexova
 
-Sitio web público, independiente y adaptable a distintos tamaños de pantalla, basado visualmente en el `index.html` de la raíz. Esta carpeta no depende del tracker interno de selección ni de la página de registro de talento.
+Aplicación pública independiente construida con Next.js App Router, React, TypeScript y Tailwind CSS 4. No forma parte del tracker ni requiere credenciales o conexión al backend.
 
 ## Ejecución local
 
-Desde la raíz del repositorio, inicia un servidor estático, por ejemplo:
+Desde esta carpeta:
 
 ```bash
-python -m http.server 8000
+npm ci
+npm run dev
 ```
 
-Abre `http://localhost:8000/uis/website/`. El formulario existente de registro de talento está enlazado en `/application.html`.
+Abre `http://localhost:3001/`. La ruta `/application` contiene el formulario de registro de talento migrado a Next.js.
 
-## Archivos
+## Estructura
 
-- `index.html`: contenido semántico, metadatos y JSON-LD de la organización.
-- `styles.css`: estilos y diseño adaptable.
-- `script.js`: navegación móvil y año actual del copyright.
+- `app/page.tsx`: portada pública.
+- `app/application/page.tsx`: formulario de registro.
+- `app/layout.tsx`: metadatos y layout global.
+- `app/globals.css` y `styles.css`: Tailwind y estilos visuales compartidos.
+- `components/`: navegación y componentes interactivos compartidos.
 
-No requiere compilación ni dependencias adicionales. Las fuentes se cargan desde Google Fonts si hay conexión; existen alternativas del sistema. Los datos de la empresa se limitan a información respaldada por el contexto del repositorio; se han omitido datos de contacto, resultados y dirección postal concreta no verificados de la referencia.
+La URL del formulario se sirve dentro de esta aplicación; no se requiere levantar el servidor estático de la raíz.
