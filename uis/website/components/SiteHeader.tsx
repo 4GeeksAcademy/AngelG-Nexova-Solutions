@@ -41,7 +41,7 @@ const labels = {
   },
 } as const;
 
-export function SiteHeader() {
+export function SiteHeader({ page = "home" }: { page?: "home" | "application" }) {
   const [isOpen, setIsOpen] = useState(false);
   const { language, theme, setLanguage, toggleTheme } = useSitePreferences();
   const t = labels[language];
@@ -56,29 +56,27 @@ export function SiteHeader() {
   }, []);
 
   const links = [
-    [t.services, "#servicios"],
-    [t.process, "#proceso"],
-    [t.industries, "#sectores"],
-    [t.technology, "#ia"],
-    [t.apply, "#aplica"],
-    [t.contact, "#contacto"],
-  ] as const;
+      [t.services, "#servicios"],
+      [t.process, "#proceso"],
+      [t.industries, "#sectores"],
+      [t.technology, "#ia"],
+      [t.apply, "#aplica"],
+      [t.contact, "#contacto"],
+    ] as const;
 
   return (
-    <header className="site-header">
+    <header className={`site-header${page === "application" ? " application-site-header" : ""}`}>
       <div className="nav-wrap">
-        <a className="brand" href="#inicio" aria-label={t.home}>
+        <a className="brand" href={page === "home" ? "#inicio" : "/"} aria-label={t.home}>
           <span className="brand-mark">N</span>
           <span>Nexova <b>Solutions</b></span>
         </a>
-        <nav id="primary-nav" className={`primary-nav${isOpen ? " open" : ""}`} aria-label={t.navigation}>
+        {page === "home" && <nav id="primary-nav" className={`primary-nav${isOpen ? " open" : ""}`} aria-label={t.navigation}>
           {links.map(([label, href]) => (
             <a key={href} href={href} onClick={() => setIsOpen(false)}>{label}</a>
           ))}
-          <Link href="/application" className="nav-cta" onClick={() => setIsOpen(false)}>
-            {t.applyNow}
-          </Link>
-        </nav>
+          <Link href="/application" className="nav-cta" onClick={() => setIsOpen(false)}>{t.applyNow}</Link>
+        </nav>}
         <div className="nav-right">
           <div className="nav-controls">
             <label className="sr-only" htmlFor="site-language">{t.language}</label>
@@ -103,7 +101,7 @@ export function SiteHeader() {
               <span>{theme === "dark" ? t.themeLight : t.themeDark}</span>
             </button>
           </div>
-          <button
+          {page === "home" && <button
             className="menu-toggle"
             type="button"
             aria-expanded={isOpen}
@@ -112,7 +110,7 @@ export function SiteHeader() {
             onClick={() => setIsOpen((open) => !open)}
           >
             <i /><i /><i />
-          </button>
+          </button>}
         </div>
       </div>
     </header>

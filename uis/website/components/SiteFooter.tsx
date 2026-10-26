@@ -29,7 +29,10 @@ export function SiteFooter({ onHome = false }: { onHome?: boolean }) {
           <a href="https://linkedin.com/company/nexova-solutions" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
       </div>
-      <div className="container footer-bottom"><span>© {new Date().getFullYear()} Nexova Solutions</span><Link href={destination("inicio")}>{spanish ? "Volver al inicio" : "Back to home"} ↑</Link></div>
+      <div className="container footer-bottom">
+        <span>© {new Date().getFullYear()} Nexova Solutions S.L. {spanish ? "Todos los derechos reservados." : "All rights reserved."}</span>
+        <span>{spanish ? "Valencia · España | Miami · USA" : "Valencia · Spain | Miami · USA"}</span>
+      </div>
     </footer>
   );
 }

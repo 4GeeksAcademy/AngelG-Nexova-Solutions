@@ -310,21 +310,67 @@ html {
 .service-card {
   min-height: 0;
   padding: 1.3rem;
+  border-radius: 0;
+  transform: translateY(0);
+  transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
+}
+
+.service-card-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
 }
 
 .service-card h3 {
-  font-size: 1.35rem;
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.25;
 }
 
-.service-card p,
+.service-card-tools {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.service-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+}
+
+.service-symbol svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.service-card p {
+  flex: 1;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  line-height: 1.8;
+}
+
 .service-card li {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.service-card .text-link {
+  margin-top: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .service-card ul {
   display: grid;
   gap: 0.45rem;
-  margin: 0 0 1.2rem;
+  margin: auto 0 1.2rem;
   padding: 0;
   list-style: none;
 }
@@ -395,6 +441,8 @@ html {
   border: 1px solid rgb(255 255 255 / 10%);
   padding: 1rem;
   background: rgb(255 255 255 / 3%);
+  transform: translateY(0);
+  transition: transform 0.24s ease, border-color 0.24s ease, background-color 0.24s ease;
 }
 
 .phase-grid article > p {
@@ -427,9 +475,38 @@ html {
 }
 
 .industry-list article {
-  grid-template-columns: 2.5rem minmax(0, 1fr) 1rem;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
   gap: 0.75rem;
-  padding-block: 1rem;
+  padding: 1rem 0.85rem;
+  border: 1px solid #d4d1c8;
+  border-radius: 2px;
+  background: #faf9f5;
+  box-shadow: 0 1px 2px rgb(25 36 56 / 5%);
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.industry-list {
+  display: grid;
+  gap: 0.7rem;
+  border-top: 0;
+}
+
+.industry-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c9b581;
+  border-radius: 2px;
+  background: rgb(212 168 67 / 5%);
+  color: var(--gold);
+  font-size: 1rem;
+  transition: transform 0.22s ease, border-color 0.22s ease, background-color 0.22s ease;
+}
+
+.industry-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .industry-list h3 {
@@ -478,6 +555,8 @@ html {
   border: 1px solid rgb(255 255 255 / 10%);
   padding: 0.9rem;
   background: rgb(255 255 255 / 4%);
+  transform: translateY(0);
+  transition: transform 0.24s ease, border-color 0.24s ease, background-color 0.24s ease;
 }
 
 .technology-stats p {
@@ -696,10 +775,49 @@ html {
 [data-reveal-delay="2"] { transition-delay: 160ms; }
 [data-reveal-delay="3"] { transition-delay: 230ms; }
 
-.service-card:hover,
-.industry-list article:hover {
-  transform: translateY(-3px);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+.industry-list article {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.service-card:focus-within,
+.phase-grid article:focus-within,
+.technology-stats article:focus-within {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .service-card:hover,
+  .phase-grid article:hover,
+  .technology-stats article:hover {
+    transform: translateY(-0.35rem);
+    border-color: var(--gold);
+    box-shadow: 0 1rem 2rem rgb(0 0 0 / 18%);
+  }
+
+  .service-card:hover .service-symbol {
+    transform: rotate(12deg) scale(1.08);
+  }
+
+  .industry-list article:hover {
+    transform: translateY(-2px);
+    border-color: #b89856;
+    background: #fffdf8;
+    box-shadow: 0 0.5rem 1.1rem rgb(25 36 56 / 8%);
+  }
+
+  .industry-list article:hover .industry-icon {
+    transform: scale(1.06);
+    border-color: var(--gold);
+    background: rgb(213 172 97 / 8%);
+  }
+}
+
+.service-symbol {
+  transition: transform 0.24s ease;
 }
 
 .orbit-one,
@@ -856,7 +974,7 @@ html {
   }
 
   .service-card {
-    min-height: 21rem;
+    min-height: 20.25rem;
     padding: 1.6rem 1.5rem;
   }
 
@@ -1002,13 +1120,275 @@ html {
 }
 
 @media (min-width: 80rem) {
+  .container,
+  .nav-wrap {
+    width: calc(100% - 6rem);
+    max-width: 88rem;
+  }
+
   .hero h1 {
-    font-size: 4.5rem;
+    font-size: 4.75rem;
+  }
+
+  .hero-intro {
+    font-size: 1.1rem;
+  }
+
+  .section h2,
+  .tech h2,
+  .cta h2 {
+    font-size: 3.9rem;
+  }
+
+  .heading-note,
+  .industry-copy > p:not(.eyebrow),
+  .center-heading > p:last-child,
+  .tech-copy > p {
+    font-size: 1rem;
+  }
+
+  .service-card {
+    min-height: 22rem;
+    padding: 1.8rem;
+  }
+
+  .service-card h3 {
+    font-size: 1.5rem;
+  }
+
+  .service-card p,
+  .service-card li,
+  .steps p,
+  .phase-grid article > span,
+  .industry-list p,
+  .technology-stats span {
+    font-size: 0.9rem;
+  }
+
+  .industry-list h3,
+  .steps h3 {
+    font-size: 1.35rem;
+  }
+
+  .technology-stats p {
+    font-size: 1.8rem;
+  }
+
+  .footer-main {
+    gap: 4rem;
+  }
+
+  .footer-brand p {
+    max-width: 28rem;
+    font-size: 1rem;
+  }
+
+  .footer-main h2 {
+    font-size: 0.85rem;
+  }
+
+  .footer-main > div:not(:first-child) a,
+  .footer-main > div:not(:first-child) span {
+    font-size: 0.9rem;
+  }
+
+  .footer-bottom {
+    font-size: 0.85rem;
   }
 
   .primary-nav {
     gap: 1rem;
+    font-size: 0.9rem;
   }
+}
+
+@media (min-width: 100rem) {
+  .container,
+  .nav-wrap {
+    width: calc(100% - 8rem);
+    max-width: 100rem;
+  }
+
+  .hero h1 {
+    font-size: 5.1rem;
+  }
+
+  .section h2,
+  .tech h2,
+  .cta h2 {
+    font-size: 4.2rem;
+  }
+
+  .service-card h3 {
+    font-size: 1.65rem;
+  }
+
+  .service-card p,
+  .service-card li,
+  .steps p,
+  .phase-grid article > span,
+  .industry-list p,
+  .technology-stats span {
+    font-size: 1rem;
+  }
+
+  .industry-layout,
+  .tech-layout {
+    gap: 5rem;
+  }
+
+  .footer-main {
+    gap: 5rem;
+  }
+}
+
+@media (min-width: 120rem) {
+  .container,
+  .nav-wrap {
+    width: calc(100% - 10rem);
+    max-width: 124rem;
+  }
+
+  .hero-layout {
+    gap: 4rem;
+  }
+
+  .hero h1 {
+    font-size: 5.5rem;
+  }
+
+  .hero-intro {
+    max-width: 40rem;
+    font-size: 1.2rem;
+  }
+
+  .section h2,
+  .tech h2,
+  .cta h2 {
+    font-size: 4.5rem;
+  }
+
+  .section-heading {
+    gap: 4rem;
+  }
+
+  .footer-main {
+    gap: 6rem;
+    padding-block: 4rem 3.5rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  .application-form-stage {
+    padding-inline: 3rem;
+  }
+
+  .application-form-container {
+    max-width: 88rem;
+    --application-control-size: 1.1rem;
+    --application-label-size: 0.9rem;
+  }
+
+  .application-form-title {
+    font-size: 3rem;
+  }
+
+  .application-form-stage .form-card > h2 {
+    font-size: 1.75rem;
+  }
+
+  .application-back,
+  .application-form-stage .field-base,
+  .application-form-stage .availability-choice,
+  .application-form-stage .form-primary,
+  .application-form-stage .form-secondary {
+    font-size: var(--application-control-size);
+  }
+
+  .application-form-stage .field-label,
+  .application-progress-labels,
+  .application-form-stage label[for="acceptTerms"],
+  .application-form-stage .tabular-nums,
+  .application-form-stage .error-message {
+    font-size: var(--application-label-size);
+  }
+
+  .application-form-stage .field-base {
+    min-height: 3.5rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .application-form-stage .form-card {
+    padding: 2.5rem;
+  }
+
+  .application-form-stage .form-card > .grid {
+    gap: 1.25rem 2rem;
+  }
+
+  .application-form-stage .step-dot {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+
+  .application-form-stage .form-primary,
+  .application-form-stage .form-secondary {
+    min-height: 3rem;
+  }
+}
+
+@media (min-width: 100rem) {
+  .application-form-stage {
+    padding-inline: 4rem;
+  }
+
+  .application-form-container {
+    max-width: 100rem;
+    --application-control-size: 1.2rem;
+    --application-label-size: 1rem;
+  }
+
+  .application-form-title {
+    font-size: 3.5rem;
+  }
+
+  .application-form-stage .form-card > h2 {
+    font-size: 2rem;
+  }
+
+  .application-form-stage .field-base {
+    min-height: 3.75rem;
+  }
+}
+
+@media (min-width: 120rem) {
+  .application-form-stage {
+    padding-inline: 5rem;
+  }
+
+  .application-form-container {
+    max-width: 124rem;
+    --application-control-size: 1.3rem;
+    --application-label-size: 1.1rem;
+  }
+
+  .application-form-title {
+    font-size: 4rem;
+  }
+
+  .application-form-stage .form-card {
+    padding: 3rem;
+  }
+
+  .application-form-stage .field-base {
+    min-height: 4rem;
+  }
+}
+
+.application-site-header .nav-wrap {
+  display: flex;
+  justify-content: space-between;
 }
 
 @media (prefers-reduced-motion: reduce) {

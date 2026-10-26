@@ -32,7 +32,7 @@ body {
 
 .application-page {
   min-height: 100vh;
-  padding-top: 4rem;
+  padding-top: 0;
   background: #f1f5f9;
   color: #0f172a;
   transition: background-color 0.3s, color 0.3s;
@@ -43,19 +43,13 @@ body {
   color: #f1f5f9;
 }
 
-.application-header {
-  position: fixed;
-  z-index: 50;
-  inset: 0 0 auto;
-}
-
 .application-main {
   padding-top: 0;
 }
 
 .application-form-stage {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   min-height: calc(100svh - 4rem);
   padding: 2rem 1rem;
 }

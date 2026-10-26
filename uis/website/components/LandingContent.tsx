@@ -16,7 +16,6 @@ type LandingCopy = {
   servicesEyebrow: string;
   servicesHeading: [string, string];
   servicesNote: string;
-  popular: string;
   services: { title: string; accent: string; description: string; bullets: string[]; link: string }[];
   processEyebrow: string;
   processHeading: [string, string];
@@ -53,7 +52,6 @@ const copy: Record<"es" | "en", LandingCopy> = {
     servicesEyebrow: "Lo que hacemos",
     servicesHeading: ["Tres líneas de negocio,", "un único objetivo."],
     servicesNote: "Soluciones para acompañar a las personas y a las organizaciones en cada etapa de su crecimiento.",
-    popular: "Popular",
     services: [
       {
         title: "Headhunting",
@@ -129,7 +127,6 @@ const copy: Record<"es" | "en", LandingCopy> = {
     servicesEyebrow: "What we do",
     servicesHeading: ["Three business lines,", "one common goal."],
     servicesNote: "Solutions that support people and organizations through every stage of growth.",
-    popular: "Popular",
     services: [
       {
         title: "Headhunting",
@@ -278,11 +275,34 @@ export function LandingContent() {
             <div className="service-grid">
               {t.services.map((service, index) => (
                 <article className={`service-card${index === 1 ? " featured" : ""}`} key={service.title} data-reveal data-reveal-delay={index}>
-                  {index === 1 && <span className="popular-label">{t.popular}</span>}
-                  <div className="card-top"><span className="service-number">0{index + 1}</span><span className="service-symbol" aria-hidden="true">{["↗", "⌘", "✳"][index]}</span></div>
-                  <h3>{service.title} <span>{service.accent}</span></h3>
-                  <p>{service.description}</p>
-                  <ul>{service.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
+                  <div className="service-card-heading">
+                    <h3>{service.title} <span>{service.accent}</span></h3>
+                    <div className="service-card-tools">
+                      <span className="service-symbol" aria-hidden="true">
+                        {index === 0 ? (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="9" cy="7" r="3" />
+                            <path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 4.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 5" />
+                          </svg>
+                        ) : index === 1 ? (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3 13v-1a9 9 0 0 1 18 0v1" />
+                            <rect x="3" y="12" width="4" height="7" rx="2" />
+                            <rect x="17" y="12" width="4" height="7" rx="2" />
+                            <path d="M17 19a5 5 0 0 1-5 3h-2" />
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 7v14M12 7C9.8 5.5 6.5 5 3 6v14c3.5-1 6.8-.5 9 1m0-14c2.2-1.5 5.5-2 9-1v14c-3.5-1-6.8-.5-9 1" />
+                          </svg>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="service-card-body">
+                    <p>{service.description}</p>
+                    <ul>{service.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
+                  </div>
                   <Link href="/application" className="text-link">{service.link}<span aria-hidden="true"> →</span></Link>
                 </article>
               ))}
@@ -314,8 +334,30 @@ export function LandingContent() {
               <p>{t.sectorDescription}</p>
               <a className="text-link" href="#contacto">{t.sectorLink}<span aria-hidden="true"> →</span></a>
             </div>
-            <div className="industry-list" data-reveal data-reveal-delay="1">
-              {t.sectors.map((sector, index) => <article key={sector.title}><span className="industry-icon" aria-hidden="true">{["⌘", "▧", "◈"][index]}</span><div><h3>{sector.title}</h3><p>{sector.description}</p></div><span className="industry-arrow" aria-hidden="true">↗</span></article>)}
+            <div className="industry-list">
+              {t.sectors.map((sector, index) => (
+                <article key={sector.title} data-reveal data-reveal-delay={index}>
+                  <span className="industry-icon" aria-hidden="true">
+                    {index === 0 ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 9h18M9 3v18" />
+                      </svg>
+                    ) : index === 1 ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 8h14l1 13H4L5 8Z" />
+                        <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M15 9.5c-.5-.8-1.4-1.2-2.7-1.2-1.3 0-2.3.7-2.3 1.7 0 2.8 5.3 1.2 5.3 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.3-.5-2.9-1.4M12.7 6.8v1.5m-1.4 8.1v1.4" />
+                      </svg>
+                    )}
+                  </span>
+                  <div><h3>{sector.title}</h3><p>{sector.description}</p></div>
+                </article>
+              ))}
             </div>
           </div>
         </section>

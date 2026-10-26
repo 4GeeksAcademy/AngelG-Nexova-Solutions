@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 import { useEffect, useRef, useState } from "react";
-import { useSitePreferences, type Language } from "@/lib/site-preferences";
+import { useSitePreferences } from "@/lib/site-preferences";
 
 type Values = {
   fullName: string;
@@ -122,8 +123,7 @@ function isValidUrl(value: string) {
 }
 
 export function ApplicationForm() {
-  const { language, theme, setLanguage, toggleTheme } = useSitePreferences();
-  const isDark = theme === "dark";
+  const { language } = useSitePreferences();
   const [step, setStep] = useState(1);
   const [values, setValues] = useState<Values>(emptyValues);
   const [errors, setErrors] = useState<Errors>({});
@@ -204,26 +204,7 @@ export function ApplicationForm() {
 
   return (
     <div className="application-page">
-      <header className="application-header border-b border-slate-300/80 bg-slate-100/90 backdrop-blur-md dark:border-white/5 dark:bg-navy-950/90">
-        <div className="mx-auto flex h-16 max-w-[92rem] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
-          <Link className="brand" href="/" aria-label="Nexova Solutions — Inicio">
-            <span className="brand-mark">N</span><span>Nexova <b>Solutions</b></span>
-          </Link>
-          <nav className="flex items-center gap-3 text-xs font-medium text-slate-700 dark:text-gray-300 sm:gap-5 sm:text-sm" aria-label="Navegación del formulario">
-            <Link href="/">{t.home}</Link><a href="#form">{t.form}</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <label className="sr-only" htmlFor="languageToggle">Seleccionar idioma</label>
-            <select id="languageToggle" className="rounded-sm border border-slate-300 bg-slate-50 px-2 py-2 text-xs font-semibold text-slate-700 dark:border-white/15 dark:bg-navy-900 dark:text-gray-200" value={language} onChange={(event) => setLanguage(event.target.value as Language)}>
-              <option value="es">🇪🇸 {language === "es" ? "Español" : "Spanish"}</option>
-              <option value="en">🇺🇸 English</option>
-            </select>
-            <button className="inline-flex items-center gap-2 rounded-sm border border-slate-300 px-2 py-2 text-xs font-semibold text-slate-700 transition-colors hover:border-gold-400 hover:text-gold-500 dark:border-white/15 dark:text-gray-200" type="button" onClick={toggleTheme} aria-pressed={isDark} aria-label={isDark ? t.light : t.dark}>
-              <span aria-hidden="true">{isDark ? "☼" : "☾"}</span><span className="hidden sm:inline">{isDark ? t.light : t.dark}</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteHeader page="application" />
 
       <main id="main-content" className="application-main">
         <section id="form" className="application-form-stage" aria-labelledby="application-title">
@@ -233,7 +214,7 @@ export function ApplicationForm() {
             <div className="mb-2 flex items-center px-2" role="progressbar" aria-label={t.form} aria-valuenow={step} aria-valuemin={1} aria-valuemax={2}>
               <div className={`step-dot ${step === 1 ? "active" : "done"}`}>{step > 1 ? "✓" : "1"}</div><div className={`step-line ${step > 1 ? "done" : ""}`} /><div className={`step-dot ${step === 2 ? "active" : "pending"}`}>2</div>
             </div>
-            <div className="mb-3 flex justify-between px-1 text-xs text-slate-500 dark:text-gray-400"><span className={step === 1 ? "font-semibold text-slate-700 dark:text-gray-200" : ""}>{t.contactStep}</span><span className={step === 2 ? "font-semibold text-slate-700 dark:text-gray-200" : ""}>{t.profileStep}</span></div>
+            <div className="application-progress-labels mb-3 flex justify-between px-1 text-xs text-slate-500 dark:text-gray-400"><span className={step === 1 ? "font-semibold text-slate-700 dark:text-gray-200" : ""}>{t.contactStep}</span><span className={step === 2 ? "font-semibold text-slate-700 dark:text-gray-200" : ""}>{t.profileStep}</span></div>
 
             <form noValidate aria-label="Formulario de registro de talento Nexova Solutions" onSubmit={submit}>
               {step === 1 ? (
