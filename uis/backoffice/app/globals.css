@@ -51,7 +51,7 @@ html.dark {
   --color-slate-900: var(--nexova-slate-900);
   --color-slate-950: var(--nexova-slate-950);
   --font-sans: "DM Sans", var(--font-geist-sans), "Segoe UI", sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --font-display: "Playfair Display", Georgia, serif;
   --color-cyan-50: #fbf6e8;
   --color-cyan-100: #f6ebc9;

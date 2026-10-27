@@ -54,6 +54,12 @@ export default function LoginPage() {
         </header>
 
         <form onSubmit={handleSubmit} className="grid gap-4">
+          {error && (
+            <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error}
+            </p>
+          )}
+
           <div>
             <label
               htmlFor="email"
@@ -95,12 +101,6 @@ export default function LoginPage() {
               ¿Olvidaste tu contraseña?
             </Link>
           </div>
-
-          {error && (
-            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          )}
 
           <button
             type="submit"

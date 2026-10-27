@@ -23,7 +23,9 @@ const nextConfig: NextConfig = {
       fallback: [
         {
           source: "/api/:path*",
-          destination: `${inventoryApiOrigin}/api/:path*`,
+          // The browser-facing /api prefix is only a proxy namespace. The
+          // FastAPI routes themselves are mounted at /auth, /users, etc.
+          destination: `${inventoryApiOrigin}/:path*`,
         },
       ],
     };

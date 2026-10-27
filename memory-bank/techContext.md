@@ -2,6 +2,10 @@
 
 > Referencia operativa basada en archivos presentes del repositorio. Los README genéricos pueden estar desactualizados; prevalece la implementación comprobada, documentando sus inconsistencias.
 
+## Ubicación de aplicaciones y servicios
+
+Respetar el mapeo de la plantilla y no crear árboles de aplicación paralelos: el sitio público de Nexova vive en `uis/website/`, la aplicación interna en `uis/backoffice/`, y las APIs/servicios backend en `services/`. Leer `uis/README.md`, el README del proyecto de UI correspondiente, `services/README.md` y el README del servicio afectado antes de añadir o mover código. Estas rutas indican el destino del código futuro; no implican que se deban crear o modificar aplicaciones sin alcance autorizado.
+
 ## Arquitectura observada
 
 Monorepo sin runner/workspace común comprobado. Contiene frontend estático, dos proyectos web bajo `uis/`, backend Python en `services/api/`, utilidades Python en `packages/incidents_analysis` y tipos/recursos compartidos en `packages/shared/`. La ejecución contenerizada se define en `docker-compose.yml` con servicios `interfaces` y `backend`.

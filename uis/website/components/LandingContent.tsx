@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SectionTitle } from "@/components/SectionTitle";
 import { useSitePreferences } from "@/lib/site-preferences";
 
 type LandingCopy = {
@@ -274,7 +275,7 @@ export function LandingContent() {
         <section className="section services" id="servicios" aria-labelledby="services-title">
           <div className="container">
             <div className="section-heading" data-reveal>
-              <div><p className="eyebrow">{t.servicesEyebrow}</p><h2 id="services-title">{t.servicesHeading[0]}<br /><em>{t.servicesHeading[1]}</em></h2></div>
+              <div><SectionTitle eyebrow={t.servicesEyebrow} id="services-title">{t.servicesHeading[0]}<br /><em>{t.servicesHeading[1]}</em></SectionTitle></div>
               <p className="heading-note">{t.servicesNote}</p>
             </div>
             <div className="service-grid">
@@ -318,8 +319,7 @@ export function LandingContent() {
         <section className="section process" id="proceso" aria-labelledby="process-title">
           <div className="container">
             <div className="center-heading" data-reveal>
-              <p className="eyebrow">{t.processEyebrow}</p>
-              <h2 id="process-title">{t.processHeading[0]}<br /><em>{t.processHeading[1]}</em></h2>
+              <SectionTitle eyebrow={t.processEyebrow} id="process-title">{t.processHeading[0]}<br /><em>{t.processHeading[1]}</em></SectionTitle>
               <p>{t.processDescription}</p>
             </div>
             <ol className="steps">
@@ -334,8 +334,7 @@ export function LandingContent() {
         <section className="section industries" id="sectores" aria-labelledby="industry-title">
           <div className="container industry-layout">
             <div className="industry-copy" data-reveal>
-              <p className="eyebrow">{t.sectorEyebrow}</p>
-              <h2 id="industry-title">{t.sectorHeading[0]}<br /><em>{t.sectorHeading[1]}</em></h2>
+              <SectionTitle eyebrow={t.sectorEyebrow} id="industry-title">{t.sectorHeading[0]}<br /><em>{t.sectorHeading[1]}</em></SectionTitle>
               <p>{t.sectorDescription}</p>
               <a className="text-link" href="#contacto">{t.sectorLink}<span aria-hidden="true"> →</span></a>
             </div>
@@ -369,7 +368,7 @@ export function LandingContent() {
 
         <section className="tech" id="ia" aria-labelledby="technology-title">
           <div className="container tech-layout">
-            <div data-reveal><p className="eyebrow">{t.technologyEyebrow}</p><h2 id="technology-title">{t.technologyHeading[0]}<br /><em>{t.technologyHeading[1]}</em></h2></div>
+            <div data-reveal><SectionTitle eyebrow={t.technologyEyebrow} id="technology-title">{t.technologyHeading[0]}<br /><em>{t.technologyHeading[1]}</em></SectionTitle></div>
             <div className="tech-copy" data-reveal data-reveal-delay="1">
               <p>{t.technologyDescription}</p>
               <div className="tech-points">{t.technologyPoints.map((point, index) => <span key={point}><b>0{index + 1}</b>{point}</span>)}</div>
@@ -382,7 +381,7 @@ export function LandingContent() {
 
         <section className="cta" id="aplica" aria-labelledby="cta-title">
           <div className="container cta-inner" data-reveal>
-            <div><p className="eyebrow">{language === "es" ? "Banco de Talento" : "Talent Pool"}</p><h2 id="cta-title">{language === "es" ? "Únete al equipo Nexova" : "Join the Nexova team"}</h2></div>
+            <div><SectionTitle eyebrow={language === "es" ? "Banco de Talento" : "Talent Pool"} id="cta-title">{language === "es" ? "Únete al equipo Nexova" : "Join the Nexova team"}</SectionTitle></div>
             <div className="cta-action">
               <p>{language === "es" ? "Regístrate en nuestro banco de talento y te contactaremos cuando tengamos una oportunidad que encaje con tu perfil." : "Register in our talent pool and we will contact you when an opportunity matches your profile."}</p>
               <p>{language === "es" ? "¿Eres una empresa buscando talento? Escríbenos a " : "Are you a company looking for talent? Write to us at "}<a href="mailto:hola@nexovasolutions.com">hola@nexovasolutions.com</a></p>

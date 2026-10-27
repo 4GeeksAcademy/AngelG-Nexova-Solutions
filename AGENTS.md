@@ -8,7 +8,7 @@ Antes de proponer o modificar archivos:
 
 1. Lee este `AGENTS.md`.
 2. Lee `memory-bank/projectbrief.md`, `memory-bank/techContext.md` y `memory-bank/progress.md` para conocer alcance, arquitectura y estado registrado.
-3. Lee `CONTEXT.md` y los documentos empresariales pertinentes a la tarea, como `company-choice.md` o los briefs específicos que estén presentes. Distingue requisitos documentados de funcionalidades realmente implementadas.
+3. Lee `CONTEXT.md` (briefing empresarial disponible en esta copia) y `company-choice.md`, además de briefs empresariales pertinentes que estén presentes. Distingue necesidades/propuestas documentadas de funcionalidades realmente implementadas; no crees un `BRIEFING.md` duplicado sin que se solicite.
 4. Lee el `README.md` o `README.es.md` de la carpeta en la que trabajarás y los README relacionados (por ejemplo, `services/api/`, `uis/` o un paquete compartido).
 5. Si cualquiera de esos archivos no existe, está eliminado o no es accesible, indícalo explícitamente; no afirmes haberlo leído ni reconstruyas su contenido como si fuera fuente actual. Usa únicamente evidencia disponible y pide aclaración cuando la ausencia afecte al alcance.
 6. Inspecciona Git antes de modificar: rama, estado (`git status --short --branch`), diferencias relevantes y archivos nuevos. Separa los cambios previos del usuario de los tuyos; no los descartes, restaures, sobreescribas ni incluyas en un commit sin autorización.
@@ -38,6 +38,22 @@ El commit solo está permitido después de completar el flujo, pasar las comprob
 - No declares pruebas, lint, build, deploy, cobertura o integración como exitosos si no se ejecutaron realmente; distingue código presente de comportamiento validado y resultados actuales de históricos.
 - Pregunta antes de decisiones arquitectónicas irreversibles o ambiguas, cambios a archivos protegidos, eliminación de información o resolución de requisitos empresariales contradictorios.
 - No instales dependencias ni cambies el entorno para evitar una falla sin autorización y evaluación del impacto.
+
+### Archivos y áreas que requieren confirmación explícita antes de modificarse
+
+No cambies, elimines, muevas, regeneres ni sobrescribas los siguientes archivos o categorías salvo que el usuario lo autorice explícitamente para la tarea concreta:
+
+- Contextos y fuentes de negocio: `CONTEXT.md`, `company-choice.md` y cualquier brief o contexto empresarial, en particular si la edición altera requisitos o decisiones del negocio.
+- Estado local/credenciales: `.env`, `.env.*` con valores reales, secretos, credenciales, datos privados o datos locales de usuarios/clientes. Nunca incluyas valores secretos en el diff.
+- Datos persistentes, snapshots/dumps, archivos de base de datos, migraciones destructivas, recursos de infraestructura/producción y cualquier operación que pueda borrar o sobrescribir datos.
+- Lockfiles, dependencias/manifests, contratos API, esquemas de persistencia, workflows de CI/CD y archivos de despliegue o configuración de producción, salvo que formen parte explícita del alcance autorizado y se expliquen sus impactos.
+- Cambios preexistentes del usuario, incluidos archivos eliminados o no rastreados: preservar; la autorización para una tarea no autoriza a restaurarlos, descartarlos, incluirlos en staging ni incorporarlos a un commit.
+
+La autorización para editar un archivo no autoriza automáticamente commit, push, merge, deploy ni creación de PR; cada operación Git/publicación requiere autorización explícita independiente.
+
+### Ubicación de aplicaciones futuras
+
+No inventes un segundo árbol de aplicaciones: sitio público en `uis/website/`, aplicación interna en `uis/backoffice/` y APIs/servicios backend en `services/`. Lee los README de cada ubicación antes de añadir código. Esta indicación no autoriza crear aplicaciones cuando la tarea no lo pide.
 
 ## Instrucciones locales y herramientas
 

@@ -30,13 +30,13 @@ afterEach(() => {
   vi.resetModules();
 });
 
-describe("Next.js inventory API rewrite", () => {
-  it("usa NEXT_PUBLIC_INVENTORY_API_URL en desarrollo local sin duplicar /api", async () => {
+describe("Next.js API rewrite", () => {
+  it("usa NEXT_PUBLIC_INVENTORY_API_URL y quita el prefijo proxy /api", async () => {
     delete process.env.API_INTERNAL_URL;
     process.env.NEXT_PUBLIC_INVENTORY_API_URL = "http://localhost:8000/api/";
 
     await expect(getInventoryRewriteDestination()).resolves.toBe(
-      "http://localhost:8000/api/:path*",
+      "http://localhost:8000/:path*",
     );
   });
 
@@ -45,7 +45,7 @@ describe("Next.js inventory API rewrite", () => {
     process.env.NEXT_PUBLIC_INVENTORY_API_URL = "http://localhost:8000";
 
     await expect(getInventoryRewriteDestination()).resolves.toBe(
-      "http://host.docker.internal:8000/api/:path*",
+      "http://host.docker.internal:8000/:path*",
     );
   });
 
@@ -54,7 +54,7 @@ describe("Next.js inventory API rewrite", () => {
     delete process.env.NEXT_PUBLIC_INVENTORY_API_URL;
 
     await expect(getInventoryRewriteDestination()).resolves.toBe(
-      "http://backend:8000/api/:path*",
+      "http://backend:8000/:path*",
     );
   });
 });

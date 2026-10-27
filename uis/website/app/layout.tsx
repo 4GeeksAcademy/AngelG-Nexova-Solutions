@@ -7,12 +7,14 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-dm-sans",
   weight: ["400", "500", "600", "700"],
+  display: "optional",
 });
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair-display",
   weight: ["600", "700", "800"],
+  display: "optional",
 });
 
 export const metadata: Metadata = {

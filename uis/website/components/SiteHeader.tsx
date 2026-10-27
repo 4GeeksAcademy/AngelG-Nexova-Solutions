@@ -67,7 +67,7 @@ export function SiteHeader({ page = "home" }: { page?: "home" | "application" })
   return (
     <header className={`site-header${page === "application" ? " application-site-header" : ""}`}>
       <div className="nav-wrap">
-        <a className="brand" href={page === "home" ? "#inicio" : "/"} aria-label={t.home}>
+        <a className="brand" href={page === "home" ? "#inicio" : "/"}>
           <span className="brand-mark">N</span>
           <span>Nexova <b>Solutions</b></span>
         </a>

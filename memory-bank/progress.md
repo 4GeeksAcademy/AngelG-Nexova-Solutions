@@ -2,6 +2,14 @@
 
 > Actualizado durante la preparación del banco de memoria en `feature/agent-memory-bank`. Este archivo refleja inspección y pruebas ejecutadas, no los resultados históricos como si fueran actuales.
 
+## Infraestructura de agentes — actualización documental
+
+- El usuario confirmó que `CONTEXT.md` es el briefing empresarial al que se refiere `Tarea.md` como `BRIEFING.md`, y pidió complementarlo con `company-choice.md`. No existe `BRIEFING.md`; no se creó uno duplicado.
+- Se actualizó `memory-bank/projectbrief.md` para reflejar Nexova y la iniciativa priorizada de soporte/monitoreo interno para Atención al Cliente y Tecnología e Infraestructura. El código de inventario se mantiene como dominio previo existente, no como prioridad empresarial inferida.
+- Se documentaron las ubicaciones de producto en `memory-bank/techContext.md` y `AGENTS.md`: `uis/website/`, `uis/backoffice/` y `services/`.
+- `AGENTS.md` ahora enumera categorías de archivos/datos que requieren confirmación explícita antes de modificarse.
+- `git diff --check` terminó correctamente. No se ejecutaron pruebas de producto porque los cambios son documentales. No se ha hecho commit, push ni PR.
+
 ## Estado actual
 
 - Monorepo Nexova con frontend estático, tracker Next.js, API FastAPI con varios dominios e inventario SQLModel, utilidades de análisis de incidencias y carpetas de agentes/skills.
