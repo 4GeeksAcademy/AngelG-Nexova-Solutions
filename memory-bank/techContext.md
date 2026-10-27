@@ -10,9 +10,9 @@ Monorepo sin runner/workspace común comprobado. Contiene frontend estático, do
 
 - **Sitio/formulario estáticos:** `index.html`, `application.html`, `i18n.js`, `validation.js`; README raíz propone `npx serve .` para validarlos.
 - **Directorio de proveedores estático:** `uis/application/app/suppliers/index.html`. Usa Tailwind CDN y llama `/suppliers` y subrutas; no forma parte del volumen de la UI definida en Compose.
-- **Talent Pipeline Tracker:** `uis/talent-pipeline-tracker/`; Next.js App Router, TypeScript, React y Tailwind. Tiene interfaces de candidaturas, usuarios/autenticación, incidencias y API routes para records/incidents.
-- `docker-compose.yml` monta `uis/talent-pipeline-tracker` en el contenedor `interfaces`; `uis/Dockerfile` usa `node:22-alpine`, instala el lockfile con `npm ci` y `uis/start.sh` lanza Next en puerto 3000.
-- Existe `uis/talent-pipeline-tracker/AGENTS.md` con instrucción específica: consultar documentación local de Next.js en `node_modules/next/dist/docs/` antes de modificar código por posibles cambios de versión. `CLAUDE.md` lo referencia. No hay `AGENTS.md` raíz verificado.
+- **Backoffice (antes Talent Pipeline Tracker):** `uis/backoffice/`; Next.js App Router, TypeScript, React y Tailwind. Tiene interfaces de candidaturas, usuarios/autenticación, incidencias y API routes para records/incidents.
+- `docker-compose.yml` monta `uis/backoffice` en el contenedor `interfaces`; `uis/Dockerfile` usa `node:22-alpine`, instala el lockfile con `npm ci` y `uis/start.sh` lanza Next en puerto 3000.
+- Existe `uis/backoffice/AGENTS.md` con instrucción específica: consultar documentación local de Next.js en `node_modules/next/dist/docs/` antes de modificar código por posibles cambios de versión. `CLAUDE.md` lo referencia. No hay `AGENTS.md` raíz verificado.
 
 ### Backend y datos
 
@@ -39,12 +39,12 @@ Monorepo sin runner/workspace común comprobado. Contiene frontend estático, do
 - **Raíz JS:** `package.json` privado, TypeScript `^5.9.2`, único script `typecheck`; `tsconfig.json` solo incluye `src/**/*.ts` (no comprueba automáticamente el tracker).
 - **Python backend:** `services/api/pyproject.toml` requiere Python `>=3.12` y declara FastAPI, SQLModel, TinyDB, Uvicorn, dotenv, JWT, etc.; grupo dev incluye pytest, pytest-cov y httpx. `services/api/uv.lock` es lockfile de uv.
 - **Configuración Python raíz heredada:** `pyproject.toml` declara proyecto `nexova-suppliers-api`, Python `>=3.10` y pytest sobre `services/api/tests`; difiere del proyecto backend más nuevo. `services/api/requirements.txt` lista versiones antiguas/pin de FastAPI, Uvicorn y multipart. Confirmar la fuente de dependencias antes de cambiar instalación.
-- **TypeScript del tracker:** `uis/talent-pipeline-tracker/tsconfig.json` estricto, alias `@/*`, módulo ES/bundler y plugin Next. Vitest usa jsdom y cobertura V8. ESLint se configura mediante `eslint.config.mjs`.
+- **TypeScript del backoffice:** `uis/backoffice/tsconfig.json` estricto, alias `@/*`, módulo ES/bundler y plugin Next. Vitest usa jsdom y cobertura V8. ESLint se configura mediante `eslint.config.mjs`.
 - No inferir que dependencias están instaladas: `node_modules` del tracker no estaba presente en esta sesión; `uv` no estaba en PATH.
 
 ## Gestores, comandos y ejecución
 
-### Tracker (desde `uis/talent-pipeline-tracker/`)
+### Backoffice (desde `uis/backoffice/`)
 
 - Instalación reproducible indicada por Dockerfile y lockfile: `npm ci`.
 - Desarrollo: `npm run dev` (puerto 3000 por defecto).

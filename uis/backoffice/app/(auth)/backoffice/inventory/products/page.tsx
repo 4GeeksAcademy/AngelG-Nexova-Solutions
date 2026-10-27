@@ -11,6 +11,7 @@ function getStockStatus(stock: number): {
   label: string;
   className: string;
 } {
+  // Umbrales visuales del inventario: 0 sin stock, 1–5 bajo, 6–15 para revisar y >15 saludable.
   if (stock <= 0) {
     return {
       label: "Sin stock",

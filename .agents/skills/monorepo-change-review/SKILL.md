@@ -55,7 +55,7 @@ Sigue los pasos en este orden y deja evidencia de cada uno.
 
 - Lee `AGENTS.md`, `.agents/rules/nexova-monorepo-development.md`, esta skill, `memory-bank/projectbrief.md`, `memory-bank/techContext.md`, `memory-bank/progress.md` y `CONTEXT.md`.
 - Lee los briefs empresariales pertinentes que estén disponibles y los README de la aplicación/carpeta afectada, incluido cualquier README relacionado.
-- Lee instrucciones locales `AGENTS.md`/`CLAUDE.md` u otras reglas aplicables. Para `uis/talent-pipeline-tracker/`, respeta su `AGENTS.md` y la instrucción de consultar la documentación local de Next.js antes de cambios Next.js; esta skill revisa, no autoriza a modificar.
+- Lee instrucciones locales `AGENTS.md`/`CLAUDE.md` u otras reglas aplicables. Para `uis/backoffice/`, respeta su `AGENTS.md` y la instrucción de consultar la documentación local de Next.js antes de cambios Next.js; esta skill revisa, no autoriza a modificar.
 - Si una fuente requerida está ausente/eliminada, indícalo y no la describas como leída. Contrasta documentación con entrypoints, código, manifests y configuración; distingue requisito documentado de implementación comprobada.
 
 ### Paso 2 — Revisar Git y el diff

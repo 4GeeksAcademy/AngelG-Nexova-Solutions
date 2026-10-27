@@ -1,4 +1,8 @@
+import hashlib
 import logging
+import threading
+import time
+from collections import defaultdict, deque
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
@@ -55,6 +59,10 @@ class RecordCreate(BaseModel):
     experience_years: int
 
 
+class PublicRecordCreate(RecordCreate):
+    website: str = ""
+
+
 class RecordUpdate(RecordCreate):
     pass
 
@@ -66,6 +74,43 @@ class RecordPatch(BaseModel):
 
 class NoteCreate(BaseModel):
     content: str
+
+
+_PUBLIC_RATE_WINDOW_SECONDS = 15 * 60
+_PUBLIC_RATE_MAX_REQUESTS = 5
+_public_request_times: dict[str, deque[float]] = defaultdict(deque)
+_public_rate_lock = threading.Lock()
+
+
+def _public_rate_limited(client_key: str) -> bool:
+    now = time.monotonic()
+    with _public_rate_lock:
+        timestamps = _public_request_times[client_key]
+        while timestamps and now - timestamps[0] >= _PUBLIC_RATE_WINDOW_SECONDS:
+            timestamps.popleft()
+        if len(timestamps) >= _PUBLIC_RATE_MAX_REQUESTS:
+            return True
+        timestamps.append(now)
+        return False
+
+
+def _new_candidate(data: RecordCreate) -> dict:
+    now = datetime.now(timezone.utc).isoformat()
+    return {
+        "id": str(uuid4()),
+        "full_name": data.full_name,
+        "email": data.email,
+        "phone": data.phone,
+        "position": data.position,
+        "linkedin_url": data.linkedin_url,
+        "cv_url": data.cv_url,
+        "status": CandidateStatus.received.value,
+        "stage": CandidateStage.pending.value,
+        "experience_years": data.experience_years,
+        "notes_count": 0,
+        "applied_at": now,
+        "updated_at": now,
+    }
 
 
 def get_record_or_404(record_id: str):
@@ -111,23 +156,7 @@ def create_candidate(
     data: RecordCreate,
     current_user: dict = Depends(get_current_user)
 ):
-    now = datetime.now(timezone.utc).isoformat()
-
-    record = {
-        "id": str(uuid4()),
-        "full_name": data.full_name,
-        "email": data.email,
-        "phone": data.phone,
-        "position": data.position,
-        "linkedin_url": data.linkedin_url,
-        "cv_url": data.cv_url,
-        "status": CandidateStatus.received.value,
-        "stage": CandidateStage.pending.value,
-        "experience_years": data.experience_years,
-        "notes_count": 0,
-        "applied_at": now,
-        "updated_at": now
-    }
+    record = _new_candidate(data)
 
     try:
         create_record(record)
@@ -141,6 +170,36 @@ def create_candidate(
                 "code": "RECORD_CREATE_FAILED",
                 "message": "No se pudo crear la candidatura.",
             }
+        )
+
+    return record
+
+
+@router.post("/public", status_code=201)
+def create_public_candidate(data: PublicRecordCreate):
+    """Accept a candidate application without exposing internal record access."""
+    if data.website.strip():
+        return {"ok": True}
+
+    client_key = hashlib.sha256(data.email.strip().lower().encode()).hexdigest()
+    if _public_rate_limited(client_key):
+        raise HTTPException(
+            status_code=429,
+            detail="Demasiadas solicitudes. Inténtalo de nuevo más tarde.",
+            headers={"Retry-After": str(_PUBLIC_RATE_WINDOW_SECONDS)},
+        )
+
+    record = _new_candidate(data)
+    try:
+        create_record(record)
+    except Exception:
+        logger.exception("Error al crear candidatura pública")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "code": "RECORD_CREATE_FAILED",
+                "message": "No se pudo crear la candidatura.",
+            },
         )
 
     return record

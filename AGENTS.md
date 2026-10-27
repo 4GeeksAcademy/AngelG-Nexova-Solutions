@@ -41,7 +41,7 @@ El commit solo está permitido después de completar el flujo, pasar las comprob
 
 ## Instrucciones locales y herramientas
 
-Lee y aplica también [la regla de desarrollo del monorepo](.agents/rules/nexova-monorepo-development.md) en cada tarea. Busca instrucciones adicionales aplicables en el árbol de carpetas afectado antes de editar. Actualmente `uis/talent-pipeline-tracker/AGENTS.md` requiere consultar la documentación local de Next.js en `node_modules/next/dist/docs/` antes de escribir código Next.js; `uis/talent-pipeline-tracker/CLAUDE.md` la referencia. Cumple ambas instrucciones junto con este protocolo. La ausencia de una configuración de Cursor, Windsurf o Copilot no debe suplirse afirmando que estas reglas se cargan automáticamente.
+Lee y aplica también [la regla de desarrollo del monorepo](.agents/rules/nexova-monorepo-development.md) en cada tarea. Busca instrucciones adicionales aplicables en el árbol de carpetas afectado antes de editar. Actualmente `uis/backoffice/AGENTS.md` requiere consultar la documentación local de Next.js en `node_modules/next/dist/docs/` antes de escribir código Next.js; `uis/backoffice/CLAUDE.md` la referencia. Cumple ambas instrucciones junto con este protocolo. La ausencia de una configuración de Cursor, Windsurf o Copilot no debe suplirse afirmando que estas reglas se cargan automáticamente.
 
 ## Entrega, diff y Git
 

@@ -68,6 +68,12 @@ function chooseAsset(id = "12") {
   fireEvent.change(screen.getByLabelText("Activo"), { target: { value: id } });
 }
 
+function chooseOffice(office: "Valencia" | "Miami") {
+  fireEvent.change(screen.getByLabelText("Oficina de la salida"), {
+    target: { value: office },
+  });
+}
+
 function enterQuantity(value: string) {
   fireEvent.change(screen.getByLabelText("Cantidad a retirar"), { target: { value } });
 }
@@ -117,9 +123,11 @@ describe("OutboundOrderPage", () => {
 
     chooseAsset("12");
     expect(screen.getByTestId("available-stock")).toHaveTextContent("Stock disponible: 8");
+    expect(screen.getByLabelText("Oficina de la salida")).toHaveValue("Valencia");
     chooseAsset("27");
     expect(screen.getByTestId("available-stock")).toHaveTextContent("Stock disponible: 5");
     expect(screen.getByTestId("available-stock")).toHaveTextContent("Miami");
+    expect(screen.getByLabelText("Oficina de la salida")).toHaveValue("Miami");
   });
 
   it("advierte antes de enviar si la cantidad supera el stock", async () => {
@@ -132,12 +140,13 @@ describe("OutboundOrderPage", () => {
     expect(mockedCreateOrder).not.toHaveBeenCalled();
   });
 
-  it("envía el payload de allocation real y refleja la reducción del stock tras éxito", async () => {
+  it("envía la oficina elegida y refleja la reducción del stock tras éxito", async () => {
     render(<OutboundOrderPage />);
     await screen.findByLabelText("Activo");
     chooseAsset("12");
     enterQuantity("2");
     chooseAllocation();
+    chooseOffice("Miami");
     await submit();
 
     await waitFor(() => {
@@ -146,7 +155,7 @@ describe("OutboundOrderPage", () => {
         quantity: 2,
         exit_type: "allocation",
         assigned_to: "Ana Pérez",
-        office: "Valencia",
+        office: "Miami",
       });
     });
     expect(await screen.findByRole("status")).toHaveTextContent("Salida registrada correctamente");

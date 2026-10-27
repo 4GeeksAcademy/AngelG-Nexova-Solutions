@@ -10,7 +10,7 @@ import {
   getInventoryProducts,
   InventoryApiError,
 } from "@/lib/inventory";
-import type { Asset, ExitType } from "@/types/inventory";
+import type { Asset, ExitType, Office } from "@/types/inventory";
 
 export default function OutboundOrderPage() {
   return (
@@ -23,6 +23,7 @@ export default function OutboundOrderPage() {
 function OutboundOrderForm() {
   const [products, setProducts] = useState<Asset[]>([]);
   const [productId, setProductId] = useState("");
+  const [office, setOffice] = useState<Office>("Valencia");
   const [quantity, setQuantity] = useState("");
   const [exitType, setExitType] = useState<ExitType>("allocation");
   const [assignedTo, setAssignedTo] = useState("");
@@ -121,7 +122,7 @@ function OutboundOrderForm() {
         quantity: parsedQuantity,
         exit_type: exitType,
         assigned_to: assignedToIsRequired ? assignedTo.trim() : null,
-        office: selectedAsset.office,
+        office,
       });
 
       const newStock = Math.max(0, selectedAsset.current_stock - parsedQuantity);
@@ -229,7 +230,12 @@ function OutboundOrderForm() {
                 required
                 value={productId}
                 onChange={(event) => {
-                  setProductId(event.target.value);
+                  const nextId = event.target.value;
+                  setProductId(nextId);
+                  setOffice(
+                    products.find((asset) => String(asset.id) === nextId)?.office ??
+                      "Valencia",
+                  );
                   setQuantityError(null);
                   setSubmitError(null);
                   setSuccess(null);
@@ -256,6 +262,26 @@ function OutboundOrderForm() {
                 <span className="ml-1">· {selectedAsset.office}</span>
               </div>
             )}
+
+            <label className="grid gap-2 text-sm font-semibold text-slate-800" htmlFor="office">
+              Oficina de la salida
+              <select
+                id="office"
+                name="office"
+                required
+                value={office}
+                onChange={(event) => {
+                  setOffice(event.target.value as Office);
+                  setSubmitError(null);
+                  setSuccess(null);
+                }}
+                disabled={isSubmitting}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-3 font-normal text-slate-950 shadow-sm focus:border-cyan-700 focus:outline-2 focus:outline-cyan-700 disabled:bg-slate-100"
+              >
+                <option value="Valencia">Valencia</option>
+                <option value="Miami">Miami</option>
+              </select>
+            </label>
 
             <label className="grid gap-2 text-sm font-semibold text-slate-800" htmlFor="quantity">
               Cantidad a retirar

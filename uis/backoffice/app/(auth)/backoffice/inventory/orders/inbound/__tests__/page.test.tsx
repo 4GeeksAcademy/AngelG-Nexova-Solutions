@@ -63,9 +63,12 @@ const products = [
 const mockedGetProducts = vi.mocked(getInventoryProducts);
 const mockedCreateOrder = vi.mocked(createInboundOrder);
 
-async function fillAndSubmitForm() {
+async function fillAndSubmitForm(office: "Valencia" | "Miami" = "Valencia") {
   fireEvent.change(await screen.findByLabelText("Activo recibido"), {
     target: { value: "12" },
+  });
+  fireEvent.change(screen.getByLabelText("Oficina receptora"), {
+    target: { value: office },
   });
   fireEvent.change(screen.getByLabelText("Cantidad recibida"), {
     target: { value: "3" },
@@ -110,7 +113,7 @@ describe("InboundOrderPage", () => {
     render(<InboundOrderPage />);
 
     expect(await screen.findByLabelText("Activo recibido")).toHaveValue("27");
-    expect(screen.getByText("Miami", { selector: "div" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Oficina receptora")).toHaveValue("Miami");
   });
 
   it("envía el contrato de entrada correcto y muestra confirmación limpiando el formulario", async () => {
@@ -129,6 +132,21 @@ describe("InboundOrderPage", () => {
     expect(screen.getByLabelText("Activo recibido")).toHaveValue("");
     expect(screen.getByLabelText("Cantidad recibida")).toHaveValue(null);
     expect(screen.getByLabelText("Proveedor o vendedor")).toHaveValue("");
+  });
+
+  it("permite registrar la entrada en una oficina distinta a la del activo", async () => {
+    render(<InboundOrderPage />);
+    await fillAndSubmitForm("Miami");
+
+    await waitFor(() => {
+      expect(mockedCreateOrder).toHaveBeenCalledWith({
+        asset_id: 12,
+        quantity: 3,
+        supplier: "TechDistrib Valencia S.L.",
+        office: "Miami",
+      });
+    });
+    expect(await screen.findByRole("status")).toHaveTextContent("para Miami");
   });
 
   it("bloquea el envío duplicado y da feedback mientras la petición sigue pendiente", async () => {

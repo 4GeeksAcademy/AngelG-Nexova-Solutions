@@ -280,7 +280,9 @@ html {
 }
 
 .section > .container {
-  width: 100%;
+  width: calc(100% - 2rem);
+  max-width: none;
+  margin-inline: auto;
 }
 
 .section-heading {
@@ -581,7 +583,9 @@ html {
 }
 
 .cta > .container {
-  width: 100%;
+  width: calc(100% - 2rem);
+  max-width: none;
+  margin-inline: auto;
 }
 
 .cta-inner {

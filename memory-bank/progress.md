@@ -26,7 +26,7 @@
 
 - API principal registra usuarios, perfiles, auth, records, incidencias e inventario (`services/api/main.py`).
 - Hay módulo REST de proveedores y pruebas, pero `routes/suppliers.py` no se registra desde el entrypoint principal. Integración efectiva pendiente.
-- Existe UI estática de proveedores en `uis/application/app/suppliers/index.html` y el tracker Next.js en `uis/talent-pipeline-tracker/`, más páginas estáticas de raíz.
+- Existe UI estática de proveedores en `uis/application/app/suppliers/index.html` y el backoffice Next.js en `uis/backoffice/` (antes `uis/talent-pipeline-tracker/`), más páginas estáticas de raíz.
 - Proyecto compuesto Docker y volúmenes definidos en `docker-compose.yml`; ejecución no probada en esta tarea.
 
 ## Pruebas y verificaciones de esta sesión
@@ -36,7 +36,7 @@
 | Rama, upstream y estado | `feature/agent-memory-bank` sigue a `origin/feature/agent-memory-bank`; se conservaron cuatro eliminaciones intencionales | Git solamente |
 | Inspección de archivos | Código, manifests, routers, documentación, configuración y estructura revisados | Inspección estática |
 | `pytest -q` desde la raíz | **Bloqueado antes de cargar tests**: `SyntaxError: unterminated triple-quoted string literal` en `services/api/tests/conftest.py`, línea 81, durante import de conftest | Ningún test se ejecutó |
-| Disponibilidad herramientas | Node `v24.21.0`, npm `11.19.0`, pytest en PATH; `uv` no disponible en PATH; `uis/talent-pipeline-tracker/node_modules` ausente | Entorno de esta sesión; no garantiza otros entornos |
+| Disponibilidad herramientas | Node `v24.21.0`, npm `11.19.0`, pytest en PATH; `uv` no disponible en PATH; `uis/backoffice/node_modules` presente tras renombrar el directorio local | Entorno de esta sesión; no garantiza otros entornos |
 | Suites frontend / build / lint / Docker | No ejecutados | Sin resultado actual |
 
 En el estado de Git del 12-10-2026, `CONTEXT-company.md` y cuatro archivos adicionales aparecen eliminados. El usuario confirmó que todas las eliminaciones son permanentes. `CONTEXT-company.md` fue leído antes de desaparecer y sirvió como fuente del brief de inventario.

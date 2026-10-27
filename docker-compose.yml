@@ -12,7 +12,7 @@ services:
       - "3000:3000"
     volumes:
       - type: bind
-        source: ./uis/talent-pipeline-tracker
+        source: ./uis/backoffice
         target: /app
       - type: volume
         source: interfaces_node_modules

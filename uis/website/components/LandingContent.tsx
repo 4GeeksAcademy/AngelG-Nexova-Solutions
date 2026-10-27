@@ -207,17 +207,20 @@ export function LandingContent() {
     }
 
     let observer: IntersectionObserver;
+    let animationFrame = 0;
     try {
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
+          entry.target.classList.toggle("is-visible", entry.isIntersecting);
         });
       }, { threshold: 0.01, rootMargin: "0px 0px 48px 0px" });
-      elements.forEach((element) => observer.observe(element));
+      elements.forEach((element) => element.classList.remove("is-visible"));
       document.documentElement.classList.add("has-reveal");
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = window.requestAnimationFrame(() => {
+          elements.forEach((element) => observer.observe(element));
+        });
+      });
     } catch {
       elements.forEach((element) => element.classList.add("is-visible"));
       document.documentElement.classList.remove("has-reveal");
@@ -225,7 +228,9 @@ export function LandingContent() {
     }
 
     return () => {
+      window.cancelAnimationFrame(animationFrame);
       observer.disconnect();
+      elements.forEach((element) => element.classList.remove("is-visible"));
       document.documentElement.classList.remove("has-reveal");
     };
   }, []);

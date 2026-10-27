@@ -183,6 +183,36 @@ def test_product_creation_requires_authentication(inventory_client: TestClient):
     assert response.status_code == 401
 
 
+@pytest.mark.parametrize(
+    "endpoint",
+    ["/inventory/products", "/inventory/products/1", "/inventory/orders"],
+)
+def test_inventory_read_routes_require_authentication(
+    inventory_client: TestClient,
+    endpoint: str,
+):
+    app.dependency_overrides.pop(get_current_user, None)
+
+    response = inventory_client.get(endpoint)
+
+    assert response.status_code == 401
+
+
+def test_authenticated_user_can_read_inventory(inventory_client: TestClient):
+    product = create_product(inventory_client)
+
+    products = inventory_client.get("/inventory/products")
+    single_product = inventory_client.get(f"/inventory/products/{product['id']}")
+    orders = inventory_client.get("/inventory/orders")
+
+    assert products.status_code == 200
+    assert products.json()[0]["id"] == product["id"]
+    assert single_product.status_code == 200
+    assert single_product.json()["id"] == product["id"]
+    assert orders.status_code == 200
+    assert orders.json() == []
+
+
 def test_authenticated_user_can_create_product(inventory_client: TestClient):
     product = create_product(inventory_client)
 

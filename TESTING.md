@@ -7,7 +7,7 @@ Validar la lógica de negocio del backend y las utilidades reutilizables del fro
 ## Alcance
 
 - Backend: `services/api/tests/`, pytest, pytest-cov, FastAPI `TestClient`, `monkeypatch` y TinyDB aislada por prueba.
-- Frontend: `uis/talent-pipeline-tracker/lib/__tests__/`, Vitest (el proyecto no usa Jest), jsdom y cobertura V8.
+- Frontend: `uis/backoffice/lib/__tests__/`, Vitest (el proyecto no usa Jest), jsdom y cobertura V8.
 - La cobertura se centra en contratos y lógica de negocio; no se exige cubrir componentes React sin lógica reutilizable.
 
 El módulo prioritario de AUTH-088 es `services/api/auth.py`.
@@ -43,10 +43,10 @@ El frontend usa Vitest, no Jest: `package.json` define `vitest run` y no contien
 
 Cada función tiene camino feliz y modo de fallo. No se inventó una segunda configuración de Jest.
 
-Los tests se encuentran en `uis/talent-pipeline-tracker/lib/__tests__/` y se ejecutan solamente para el frontend con:
+Los tests se encuentran en `uis/backoffice/lib/__tests__/` y se ejecutan solamente para el frontend con:
 
 ```bash
-cd uis/talent-pipeline-tracker
+cd uis/backoffice
 npm run test:coverage
 ```
 
@@ -98,7 +98,7 @@ funciona actualmente es:
 /workspaces/AngelG-Nexova-Solutions/.venv/bin/uv run pytest --cov
 ```
 
-Desde `uis/talent-pipeline-tracker`:
+Desde `uis/backoffice`:
 
 ```bash
 npm test

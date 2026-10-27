@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Loading } from "@/components/Loading";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { getInventoryProducts, createInboundOrder } from "@/lib/inventory";
-import type { Asset } from "@/types/inventory";
+import type { Asset, Office } from "@/types/inventory";
 
 function getInitialProductId(): string {
   if (typeof window === "undefined") return "";
@@ -24,6 +24,7 @@ export default function InboundOrderPage() {
 function InboundOrderForm() {
   const [products, setProducts] = useState<Asset[]>([]);
   const [productId, setProductId] = useState(getInitialProductId);
+  const [office, setOffice] = useState<Office>("Valencia");
   const [quantity, setQuantity] = useState("");
   const [supplier, setSupplier] = useState("");
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
@@ -39,9 +40,15 @@ function InboundOrderForm() {
       .then((data) => {
         if (!isActive) return;
         setProducts(data);
-        setProductId((selectedId) =>
-          data.some((asset) => String(asset.id) === selectedId) ? selectedId : "",
-        );
+        setProductId((selectedId) => {
+          const nextId = data.some((asset) => String(asset.id) === selectedId)
+            ? selectedId
+            : "";
+          setOffice(
+            data.find((asset) => String(asset.id) === nextId)?.office ?? "Valencia",
+          );
+          return nextId;
+        });
       })
       .catch((requestError: unknown) => {
         if (!isActive) return;
@@ -90,12 +97,13 @@ function InboundOrderForm() {
         asset_id: selectedAsset.id,
         quantity: parsedQuantity,
         supplier: supplier.trim(),
-        office: selectedAsset.office,
+        office,
       });
       setSuccess(
-        `Entrada registrada: ${parsedQuantity} unidad${parsedQuantity === 1 ? "" : "es"} de ${selectedAsset.name} para ${selectedAsset.office}.`,
+        `Entrada registrada: ${parsedQuantity} unidad${parsedQuantity === 1 ? "" : "es"} de ${selectedAsset.name} para ${office}.`,
       );
       setProductId("");
+      setOffice("Valencia");
       setQuantity("");
       setSupplier("");
     } catch (requestError: unknown) {
@@ -175,7 +183,12 @@ function InboundOrderForm() {
                 required
                 value={productId}
                 onChange={(event) => {
-                  setProductId(event.target.value);
+                  const nextId = event.target.value;
+                  setProductId(nextId);
+                  setOffice(
+                    products.find((asset) => String(asset.id) === nextId)?.office ??
+                      "Valencia",
+                  );
                   setError(null);
                   setSuccess(null);
                 }}
@@ -234,14 +247,25 @@ function InboundOrderForm() {
               </label>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-              <span className="font-semibold text-slate-900">Oficina receptora: </span>
-              {products.find((asset) => String(asset.id) === productId)?.office ??
-                "Se determina al seleccionar el activo"}
-              <p className="mt-1 text-xs text-slate-500">
-                La oficina se completa desde el activo seleccionado para mantener los datos coherentes.
-              </p>
-            </div>
+            <label className="grid max-w-xl gap-2 text-sm font-semibold text-slate-800" htmlFor="office">
+              Oficina receptora
+              <select
+                id="office"
+                name="office"
+                required
+                value={office}
+                onChange={(event) => {
+                  setOffice(event.target.value as Office);
+                  setError(null);
+                  setSuccess(null);
+                }}
+                disabled={isSubmitting}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-3 font-normal text-slate-950 shadow-sm focus:border-cyan-700 focus:outline-2 focus:outline-cyan-700 disabled:bg-slate-100"
+              >
+                <option value="Valencia">Valencia</option>
+                <option value="Miami">Miami</option>
+              </select>
+            </label>
 
             <button
               type="submit"

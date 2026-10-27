@@ -1,63 +1,80 @@
-"""
-conftest.py — Shared fixtures for the Nexova Suppliers API tests.
-"""
+"""Shared fixtures for the Nexova Suppliers API tests."""
 
 from __future__ import annotations
 
-import os
-import tempfile
+from collections.abc import Generator
+import importlib.util
 from pathlib import Path
-from typing import Generator
+import sys
 
 import pytest
 from fastapi.testclient import TestClient
+from tinydb import TinyDB
 
+# This API uses a local ``services.py`` module. Pytest may put the monorepo
+# root first on sys.path, where ``services/`` is a different package.
+API_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(API_ROOT))
 
-# ── Fixtures ──────────────────────────────────────────────────────────────
+# The monorepo already has a ``services`` package, while this API subproject
+# also has a legacy ``services.py`` module imported by its top-level modules.
+# Keep the monorepo package (needed by tests importing services.api.*), and
+# expose the API module's functions on it for imports such as ``from services
+# import get_user_by_id``.
+import services as monorepo_services
+
+_api_services_spec = importlib.util.spec_from_file_location(
+    "_nexova_api_services", API_ROOT / "services.py"
+)
+if _api_services_spec is None or _api_services_spec.loader is None:
+    raise ImportError("Could not load the API services module for tests.")
+_api_services = importlib.util.module_from_spec(_api_services_spec)
+_api_services_spec.loader.exec_module(_api_services)
+for _name in dir(_api_services):
+    if not _name.startswith("_"):
+        setattr(monorepo_services, _name, getattr(_api_services, _name))
+
+from main import app
+
 
 @pytest.fixture(autouse=True)
-def _temp_db(monkeypatch: pytest.MonkeyPatch) -> Generator[TinyDB, None, None]:
-    """Replace the production TinyDB with a temporary JSON file.
+def _temp_db(monkeypatch: pytest.MonkeyPatch, tmp_path) -> Generator[TinyDB, None, None]:
+    """Replace TinyDB access with an isolated temporary database per test."""
+    tmp_db = TinyDB(str(tmp_path / "test-db.json"))
 
-import database  # noqa: E402
-from main import app  # noqa: E402
+    # Existing modules keep references to their imported TinyDB tables, so
+    # patch the module-level tables to point at the temporary database.
+    import database
 
+    table_names = (
+        "users",
+        "profiles",
+        "password_reset_tokens",
+        "records",
+        "notes",
+        "incidents",
+    )
+    for table_name in table_names:
+        table = tmp_db.table(table_name)
+        monkeypatch.setattr(database, f"{table_name}_table", table)
+        if hasattr(_api_services, f"{table_name}_table"):
+            monkeypatch.setattr(_api_services, f"{table_name}_table", table)
+        if hasattr(monorepo_services, f"{table_name}_table"):
+            monkeypatch.setattr(monorepo_services, f"{table_name}_table", table)
 
-@pytest.fixture
-def client():
-    return TestClient(app)
+    monkeypatch.setattr(database, "db", tmp_db)
 
-    tmp_db = TinyDB(str(tmp_path))
-
-    def _mock_db() -> TinyDB:
-        return tmp_db
-
-    monkeypatch.setattr("services.api.database.get_db", _mock_db)
-    monkeypatch.setattr("services.api.routes.suppliers.get_db", _mock_db)
-    monkeypatch.setattr("services.api.seed.get_db", _mock_db)
-
-    yield tmp_db
-
-    tmp_db.close()
-    os.unlink(str(tmp_path))
+    try:
+        yield tmp_db
+    finally:
+        tmp_db.close()
 
 
 @pytest.fixture
 def client() -> Generator[TestClient, None, None]:
     """Provide a FastAPI TestClient."""
-    with TestClient(app) as c:
-        yield c
-
-
-@pytest.fixture
-def seeded_db(_temp_db: TinyDB) -> TinyDB:
-    """Pre-populate the database with seed data."""
-    table = _temp_db.table("suppliers")
-    for item in SUPPLIERS_SEED:
-        validated = SupplierDict(**item)
-        data = validated.model_dump()
-        table.insert(data)
-    return _temp_db
+    with TestClient(app) as test_client:
+        yield test_client
 
 
 @pytest.fixture

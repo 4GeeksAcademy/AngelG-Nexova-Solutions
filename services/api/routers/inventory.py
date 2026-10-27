@@ -139,7 +139,11 @@ def _commit_or_raise_integrity_error(session: Session) -> None:
 
 
 @router.get("/products", response_model=list[AssetResponse])
-def list_products(session: Session = Depends(get_db)):
+def list_products(
+    session: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    del current_user  # Authentication is required; product lists have no user filter.
     entry_totals, exit_totals, stock = _stock_expression()
     statement = (
         select(Asset, stock)
@@ -172,7 +176,12 @@ def create_product(
 
 
 @router.get("/products/{id}", response_model=AssetResponse)
-def get_product(id: int, session: Session = Depends(get_db)):
+def get_product(
+    id: int,
+    session: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    del current_user  # Authentication is required; products have no user field.
     asset = session.get(Asset, id)
     if asset is None:
         raise HTTPException(status_code=404, detail="Producto no encontrado.")
@@ -243,7 +252,11 @@ def create_outbound_order(
 
 
 @router.get("/orders", response_model=list[InventoryOrderResponse])
-def list_orders(session: Session = Depends(get_db)):
+def list_orders(
+    session: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    del current_user  # Authentication is required; the history is shared.
     # joinedload fetches the many-to-one Asset in the same query, avoiding N+1.
     inbound: Sequence[AssetEntry] = session.exec(
         select(AssetEntry)

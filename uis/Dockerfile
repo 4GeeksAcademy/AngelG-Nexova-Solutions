@@ -3,10 +3,10 @@ FROM node:22-alpine
 WORKDIR /app
 
 # Install the frontend's locked dependencies before copying the changing source.
-COPY talent-pipeline-tracker/package.json talent-pipeline-tracker/package-lock.json ./
+COPY backoffice/package.json backoffice/package-lock.json ./
 RUN npm ci
 
-COPY talent-pipeline-tracker/ ./
+COPY backoffice/ ./
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 

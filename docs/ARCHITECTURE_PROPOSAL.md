@@ -8,8 +8,8 @@
 - No existe backend implementado actualmente dentro de [services/](services/); hoy solo hay documentación de intención de carpeta.
 - Existen dos frentes de UI relevantes:
 1. Sitio estático y formulario en [index.html](index.html) y [application.html](application.html).
-2. Aplicación Next.js en [uis/talent-pipeline-tracker/](uis/talent-pipeline-tracker/), centrada en pipeline de selección.
-- El frontend Next.js consume una API HTTP externa a través de variable de entorno NEXT_PUBLIC_API_URL en [uis/talent-pipeline-tracker/lib/api.ts](uis/talent-pipeline-tracker/lib/api.ts#L16).
+2. Aplicación Next.js en [uis/backoffice/](../uis/backoffice/), centrada en pipeline de selección.
+- El frontend Next.js consume una API HTTP externa a través de variable de entorno NEXT_PUBLIC_API_URL en [uis/backoffice/lib/api.ts](../uis/backoffice/lib/api.ts#L16).
 - Los recursos API usados de forma real por el frontend son:
 1. GET /records
 2. GET /records/{id}

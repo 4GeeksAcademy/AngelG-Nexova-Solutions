@@ -55,6 +55,41 @@ def test_records_group_lists_and_creates_candidates():
     assert listed.json()["data"][0]["id"] == created["id"]
 
 
+def test_public_candidate_submission_creates_record_without_auth():
+    response = client.post("/records/public", json=record_payload())
+
+    assert response.status_code == 201
+    assert response.json()["full_name"] == "Ada Lovelace"
+    assert response.json()["status"] == "received"
+    assert response.json()["stage"] == "pending"
+    assert client.get("/records").status_code == 401
+
+
+def test_public_candidate_submission_honeypot_is_acknowledged_not_saved():
+    before = len(client.get("/records", headers=auth_headers()).json()["data"])
+
+    response = client.post(
+        "/records/public",
+        json={**record_payload(), "website": "automated spam"},
+    )
+
+    assert response.status_code == 201
+    assert response.json() == {"ok": True}
+    after = len(client.get("/records", headers=auth_headers()).json()["data"])
+    assert after == before
+
+
+def test_public_candidate_submission_is_rate_limited():
+    payload = record_payload()
+    for _ in range(5):
+        assert client.post("/records/public", json=payload).status_code == 201
+
+    limited = client.post("/records/public", json=payload)
+
+    assert limited.status_code == 429
+    assert limited.headers["retry-after"] == "900"
+
+
 def test_records_group_supports_pagination_boundary():
     headers = auth_headers()
     create_record(headers)
