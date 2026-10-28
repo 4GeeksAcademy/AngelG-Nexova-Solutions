@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel
+from pydantic import BaseModel
 
 import database
 from auth import router as auth_router
@@ -33,6 +34,14 @@ app = FastAPI(
     title="Company API",
     lifespan=lifespan,
 )
+
+
+class HealthResponse(BaseModel):
+    status: str
+
+
+class RootResponse(BaseModel):
+    message: str
 
 
 @app.exception_handler(RequestValidationError)
@@ -65,6 +74,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail},
+            headers=exc.headers,
         )
     return JSONResponse(
         status_code=exc.status_code,
@@ -73,6 +83,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
                 "message": str(exc.detail),
             }
         },
+        headers=exc.headers,
     )
 
 
@@ -107,12 +118,12 @@ app.include_router(incidents_router)
 app.include_router(inventory_router)
 
 
-@app.get("/health", tags=["health"])
+@app.get("/health", response_model=HealthResponse, tags=["health"])
 def health_check():
     """Simple health-check endpoint."""
     return {"status": "ok"}
 
 
-@app.get("/", tags=["health"])
+@app.get("/", response_model=RootResponse, tags=["health"])
 def root():
     return {"message": "API Encendida y funcionando correctamente"}

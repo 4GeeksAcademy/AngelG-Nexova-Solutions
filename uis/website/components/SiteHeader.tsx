@@ -6,6 +6,7 @@ import { useSitePreferences, type Language } from "@/lib/site-preferences";
 
 const labels = {
   es: {
+    homeLink: "Inicio",
     services: "Servicios",
     process: "Cómo funciona",
     industries: "Sectores",
@@ -23,6 +24,7 @@ const labels = {
     home: "Nexova Solutions — Inicio",
   },
   en: {
+    homeLink: "Home",
     services: "Services",
     process: "How it works",
     industries: "Industries",
@@ -56,6 +58,7 @@ export function SiteHeader({ page = "home" }: { page?: "home" | "application" })
   }, []);
 
   const links = [
+      [t.homeLink, "#inicio"],
       [t.services, "#servicios"],
       [t.process, "#proceso"],
       [t.industries, "#sectores"],

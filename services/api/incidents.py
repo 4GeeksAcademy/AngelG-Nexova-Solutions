@@ -56,6 +56,26 @@ class IncidentStatusUpdate(BaseModel):
     status: IncidentStatus
 
 
+class IncidentResponse(BaseModel):
+    id: str
+    title: str
+    description: str
+    category: IncidentCategory
+    status: IncidentStatus
+    origin: IncidentOrigin
+    branch: IncidentBranch
+    created_at: str
+    updated_at: str
+
+
+class IncidentSummaryResponse(BaseModel):
+    total: int
+    by_status: dict[str, int]
+    by_category: dict[str, int]
+    by_origin: dict[str, int]
+    by_branch: dict[str, int]
+
+
 def _validation_error(error: IncidentValidationError) -> HTTPException:
     return HTTPException(
         status_code=400,
@@ -83,7 +103,7 @@ def _parse_filter(name: str, value: str | None, enum_type):
         ) from error
 
 
-@router.post("", status_code=201)
+@router.post("", response_model=IncidentResponse, status_code=201)
 def create(data: IncidentCreate):
     now = utc_now_iso()
     try:
@@ -113,7 +133,7 @@ def create(data: IncidentCreate):
     return created
 
 
-@router.get("")
+@router.get("", response_model=list[IncidentResponse])
 def list_all(
     status: Annotated[str | None, Query()] = None,
     origin: Annotated[str | None, Query()] = None,
@@ -129,7 +149,7 @@ def list_all(
     return [record for record in get_incidents({key: value for key, value in filters.items() if value is not None})]
 
 
-@router.patch("/{incident_id}/status")
+@router.patch("/{incident_id}/status", response_model=IncidentResponse)
 def update_status(incident_id: str, data: IncidentStatusUpdate):
     incident = get_incident_by_id(incident_id)
     if incident is None:
@@ -170,7 +190,7 @@ def update_status(incident_id: str, data: IncidentStatusUpdate):
         )
 
 
-@router.get("/summary")
+@router.get("/summary", response_model=IncidentSummaryResponse)
 def summary():
     records = get_incidents()
     return {
@@ -182,7 +202,7 @@ def summary():
     }
 
 
-@router.get("/{incident_id}")
+@router.get("/{incident_id}", response_model=IncidentResponse)
 def get_one(incident_id: str):
     incident = get_incident_by_id(incident_id)
     if incident is None:

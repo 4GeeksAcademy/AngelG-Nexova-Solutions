@@ -8,14 +8,21 @@ from .incidents_service import (
     analyze_csv_content,
     get_last_result,
 )
+from .schemas import AnalysisErrorResponse, AnalysisResponse
 from packages.incidents_analysis.models import AnalysisInputError
 
 
 app = FastAPI(title="Nexova Incidents API", version="1.0.0")
 
 
-@app.post("/api/incidents/analyze")
-async def analyze_incidents(file: UploadFile | None = File(default=None)) -> Response:
+@app.post(
+    "/api/incidents/analyze",
+    response_model=AnalysisResponse,
+    responses={400: {"model": AnalysisErrorResponse}},
+)
+async def analyze_incidents(
+    file: UploadFile | None = File(default=None),
+) -> AnalysisResponse | JSONResponse:
     if file is None:
         return JSONResponse(
             status_code=400,
@@ -76,10 +83,24 @@ async def analyze_incidents(file: UploadFile | None = File(default=None)) -> Res
             },
         )
 
-    return JSONResponse(status_code=200, content=payload)
+    return payload
 
 
-@app.get("/api/incidents/results/export")
+@app.get(
+    "/api/incidents/results/export",
+    response_model=None,
+    responses={
+        200: {
+            "description": "CSV con métricas del análisis más reciente.",
+            "content": {
+                "text/csv": {
+                    "schema": {"type": "string", "format": "binary"},
+                },
+            },
+        },
+        404: {"model": AnalysisErrorResponse},
+    },
+)
 async def export_incidents_results() -> Response:
     result = get_last_result()
     if result is None:

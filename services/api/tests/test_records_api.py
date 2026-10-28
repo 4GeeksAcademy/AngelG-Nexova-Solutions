@@ -12,6 +12,7 @@ def auth_headers():
         json={"email": "records@example.com", "password": "Password123!"},
     )
     assert registered.status_code == 200
+    assert registered.json() == {"message": "Registro completado correctamente."}
     login = client.post(
         "/auth/login",
         data={"username": "records@example.com", "password": "Password123!"},
@@ -59,14 +60,15 @@ def test_public_candidate_submission_creates_record_without_auth():
     response = client.post("/records/public", json=record_payload())
 
     assert response.status_code == 201
-    assert response.json()["full_name"] == "Ada Lovelace"
-    assert response.json()["status"] == "received"
-    assert response.json()["stage"] == "pending"
+    assert response.json() == {"message": "Solicitud recibida correctamente."}
+    assert "Ada Lovelace" not in response.text
+    assert "ada@example.com" not in response.text
     assert client.get("/records").status_code == 401
 
 
 def test_public_candidate_submission_honeypot_is_acknowledged_not_saved():
-    before = len(client.get("/records", headers=auth_headers()).json()["data"])
+    headers = auth_headers()
+    before = len(client.get("/records", headers=headers).json()["data"])
 
     response = client.post(
         "/records/public",
@@ -74,8 +76,8 @@ def test_public_candidate_submission_honeypot_is_acknowledged_not_saved():
     )
 
     assert response.status_code == 201
-    assert response.json() == {"ok": True}
-    after = len(client.get("/records", headers=auth_headers()).json()["data"])
+    assert response.json() == {"message": "Solicitud recibida correctamente."}
+    after = len(client.get("/records", headers=headers).json()["data"])
     assert after == before
 
 

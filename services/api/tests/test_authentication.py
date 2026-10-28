@@ -20,7 +20,7 @@ def register_user(email="user@example.com", password="OldPassword123!"):
         json={"email": email, "password": password},
     )
     assert response.status_code == 200
-    return response.json()["user"]
+    return get_user_by_email(email)
 
 
 def test_register_creates_active_user_and_profile_without_exposing_password():
@@ -35,11 +35,10 @@ def test_register_creates_active_user_and_profile_without_exposing_password():
 
     assert response.status_code == 200
     body = response.json()
-    assert body["user"]["email"] == "new@example.com"
-    assert body["user"]["is_active"] is True
-    assert body["user"]["role"] == "user"
-    assert "hashed_password" not in body["user"]
-    assert body["profile"]["user_id"] == body["user"]["id"]
+    assert body == {"message": "Registro completado correctamente."}
+    assert "new@example.com" not in response.text
+    assert "New User" not in response.text
+    assert "hashed_password" not in response.text
 
 
 def test_register_accepts_minimum_password_length_and_optional_fields():
@@ -49,7 +48,7 @@ def test_register_accepts_minimum_password_length_and_optional_fields():
     )
 
     assert response.status_code == 200
-    assert response.json()["profile"]["name"] is None
+    assert response.json() == {"message": "Registro completado correctamente."}
 
 
 def test_register_rejects_duplicate_email_and_missing_credentials():

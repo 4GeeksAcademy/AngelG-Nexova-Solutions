@@ -2,17 +2,45 @@ import sys
 import unittest
 from pathlib import Path
 
-    assert response.status_code == 200
-    assert len(response.json()) == 1
-    assert response.json()[0]["origin"] == "customer"
+import pytest
+from fastapi.testclient import TestClient
+
+from main import app as main_app
+from services.api.app.incidents_service import clear_last_result
+from packages.incidents_analysis.cli import analyze_file
 
 
-def test_list_incidents_applies_multiple_filters():
-    create_incident(category="technical_failure", origin="internal", branch="remote")
-    create_incident(category="technical_failure", origin="customer", branch="remote")
-    create_incident(category="client_complaint", origin="customer", branch="central")
+@pytest.fixture
+def main_client():
+    with TestClient(main_app, raise_server_exceptions=False) as test_client:
+        yield test_client
 
-    response = client.get(
+
+def incident_payload(**overrides):
+    payload = {
+        "title": "No funciona el ATS",
+        "description": "El equipo no puede iniciar sesión en el ATS.",
+        "category": "technical_failure",
+        "status": "open",
+        "origin": "internal",
+        "branch": "valencia_operations",
+    }
+    payload.update(overrides)
+    return payload
+
+
+def create_incident(client, **overrides):
+    response = client.post("/incidents", json=incident_payload(**overrides))
+    assert response.status_code == 201
+    return response.json()
+
+
+def test_list_incidents_applies_multiple_filters(main_client):
+    create_incident(main_client, category="technical_failure", origin="internal", branch="remote")
+    create_incident(main_client, category="technical_failure", origin="customer", branch="remote")
+    create_incident(main_client, category="client_complaint", origin="customer", branch="central")
+
+    response = main_client.get(
         "/incidents",
         params={"category": "technical_failure", "branch": "remote"},
     )
@@ -22,28 +50,28 @@ def test_list_incidents_applies_multiple_filters():
     assert {item["origin"] for item in response.json()} == {"internal", "customer"}
 
 
-def test_invalid_filter_returns_400():
-    response = client.get("/incidents", params={"status": "invalid"})
+def test_invalid_filter_returns_400(main_client):
+    response = main_client.get("/incidents", params={"status": "invalid"})
     assert response.status_code == 400
     assert response.json()["detail"]["code"] == "INVALID_FILTER"
     assert response.json()["detail"]["fields"] == {"status": ["invalid"]}
 
 
-def test_get_incident_by_id_and_missing_id():
-    incident = create_incident()
+def test_get_incident_by_id_and_missing_id(main_client):
+    incident = create_incident(main_client)
 
-    found = client.get(f"/incidents/{incident['id']}")
+    found = main_client.get(f"/incidents/{incident['id']}")
     assert found.status_code == 200
     assert found.json()["id"] == incident["id"]
     assert found.json()["title"] == incident["title"]
-    missing = client.get("/incidents/not-found")
+    missing = main_client.get("/incidents/not-found")
     assert missing.status_code == 404
     assert missing.json()["detail"]["code"] == "INCIDENT_NOT_FOUND"
 
 
-def test_patch_status_allows_valid_transitions_and_updates_timestamp():
-    incident = create_incident()
-    response = client.patch(
+def test_patch_status_allows_valid_transitions_and_updates_timestamp(main_client):
+    incident = create_incident(main_client)
+    response = main_client.patch(
         f"/incidents/{incident['id']}/status",
         json={"status": "in_progress"},
     )
@@ -53,35 +81,35 @@ def test_patch_status_allows_valid_transitions_and_updates_timestamp():
     assert response.json()["updated_at"] >= incident["updated_at"]
 
 
-def test_patch_status_rejects_invalid_transition_and_final_states():
-    incident = create_incident()
-    invalid = client.patch(
+def test_patch_status_rejects_invalid_transition_and_final_states(main_client):
+    incident = create_incident(main_client)
+    invalid = main_client.patch(
         f"/incidents/{incident['id']}/status",
         json={"status": "resolved"},
     )
     assert invalid.status_code == 400
 
-    client.patch(f"/incidents/{incident['id']}/status", json={"status": "in_progress"})
-    client.patch(f"/incidents/{incident['id']}/status", json={"status": "resolved"})
-    final = client.patch(f"/incidents/{incident['id']}/status", json={"status": "open"})
+    main_client.patch(f"/incidents/{incident['id']}/status", json={"status": "in_progress"})
+    main_client.patch(f"/incidents/{incident['id']}/status", json={"status": "resolved"})
+    final = main_client.patch(f"/incidents/{incident['id']}/status", json={"status": "open"})
     assert final.status_code == 400
 
 
-def test_patch_status_reports_missing_incident_and_service_failure(monkeypatch):
-    missing = client.patch(
+def test_patch_status_reports_missing_incident_and_service_failure(main_client, monkeypatch):
+    missing = main_client.patch(
         "/incidents/not-found/status",
         json={"status": "in_progress"},
     )
     assert missing.status_code == 404
     assert missing.json()["detail"]["code"] == "INCIDENT_NOT_FOUND"
 
-    incident = create_incident()
+    incident = create_incident(main_client)
 
     def fail(*args, **kwargs):
         raise RuntimeError("status update failed")
 
     monkeypatch.setattr("incidents.update_incident_status", fail)
-    failed = client.patch(
+    failed = main_client.patch(
         f"/incidents/{incident['id']}/status",
         json={"status": "in_progress"},
     )
@@ -90,13 +118,13 @@ def test_patch_status_reports_missing_incident_and_service_failure(monkeypatch):
     assert failed.json()["detail"]["code"] == "STATUS_UPDATE_FAILED"
 
 
-def test_summary_works_with_zero_and_nonzero_records():
-    empty = client.get("/incidents/summary").json()
+def test_summary_works_with_zero_and_nonzero_records(main_client):
+    empty = main_client.get("/incidents/summary").json()
     assert empty["total"] == 0
     assert empty["by_status"]["open"] == 0
 
-    create_incident()
-    populated = client.get("/incidents/summary").json()
+    create_incident(main_client)
+    populated = main_client.get("/incidents/summary").json()
     assert populated["total"] == 1
     assert populated["by_status"]["open"] == 1
     assert populated["by_category"]["technical_failure"] == 1
@@ -104,25 +132,30 @@ def test_summary_works_with_zero_and_nonzero_records():
     assert populated["by_branch"]["valencia_operations"] == 1
 
 
-def test_unexpected_service_errors_return_json_500(monkeypatch):
+def test_unexpected_service_errors_return_json_500(main_client, monkeypatch):
     def fail(*args, **kwargs):
         raise RuntimeError("internal test failure")
 
+    monkeypatch.setattr("incidents.get_incidents", fail)
+    response = main_client.get("/incidents")
+
+    assert response.status_code == 500
+    assert response.json()["detail"]["code"] == "INTERNAL_ERROR"
+    assert "internal test failure" not in response.text
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from services.api.app.main import app
-from services.api.app.incidents_service import clear_last_result
-from packages.incidents_analysis.cli import analyze_file
+from services.api.app.main import app as analysis_app
 
 
 class IncidentsApiTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.client = TestClient(app)
-        self.sample_csv_path = REPO_ROOT / "scripts" / "incidents-COMPANY.csv"
+        clear_last_result()
+        self.client = TestClient(analysis_app)
+        self.sample_csv_path = REPO_ROOT / "scripts" / "incidents-nexova.csv"
         self.config_path = REPO_ROOT / "scripts" / "incidents_config.json"
 
     def test_post_without_file_returns_400(self) -> None:
@@ -174,7 +207,7 @@ class IncidentsApiTests(unittest.TestCase):
             files={
                 "file": (
                     "incidents.csv",
-                    "incidencia_id,categoria,estado,cliente\n\"INC-1,tecnologia,cerrado,Cliente A\n",
+                    'incidencia_id,categoria,estado,cliente\n"INC-1,tecnologia,cerrado,Cliente A\n',
                     "text/csv",
                 )
             },
@@ -215,7 +248,6 @@ class IncidentsApiTests(unittest.TestCase):
         self.assertIn("export_rows", payload)
 
     def test_get_export_without_previous_analysis_returns_404(self) -> None:
-        clear_last_result()
         response = self.client.get("/api/incidents/results/export")
         payload = response.json()
 

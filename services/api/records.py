@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from auth import get_current_user
 from services import (
@@ -50,6 +50,8 @@ class CandidateStage(str, Enum):
 
 
 class RecordCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     full_name: str
     email: str
     phone: str
@@ -68,12 +70,59 @@ class RecordUpdate(RecordCreate):
 
 
 class RecordPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     status: Optional[CandidateStatus] = None
     stage: Optional[CandidateStage] = None
 
 
 class NoteCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     content: str
+
+
+class CandidateResponse(BaseModel):
+    id: str
+    full_name: str
+    email: str
+    phone: str
+    position: str
+    linkedin_url: str | None = None
+    cv_url: str | None = None
+    status: CandidateStatus
+    stage: CandidateStage
+    experience_years: int
+    notes_count: int
+    applied_at: str
+    updated_at: str
+
+
+class CandidateListResponse(BaseModel):
+    total: int
+    page: int
+    limit: int
+    data: list[CandidateResponse]
+
+
+class PublicRecordAcceptedResponse(BaseModel):
+    message: str
+
+
+class NoteResponse(BaseModel):
+    id: str
+    record_id: str
+    content: str
+    created_at: str
+
+
+class NotesMetaResponse(BaseModel):
+    total: int
+
+
+class NotesListResponse(BaseModel):
+    data: list[NoteResponse]
+    meta: NotesMetaResponse
 
 
 _PUBLIC_RATE_WINDOW_SECONDS = 15 * 60
@@ -125,7 +174,7 @@ def get_record_or_404(record_id: str):
     return record
 
 
-@router.get("")
+@router.get("", response_model=CandidateListResponse)
 def list_records(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -143,7 +192,7 @@ def list_records(
     }
 
 
-@router.get("/{record_id}")
+@router.get("/{record_id}", response_model=CandidateResponse)
 def get_record(
     record_id: str,
     current_user: dict = Depends(get_current_user)
@@ -151,7 +200,7 @@ def get_record(
     return get_record_or_404(record_id)
 
 
-@router.post("")
+@router.post("", response_model=CandidateResponse)
 def create_candidate(
     data: RecordCreate,
     current_user: dict = Depends(get_current_user)
@@ -175,11 +224,11 @@ def create_candidate(
     return record
 
 
-@router.post("/public", status_code=201)
+@router.post("/public", response_model=PublicRecordAcceptedResponse, status_code=201)
 def create_public_candidate(data: PublicRecordCreate):
     """Accept a candidate application without exposing internal record access."""
     if data.website.strip():
-        return {"ok": True}
+        return {"message": "Solicitud recibida correctamente."}
 
     client_key = hashlib.sha256(data.email.strip().lower().encode()).hexdigest()
     if _public_rate_limited(client_key):
@@ -202,10 +251,12 @@ def create_public_candidate(data: PublicRecordCreate):
             },
         )
 
-    return record
+    # Keep the acknowledgement indistinguishable from the honeypot path and
+    # never return the applicant's personal data to an unauthenticated caller.
+    return {"message": "Solicitud recibida correctamente."}
 
 
-@router.put("/{record_id}")
+@router.put("/{record_id}", response_model=CandidateResponse)
 def replace_candidate(
     record_id: str,
     data: RecordUpdate,
@@ -231,7 +282,7 @@ def replace_candidate(
         )
 
 
-@router.patch("/{record_id}")
+@router.patch("/{record_id}", response_model=CandidateResponse)
 def patch_candidate(
     record_id: str,
     data: RecordPatch,
@@ -264,7 +315,7 @@ def patch_candidate(
         )
 
 
-@router.delete("/{record_id}")
+@router.delete("/{record_id}", response_model=None)
 def remove_candidate(
     record_id: str,
     current_user: dict = Depends(get_current_user)
@@ -294,7 +345,7 @@ def remove_candidate(
     return Response(status_code=204)
 
 
-@router.get("/{record_id}/notes")
+@router.get("/{record_id}/notes", response_model=NotesListResponse)
 def list_notes(
     record_id: str,
     current_user: dict = Depends(get_current_user)
@@ -309,7 +360,7 @@ def list_notes(
     }
 
 
-@router.post("/{record_id}/notes")
+@router.post("/{record_id}/notes", response_model=NoteResponse)
 def add_note(
     record_id: str,
     data: NoteCreate,
@@ -348,7 +399,7 @@ def add_note(
     return note
 
 
-@router.delete("/{record_id}/notes/{note_id}")
+@router.delete("/{record_id}/notes/{note_id}", response_model=None)
 def remove_note(
     record_id: str,
     note_id: str,

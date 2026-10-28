@@ -62,6 +62,36 @@ def _temp_db(monkeypatch: pytest.MonkeyPatch, tmp_path) -> Generator[TinyDB, Non
         if hasattr(monorepo_services, f"{table_name}_table"):
             monkeypatch.setattr(monorepo_services, f"{table_name}_table", table)
 
+    # Keep aliases imported by application modules pointed at this test DB.
+    import auth
+    import incidents
+    import profiles
+    import records
+    import users
+
+    for table_name in table_names:
+        for module in (auth, incidents, profiles, records, users):
+            if hasattr(module, f"{table_name}_table"):
+                monkeypatch.setattr(module, f"{table_name}_table", tmp_db.table(table_name))
+
+    import records as records_module
+
+    # Tests may import database tables directly, before this fixture runs.
+    # Keep those module-level aliases aligned with the temporary DB too.
+    for module_name, module in tuple(sys.modules.items()):
+        if not module_name.startswith(("tests.", "services.api.tests.")):
+            continue
+        for table_name in table_names:
+            if hasattr(module, f"{table_name}_table"):
+                monkeypatch.setattr(
+                    module,
+                    f"{table_name}_table",
+                    tmp_db.table(table_name),
+                )
+
+    with records_module._public_rate_lock:
+        records_module._public_request_times.clear()
+
     monkeypatch.setattr(database, "db", tmp_db)
 
     try:

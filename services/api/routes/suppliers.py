@@ -165,7 +165,7 @@ def update_supplier_status(supplier_id: int, payload: StatusUpdate):
     return _doc_to_response(updated)
 
 
-@router.delete("/{supplier_id}", status_code=204)
+@router.delete("/{supplier_id}", response_model=None, status_code=204)
 def delete_supplier(supplier_id: int):
     """Delete a supplier by ID. Returns 404 if not found."""
     _get_supplier_or_404(supplier_id)

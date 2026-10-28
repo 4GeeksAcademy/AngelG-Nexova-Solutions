@@ -41,7 +41,8 @@ const copy = {
     consentEnd: "y autorizo el uso de mis datos para gestionar esta candidatura.",
     submit: "Enviar candidatura", sending: "Enviando…", clear: "Limpiar",
     thanks: "¡Gracias por tu interés en Nexova!",
-    received: "Hemos recibido tu candidatura. Nuestro equipo de selección la revisará.",
+    received: "Hemos recibido tu información. Nuestro equipo de selección la revisará y te contactaremos si tu perfil encaja con alguna oportunidad actual o futura.",
+    followLinkedIn: "Mientras tanto, síguenos en LinkedIn para estar al día de nuestras vacantes y contenido sobre desarrollo profesional.",
     backHome: "Volver al inicio", errorTitle: "No se pudo enviar la candidatura",
     error: "Inténtalo de nuevo más tarde. Si el problema continúa, ponte en contacto con Nexova.",
     errors: {
@@ -64,7 +65,8 @@ const copy = {
     consentEnd: "and authorize the use of my data to manage this application.",
     submit: "Submit application", sending: "Sending…", clear: "Clear",
     thanks: "Thanks for your interest in Nexova!",
-    received: "We have received your application. Our recruitment team will review it.",
+    received: "We have received your information. Our recruitment team will review it and contact you if your profile matches a current or future opportunity.",
+    followLinkedIn: "In the meantime, follow us on LinkedIn for job openings and professional development content.",
     backHome: "Back to home", errorTitle: "We couldn't submit your application",
     error: "Please try again later. If the problem continues, contact Nexova.",
     errors: {
@@ -253,6 +255,7 @@ export function ApplicationForm() {
             <div className="mx-auto mb-6 grid h-20 w-20 place-items-center rounded-full border-2 border-gold-400 bg-gold-400/10 text-4xl text-gold-400" aria-hidden="true">✓</div>
             <h2 id="success-title" className="mb-4 font-display text-3xl font-bold text-white">{t.thanks}</h2>
             <p className="mb-8 leading-relaxed text-slate-300">{t.received}</p>
+            <p className="mb-8 leading-relaxed text-slate-300">{t.followLinkedIn} <a className="underline" href="https://linkedin.com/company/nexova-solutions" target="_blank" rel="noopener noreferrer">LinkedIn</a></p>
             <Link className="form-primary inline-block" href="/">{t.backHome}</Link>
           </div>
         </div>

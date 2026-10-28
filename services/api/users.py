@@ -6,7 +6,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from passlib.hash import bcrypt
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from auth import get_current_user
 from services import (
@@ -36,6 +36,8 @@ class Role(str, Enum):
 
 
 class UserCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     email: str
     password: str
     name: Optional[str] = None
@@ -44,10 +46,38 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     email: Optional[str] = None
     password: Optional[str] = None
     role: Optional[Role] = None
     is_active: Optional[bool] = None
+
+
+class UserListItemResponse(BaseModel):
+    id: str
+    role: Role
+    is_active: bool
+
+
+class UserDetailResponse(UserListItemResponse):
+    email: str
+    created_at: str
+
+
+class UserProfileResponse(BaseModel):
+    id: str
+    name: str | None = None
+    phone: str | None = None
+    address: str | None = None
+
+
+class UserRegistrationResponse(BaseModel):
+    message: str
+
+
+class UserDeleteResponse(BaseModel):
+    message: str
 
 
 def public_user(user: dict):
@@ -74,7 +104,7 @@ def owner_or_admin(
         )
 
 
-@router.post("")
+@router.post("", response_model=UserRegistrationResponse)
 def register(data: UserCreate):
 
     if get_user_by_email(data.email):
@@ -119,23 +149,26 @@ def register(data: UserCreate):
         profile
     )
 
-    return {
-        "user": public_user(user),
-        "profile": profile
-    }
+    # The client proceeds to login separately; do not echo submitted
+    # credentials, email, or profile data in this unauthenticated response.
+    return {"message": "Registro completado correctamente."}
 
 
-@router.get("")
+@router.get("", response_model=list[UserListItemResponse])
 def list_users(
     current_user: dict = Depends(get_current_user)
 ):
     return [
-        public_user(user)
+        UserListItemResponse(
+            id=user["id"],
+            role=user["role"],
+            is_active=user["is_active"],
+        )
         for user in get_all_users()
     ]
 
 
-@router.get("/{user_id}")
+@router.get("/{user_id}", response_model=UserDetailResponse)
 def get_user(
     user_id: str,
     current_user: dict = Depends(get_current_user)
@@ -156,7 +189,7 @@ def get_user(
     return public_user(user)
 
 
-@router.put("/{user_id}")
+@router.put("/{user_id}", response_model=UserDetailResponse)
 def edit_user(
     user_id: str,
     data: UserUpdate,
@@ -218,7 +251,7 @@ def edit_user(
     return public_user(user)
 
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}", response_model=UserDeleteResponse)
 def remove_user(
     user_id: str,
     current_user: dict = Depends(get_current_user)

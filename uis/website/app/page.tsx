@@ -3,12 +3,17 @@ import { LandingContent } from "@/components/LandingContent";
 const organization = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Nexova Solutions",
+  name: "Nexova",
   foundingDate: "2011",
   description:
-    "Consultora de recursos humanos y selección de talento con servicios de headhunting, outsourcing de soporte al cliente y formación corporativa.",
+    "Consultora de recursos humanos y adquisición de talento.",
   address: [
-    { "@type": "PostalAddress", addressLocality: "Valencia", addressCountry: "ES" },
+    {
+      "@type": "PostalAddress",
+      addressLocality: "Valencia",
+      addressRegion: "Comunidad Valenciana",
+      addressCountry: "ES",
+    },
     {
       "@type": "PostalAddress",
       addressLocality: "Miami",
