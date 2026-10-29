@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from auth import get_current_user
 from services import (
@@ -63,6 +63,19 @@ class RecordCreate(BaseModel):
 
 class PublicRecordCreate(RecordCreate):
     website: str = ""
+    country: str = Field(min_length=1, max_length=100)
+    sector: str = Field(min_length=1, max_length=100)
+    english_level: str = Field(min_length=1, max_length=50)
+    availability: str = Field(min_length=1, max_length=50)
+    comments: str = Field(default="", max_length=500)
+    accept_terms: bool
+
+    @field_validator("accept_terms")
+    @classmethod
+    def require_consent(cls, value: bool) -> bool:
+        if not value:
+            raise ValueError("Data processing consent is required")
+        return value
 
 
 class RecordUpdate(RecordCreate):
@@ -145,7 +158,7 @@ def _public_rate_limited(client_key: str) -> bool:
 
 def _new_candidate(data: RecordCreate) -> dict:
     now = datetime.now(timezone.utc).isoformat()
-    return {
+    record = {
         "id": str(uuid4()),
         "full_name": data.full_name,
         "email": data.email,
@@ -160,6 +173,19 @@ def _new_candidate(data: RecordCreate) -> dict:
         "applied_at": now,
         "updated_at": now,
     }
+    if isinstance(data, PublicRecordCreate):
+        record.update(
+            {
+                "country": data.country,
+                "sector": data.sector,
+                "english_level": data.english_level,
+                "availability": data.availability,
+                "comments": data.comments,
+                "consent_given": data.accept_terms,
+                "consent_timestamp": now,
+            }
+        )
+    return record
 
 
 def get_record_or_404(record_id: str):

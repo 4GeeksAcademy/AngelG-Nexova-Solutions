@@ -161,7 +161,7 @@ export function CandidateList({
       setCreateError(
         error instanceof Error
           ? error.message
-          : "No se pudo registrar la candidatura referida.",
+          : "No se pudo registrar la candidatura.",
       );
     } finally {
       setIsCreating(false);
@@ -242,10 +242,10 @@ export function CandidateList({
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              Registro de candidaturas por referidos
+              Registro de candidaturas
             </h2>
             <p className="text-sm text-slate-600">
-              Alta rapida de candidatos recomendados para el proceso Executive Assistant.
+              Alta rápida de candidaturas recibidas por distintos canales para el proceso Executive Assistant.
             </p>
           </div>
         </div>
@@ -263,7 +263,7 @@ export function CandidateList({
               </p>
             ) : null}
             <CandidateForm
-              submitLabel="Guardar candidatura referida"
+              submitLabel="Guardar candidatura"
               isSubmitting={isCreating}
               onSubmit={handleCreateCandidate}
             />

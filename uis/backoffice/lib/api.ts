@@ -14,6 +14,8 @@ interface RecordsResponse {
   data: Candidate[];
 }
 
+const RECORDS_PAGE_SIZE = 100;
+
 function getApiBaseUrl(): string {
   const baseUrl = process.env.NEXT_PUBLIC_RECORDS_API_URL?.trim();
 
@@ -108,8 +110,27 @@ async function request<T>(
 }
 
 export async function getRecords(): Promise<Candidate[]> {
-  const payload = await request<RecordsResponse>("/records");
-  return payload.data;
+  const firstPage = await request<RecordsResponse>(
+    `/records?page=1&limit=${RECORDS_PAGE_SIZE}`,
+  );
+  const pageCount = Math.ceil(firstPage.total / firstPage.limit);
+
+  if (pageCount <= 1) {
+    return firstPage.data;
+  }
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: pageCount - 1 }, (_, index) => index + 2).map(
+      async (page) => {
+        const response = await request<RecordsResponse>(
+          `/records?page=${page}&limit=${RECORDS_PAGE_SIZE}`,
+        );
+        return response.data;
+      },
+    ),
+  );
+
+  return [firstPage.data, ...remainingPages].flat();
 }
 
 export async function getRecordById(id: string): Promise<Candidate> {

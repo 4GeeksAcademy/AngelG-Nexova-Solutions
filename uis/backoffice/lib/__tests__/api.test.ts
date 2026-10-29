@@ -37,7 +37,7 @@ describe("lib/api", () => {
     delete process.env.NEXT_PUBLIC_RECORDS_API_URL;
   });
 
-  it("obtiene candidaturas desde /records y devuelve data", async () => {
+  it("obtiene la primera página de candidaturas y devuelve data", async () => {
     localStorage.setItem("token", "test-access-token");
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
@@ -45,7 +45,7 @@ describe("lib/api", () => {
       json: async () => ({
         total: 1,
         page: 1,
-        limit: 20,
+        limit: 100,
         data: [candidateFixture],
       }),
     } as Response);
@@ -53,7 +53,7 @@ describe("lib/api", () => {
     const records = await getRecords();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/records",
+      "/api/records?page=1&limit=100",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.objectContaining({
@@ -63,6 +63,54 @@ describe("lib/api", () => {
     );
     expect(records).toHaveLength(1);
     expect(records[0].full_name).toBe("Elena Ruiz");
+  });
+
+  it("combina todas las páginas para mostrar más de cien candidaturas", async () => {
+    const firstPageRecords = Array.from({ length: 100 }, (_, index) => ({
+      ...candidateFixture,
+      id: `candidate-${index + 1}`,
+    }));
+    const secondPageRecords = [
+      { ...candidateFixture, id: "candidate-101", full_name: "Candidata 101" },
+    ];
+    const fetchMock = vi.spyOn(global, "fetch");
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          total: 101,
+          page: 1,
+          limit: 100,
+          data: firstPageRecords,
+        }),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          total: 101,
+          page: 2,
+          limit: 100,
+          data: secondPageRecords,
+        }),
+      } as Response);
+
+    const records = await getRecords();
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      "/api/records?page=1&limit=100",
+      expect.any(Object),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "/api/records?page=2&limit=100",
+      expect.any(Object),
+    );
+    expect(records).toHaveLength(101);
+    expect(records.at(-1)?.id).toBe("candidate-101");
   });
 
   it("obtiene detalle por id", async () => {

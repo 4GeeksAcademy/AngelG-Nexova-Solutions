@@ -35,32 +35,35 @@ function hasAllRequiredSkills(candidate: Candidate, vacancy: Vacancy): boolean {
 
 function countMatchedRequiredSkills(candidate: Candidate, vacancy: Vacancy): number {
   const candidateSkills = new Set(candidate.skills.map((skill) => skill.trim().toLowerCase()));
+  const requiredSkills = new Set(
+    vacancy.requiredSkills.map((skill) => skill.trim().toLowerCase())
+  );
 
-  return vacancy.requiredSkills
-    .map((skill) => skill.trim().toLowerCase())
-    .reduce((total, requiredSkill) => (candidateSkills.has(requiredSkill) ? total + 1 : total), 0);
+  return [...requiredSkills].filter((requiredSkill) => candidateSkills.has(requiredSkill)).length;
 }
 
 function calculateSkillsScore(candidate: Candidate, vacancy: Vacancy): number {
-  const requiredCount = vacancy.requiredSkills.length;
-
-  if (requiredCount === 0) {
-    return 0;
-  }
+  const requiredSkills = new Set(
+    vacancy.requiredSkills.map((skill) => skill.trim().toLowerCase())
+  );
+  const preferredSkills = new Set(
+    vacancy.preferredSkills.map((skill) => skill.trim().toLowerCase())
+  );
+  const requiredCount = requiredSkills.size;
 
   let score = 0;
   const matchedRequiredSkills = countMatchedRequiredSkills(candidate, vacancy);
 
-  if (matchedRequiredSkills === requiredCount) {
-    score += 40;
-  } else if (matchedRequiredSkills / requiredCount >= 0.5) {
-    score += 20;
+  if (requiredCount > 0) {
+    if (matchedRequiredSkills === requiredCount) {
+      score += 40;
+    } else if (matchedRequiredSkills / requiredCount >= 0.5) {
+      score += 20;
+    }
   }
 
   const candidateSkills = new Set(candidate.skills.map((skill) => skill.trim().toLowerCase()));
-  const preferredMatches = vacancy.preferredSkills
-    .map((skill) => skill.trim().toLowerCase())
-    .reduce((total, preferredSkill) => (candidateSkills.has(preferredSkill) ? total + 1 : total), 0);
+  const preferredMatches = [...preferredSkills].filter((skill) => candidateSkills.has(skill)).length;
 
   score += Math.min(preferredMatches * 10, 20);
 
@@ -173,7 +176,10 @@ export function calculateAverageSalary(candidates: Candidate[]): number {
     return 0;
   }
 
-  const totalExpectedSalary = calculateTotalExpectedSalary(candidates);
+  const totalExpectedSalary = candidates.reduce(
+    (total, candidate) => total + candidate.expectedSalary,
+    0
+  );
 
   return roundToTwoDecimals(totalExpectedSalary / candidates.length);
 }
@@ -212,16 +218,22 @@ export function findTopSkills(candidates: Candidate[], topN: number): SkillCount
   }
 
   const counters = candidates.reduce<Map<string, { label: string; count: number }>>((map, candidate) => {
-    const uniqueCandidateSkills = new Set(candidate.skills.map((skill) => skill.trim()));
+    const uniqueCandidateSkills = new Map<string, string>();
+    candidate.skills.forEach((skill) => {
+      const label = skill.trim();
+      const normalizedSkill = label.toLowerCase();
+      if (label.length > 0 && !uniqueCandidateSkills.has(normalizedSkill)) {
+        uniqueCandidateSkills.set(normalizedSkill, label);
+      }
+    });
 
-    uniqueCandidateSkills.forEach((skill) => {
-      const normalizedSkill = skill.toLowerCase();
+    uniqueCandidateSkills.forEach((label, normalizedSkill) => {
       const current = map.get(normalizedSkill);
 
       if (current) {
         current.count += 1;
       } else {
-        map.set(normalizedSkill, { label: skill, count: 1 });
+        map.set(normalizedSkill, { label, count: 1 });
       }
     });
 

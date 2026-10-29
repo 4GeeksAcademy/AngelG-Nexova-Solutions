@@ -8,18 +8,18 @@ export type CandidateStage =
   | "offer_presented";
 
 export const STATUS_LABELS: Record<CandidateStatus, string> = {
-  received: "Received",
-  in_progress: "In progress",
-  selected: "Selected",
-  discarded: "Discarded",
+  received: "Recibida",
+  in_progress: "En proceso",
+  selected: "Seleccionada",
+  discarded: "Descartada",
 };
 
 export const STAGE_LABELS: Record<CandidateStage, string> = {
-  pending: "Pending review",
-  review: "Under review",
-  personal_interview: "Personal interview",
-  technical_interview: "Technical interview",
-  offer_presented: "Offer presented",
+  pending: "Pendiente de revisión",
+  review: "En revisión",
+  personal_interview: "Entrevista personal",
+  technical_interview: "Entrevista técnica",
+  offer_presented: "Oferta presentada",
 };
 
 export interface Candidate {

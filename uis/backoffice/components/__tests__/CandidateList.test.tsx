@@ -57,6 +57,10 @@ describe("CandidateList", () => {
       expect(getRecords).toHaveBeenCalledTimes(2);
     });
     expect(await screen.findByText("Elena Ruiz")).toBeInTheDocument();
+    expect(screen.getAllByText("En proceso").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("En revisión").length).toBeGreaterThan(0);
+    expect(screen.queryByText("in_progress")).not.toBeInTheDocument();
+    expect(screen.queryByText("review")).not.toBeInTheDocument();
     expect(screen.queryByText("Error temporal del servidor")).not.toBeInTheDocument();
   });
 

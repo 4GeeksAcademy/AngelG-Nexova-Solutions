@@ -48,7 +48,7 @@ const copy: Record<"es" | "en", LandingCopy> = {
     heroDescription: "Consultora de recursos humanos y adquisición de talento con experiencia desde 2011 ayudando a empresas de tecnología, retail y servicios financieros a encontrar y desarrollar talento.",
     apply: "Únete a nuestro banco de talento",
     servicesLink: "Ver servicios",
-    statLabels: ["Profesionales", "Fundación", "Presencia"],
+    statLabels: ["Personas en el equipo", "Fundación", "Presencia"],
     orbitLabels: ["Headhunting", "Atención al cliente", "Formación corporativa"],
     servicesEyebrow: "Lo que hacemos",
     servicesHeading: ["Tres líneas de negocio,", "un único objetivo."],
@@ -58,22 +58,22 @@ const copy: Record<"es" | "en", LandingCopy> = {
         title: "Headhunting",
         accent: "ejecutivo",
         description: "Búsqueda y selección personalizada de perfiles ejecutivos y mandos medios, desde el briefing hasta la presentación de candidatos.",
-        bullets: ["Perfiles ejecutivos y mandos medios", "Proceso de selección personalizado", "Acompañamiento durante la búsqueda"],
-        link: "Explora oportunidades",
+        bullets: ["Búsqueda y selección de perfiles ejecutivos y mandos medios", "Proceso personalizado", "Garantía de reemplazo"],
+        link: "Consulta el servicio",
       },
       {
         title: "Outsourcing",
         accent: "de atención al cliente",
         description: "Equipos especializados de atención al cliente para organizaciones que externalizan parte o toda su operación de soporte.",
-        bullets: ["Equipos dedicados", "Atención para empresas de tecnología, retail y finanzas", "Formación y supervisión del equipo"],
-        link: "Conoce el servicio",
+        bullets: ["Equipos especializados para empresas tecnológicas", "Formación continua", "Supervisión dedicada"],
+        link: "Consulta el servicio",
       },
       {
         title: "Formación",
         accent: "corporativa",
         description: "Programas de soft skills y liderazgo adaptados a las necesidades de cada organización.",
-        bullets: ["Liderazgo y comunicación", "Gestión de equipos", "Cursos presenciales y en línea"],
-        link: "Conoce el servicio",
+        bullets: ["Programas de soft skills y liderazgo", "Cursos presenciales y en línea", "Programas adaptados a cada organización"],
+        link: "Consulta el servicio",
       },
     ],
     processEyebrow: "El proceso",
@@ -92,7 +92,7 @@ const copy: Record<"es" | "en", LandingCopy> = {
       { title: "Acompañamiento", description: "Damos seguimiento a las siguientes etapas del proceso." },
     ],
     sectorEyebrow: "Experiencia sectorial",
-    sectorHeading: ["Doce años de red.", "Tres sectores clave."],
+    sectorHeading: ["Experiencia en talento.", "Tres sectores clave."],
     sectorDescription: "Nexova acompaña principalmente a empresas medianas de tecnología, retail y servicios financieros en sus necesidades de talento.",
     sectorLink: "Inicia una conversación",
     sectors: [
@@ -103,12 +103,12 @@ const copy: Record<"es" | "en", LandingCopy> = {
     technologyEyebrow: "Por qué Nexova",
     technologyHeading: ["Experiencia en talento.", "Presencia internacional."],
     technologyDescription: "Combinamos conocimiento de selección y formación con una presencia en España y Estados Unidos para acompañar a empresas y profesionales.",
-    technologyPoints: ["Tecnología", "Retail", "Servicios financieros"],
+    technologyPoints: ["12 años de experiencia en el mercado latinoamericano", "España y Estados Unidos", "+500 procesos exitosos de selección", "Tecnología, retail y servicios financieros"],
     technologyStats: [
-      { value: "2011", description: "Año de fundación de Nexova." },
-      { value: "≈120", description: "Profesionales en el equipo, según el contexto de empresa." },
-      { value: "3", description: "Líneas de negocio: selección, soporte y formación." },
-      { value: "ES · USA", description: "Presencia en Valencia y Miami." },
+      { value: "12 años", description: "De experiencia en el mercado latinoamericano." },
+      { value: "+500", description: "Procesos exitosos de selección completados." },
+      { value: "3", description: "Sectores: tecnología, retail y finanzas." },
+      { value: "ES · USA", description: "Presencia regional en España y Estados Unidos." },
     ],
     ctaEyebrow: "Hablemos",
     ctaHeading: ["¿Listo para formar parte", "del equipo Nexova?"],
@@ -123,7 +123,7 @@ const copy: Record<"es" | "en", LandingCopy> = {
     heroDescription: "A human resources and talent acquisition consultancy with experience dating back to 2011, helping technology, retail, and financial services companies find and develop talent.",
     apply: "Join our talent pool",
     servicesLink: "View services",
-    statLabels: ["Professionals", "Founded", "Presence"],
+    statLabels: ["Team members", "Founded", "Presence"],
     orbitLabels: ["Executive search", "Customer support", "Corporate training"],
     servicesEyebrow: "What we do",
     servicesHeading: ["Three business lines,", "one common goal."],
@@ -133,22 +133,22 @@ const copy: Record<"es" | "en", LandingCopy> = {
         title: "Executive",
         accent: "headhunting",
         description: "Personalized search and recruitment for executive and mid-level profiles, from briefing through candidate presentation.",
-        bullets: ["Executive and mid-level profiles", "Tailored recruitment process", "Support throughout the search"],
-        link: "Explore opportunities",
+        bullets: ["Search and selection of executive and mid-management profiles", "Personalized process", "Replacement guarantee"],
+        link: "Ask about this service",
       },
       {
         title: "Customer",
         accent: "support outsourcing",
         description: "Specialized customer support teams for organizations outsourcing part or all of their support operations.",
-        bullets: ["Dedicated teams", "Support for technology, retail, and finance companies", "Team training and supervision"],
-        link: "Explore the service",
+        bullets: ["Specialized teams for technology companies", "Ongoing training", "Dedicated supervision"],
+        link: "Ask about this service",
       },
       {
         title: "Corporate",
         accent: "training",
         description: "Soft skills and leadership programs tailored to each organization's needs.",
-        bullets: ["Leadership and communication", "Team management", "In-person and online courses"],
-        link: "Explore the service",
+        bullets: ["Soft skills and leadership programs", "In-person and online courses", "Programs adapted to each organization"],
+        link: "Ask about this service",
       },
     ],
     processEyebrow: "The process",
@@ -167,7 +167,7 @@ const copy: Record<"es" | "en", LandingCopy> = {
       { title: "Support", description: "We follow up through the next stages of the process." },
     ],
     sectorEyebrow: "Industry experience",
-    sectorHeading: ["Twelve years of reach.", "Three key industries."],
+    sectorHeading: ["Talent experience.", "Three key industries."],
     sectorDescription: "Nexova primarily supports mid-sized technology, retail, and financial services companies with their talent needs.",
     sectorLink: "Start a conversation",
     sectors: [
@@ -178,12 +178,12 @@ const copy: Record<"es" | "en", LandingCopy> = {
     technologyEyebrow: "Why Nexova",
     technologyHeading: ["Talent experience.", "International presence."],
     technologyDescription: "We combine recruitment and training expertise with a presence in Spain and the United States to support companies and professionals.",
-    technologyPoints: ["Technology", "Retail", "Financial services"],
+    technologyPoints: ["12 years of experience in the Latin American market", "Spain and the United States", "+500 successful selection processes", "Technology, retail, and financial services"],
     technologyStats: [
-      { value: "2011", description: "The year Nexova was founded." },
-      { value: "≈120", description: "Team members, according to the company context." },
-      { value: "3", description: "Business lines: recruitment, support, and training." },
-      { value: "ES · USA", description: "Presence in Valencia and Miami." },
+      { value: "12 years", description: "Of experience in the Latin American market." },
+      { value: "+500", description: "Successful selection processes completed." },
+      { value: "3", description: "Sectors: technology, retail, and finance." },
+      { value: "ES · USA", description: "Regional presence in Spain and the United States." },
     ],
     ctaEyebrow: "Get in touch",
     ctaHeading: ["Ready to join", "the Nexova team?"],
@@ -238,8 +238,8 @@ export function LandingContent() {
 
   return (
     <>
-      <SiteHeader />
       <a className="skip-link" href="#main">{language === "es" ? "Saltar al contenido principal" : "Skip to main content"}</a>
+      <SiteHeader />
       <main id="main">
         <section className="hero" id="inicio" aria-labelledby="hero-title">
           <div className="hero-glow" aria-hidden="true" />
@@ -247,7 +247,7 @@ export function LandingContent() {
             <div className="hero-copy" data-reveal>
               <p className="eyebrow">{t.heroEyebrow}</p>
               <h1 id="hero-title">
-                {language === "es" ? <>Construimos equipos <em>excepcionales</em> para empresas en crecimiento</> : <>We build <em>exceptional teams</em> for growing businesses</>}
+                {language === "es" ? <>Construimos equipos <em>excepcionales</em> para empresas en crecimiento</> : <>We build <em>exceptional teams</em> for growing companies</>}
               </h1>
               <p className="hero-intro">{t.heroDescription}</p>
               <div className="hero-actions">
@@ -255,7 +255,7 @@ export function LandingContent() {
                 <a className="button button-outline" href="#servicios">{t.servicesLink}</a>
               </div>
               <div className="stats" aria-label={language === "es" ? "Nexova en cifras" : "Nexova in numbers"}>
-                <div><strong>120<span>+</span></strong><span>{t.statLabels[0]}</span></div>
+                <div><strong>120</strong><span>{t.statLabels[0]}</span></div>
                 <div><strong>2011</strong><span>{t.statLabels[1]}</span></div>
                 <div><strong>2 <small>{language === "es" ? "países" : "countries"}</small></strong><span>{t.statLabels[2]}</span></div>
               </div>
@@ -264,7 +264,7 @@ export function LandingContent() {
               <div className="orbit orbit-one" />
               <div className="orbit orbit-two" />
               <div className="orbit orbit-three" />
-              <div className="core"><span className="brand-mark large">N</span><small>AI-POWERED</small></div>
+              <div className="core"><span className="brand-mark large">N</span><small>NEXOVA</small></div>
               <div className="float-card float-top"><span className="float-icon">✳</span><b>{t.orbitLabels[0]}</b></div>
               <div className="float-card float-right"><span className="float-icon">▥</span><b>{t.orbitLabels[1]}</b></div>
               <div className="float-card float-bottom"><span className="float-icon">✓</span><b>{t.orbitLabels[2]}</b></div>
@@ -309,7 +309,7 @@ export function LandingContent() {
                     <p>{service.description}</p>
                     <ul>{service.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
                   </div>
-                  <Link href="/application" className="text-link">{service.link}<span aria-hidden="true"> →</span></Link>
+                  <a href="#contacto" className="text-link">{service.link}<span aria-hidden="true"> →</span></a>
                 </article>
               ))}
             </div>
@@ -366,7 +366,7 @@ export function LandingContent() {
           </div>
         </section>
 
-        <section className="tech" id="ia" aria-labelledby="technology-title">
+        <section className="tech" id="porque-nexova" aria-labelledby="technology-title">
           <div className="container tech-layout">
             <div data-reveal><SectionTitle eyebrow={t.technologyEyebrow} id="technology-title">{t.technologyHeading[0]}<br /><em>{t.technologyHeading[1]}</em></SectionTitle></div>
             <div className="tech-copy" data-reveal data-reveal-delay="1">
@@ -384,7 +384,7 @@ export function LandingContent() {
             <div><SectionTitle eyebrow={language === "es" ? "Banco de Talento" : "Talent Pool"} id="cta-title">{language === "es" ? "Únete al equipo Nexova" : "Join the Nexova team"}</SectionTitle></div>
             <div className="cta-action">
               <p>{language === "es" ? "Regístrate en nuestro banco de talento y te contactaremos cuando tengamos una oportunidad que encaje con tu perfil." : "Register in our talent pool and we will contact you when an opportunity matches your profile."}</p>
-              <p>{language === "es" ? "¿Eres una empresa buscando talento? Escríbenos a " : "Are you a company looking for talent? Write to us at "}<a href="mailto:hola@nexovasolutions.com">hola@nexovasolutions.com</a></p>
+              <p>{language === "es" ? "¿Eres una empresa buscando talento? Escríbenos a " : "Are you a company looking for talent? Write to us at "}<a href="mailto:contacto@nexova.com">contacto@nexova.com</a></p>
               <Link className="button button-dark" href="/application">{language === "es" ? "Ir al formulario" : "Go to form"}<span aria-hidden="true">↗</span></Link>
             </div>
           </div>

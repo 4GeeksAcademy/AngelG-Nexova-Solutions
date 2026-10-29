@@ -55,6 +55,7 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isPatching, setIsPatching] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -65,30 +66,42 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  async function loadCandidate() {
-    try {
-      const [loadedCandidate, loadedNotes] = await Promise.all([
-        getRecordById(candidateId),
-        getNotes(candidateId),
-      ]);
-      setCandidate(loadedCandidate);
-      setNotes(loadedNotes);
-    } catch (loadErr) {
-      setLoadError(
-        loadErr instanceof Error
-          ? loadErr.message
-          : "Error inesperado al consultar el detalle.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  useEffect(() => {
+    let isMounted = true;
+
+    Promise.all([getRecordById(candidateId), getNotes(candidateId)])
+      .then(([loadedCandidate, loadedNotes]) => {
+        if (isMounted) {
+          setCandidate(loadedCandidate);
+          setNotes(loadedNotes);
+          setLoadError(null);
+        }
+      })
+      .catch((loadErr: unknown) => {
+        if (isMounted) {
+          setLoadError(
+            loadErr instanceof Error
+              ? loadErr.message
+              : "Error inesperado al consultar el detalle.",
+          );
+        }
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [candidateId, loadAttempt]);
+
+  function handleRetryLoad() {
+    setLoadError(null);
+    setIsLoading(true);
+    setLoadAttempt((attempt) => attempt + 1);
   }
 
-  useEffect(() => {
-    loadCandidate();
-  }, [candidateId]);
-
-  if (isLoading) {
+  if (isLoading || (candidate?.id !== candidateId && !loadError)) {
     return (
       <main className="min-h-screen px-4 py-8 md:px-10">
         <section className="mx-auto w-full max-w-4xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
@@ -104,12 +117,12 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
         <section className="mx-auto w-full max-w-4xl rounded-3xl border border-red-200 bg-white p-6 shadow-lg md:p-8">
           <ErrorMessage
             title="No se pudo cargar la candidatura"
-            message={loadError ?? "No se encontro informacion de la candidatura."}
+            message={loadError ?? "No se encontró información de la candidatura."}
           />
           <div className="mt-4">
             <button
               type="button"
-              onClick={loadCandidate}
+              onClick={handleRetryLoad}
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
               Reintentar
@@ -321,7 +334,7 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
               onClick={() => setShowEditForm((value) => !value)}
               className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
             >
-              {showEditForm ? "Cancelar edicion" : "Editar candidatura"}
+              {showEditForm ? "Cancelar edición" : "Editar candidatura"}
             </button>
           </div>
 
@@ -356,10 +369,10 @@ export function CandidateDetail({ candidateId }: CandidateDetailProps) {
               </div>
               <div className="rounded-lg bg-white p-3">
                 <dt className="font-medium text-slate-600">Experiencia</dt>
-                <dd className="mt-1 text-slate-800">{candidate.experience_years} anos</dd>
+                <dd className="mt-1 text-slate-800">{candidate.experience_years} años</dd>
               </div>
               <div className="rounded-lg bg-white p-3">
-                <dt className="font-medium text-slate-600">Fecha de aplicacion</dt>
+                <dt className="font-medium text-slate-600">Fecha de aplicación</dt>
                 <dd className="mt-1 text-slate-800">
                   {candidate?.applied_at
                     ? new Date(candidate.applied_at).toLocaleString("es-ES")

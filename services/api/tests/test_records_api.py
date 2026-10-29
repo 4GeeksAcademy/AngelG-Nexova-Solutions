@@ -35,6 +35,20 @@ def record_payload(**overrides):
     return payload
 
 
+def public_record_payload(**overrides):
+    payload = {
+        **record_payload(),
+        "country": "España",
+        "sector": "Tecnología",
+        "english_level": "Avanzado",
+        "availability": "Inmediata",
+        "comments": "",
+        "accept_terms": True,
+    }
+    payload.update(overrides)
+    return payload
+
+
 def create_record(headers):
     response = client.post(
         "/records", headers=headers, json=record_payload()
@@ -57,7 +71,7 @@ def test_records_group_lists_and_creates_candidates():
 
 
 def test_public_candidate_submission_creates_record_without_auth():
-    response = client.post("/records/public", json=record_payload())
+    response = client.post("/records/public", json=public_record_payload())
 
     assert response.status_code == 201
     assert response.json() == {"message": "Solicitud recibida correctamente."}
@@ -66,13 +80,48 @@ def test_public_candidate_submission_creates_record_without_auth():
     assert client.get("/records").status_code == 401
 
 
+def test_public_candidate_submission_persists_every_form_field(_temp_db):
+    payload = {
+        **record_payload(),
+        "country": "España",
+        "sector": "Tecnología",
+        "english_level": "Avanzado",
+        "availability": "Inmediata",
+        "comments": "Experiencia en equipos distribuidos.",
+        "accept_terms": True,
+    }
+
+    response = client.post("/records/public", json=payload)
+
+    assert response.status_code == 201
+    assert "Ada Lovelace" not in response.text
+    assert "ada@example.com" not in response.text
+    stored_records = _temp_db.table("records").all()
+    assert len(stored_records) == 1
+    stored = stored_records[0]
+    assert {key: stored[key] for key in payload if key not in {"accept_terms"}} == {
+        key: value for key, value in payload.items() if key not in {"accept_terms"}
+    }
+    assert stored["consent_given"] is True
+    assert stored["consent_timestamp"]
+
+
+def test_public_candidate_submission_requires_explicit_consent():
+    response = client.post(
+        "/records/public",
+        json={**record_payload(), "country": "España", "sector": "Tecnología", "english_level": "Avanzado", "availability": "Inmediata", "accept_terms": False},
+    )
+
+    assert response.status_code == 400
+
+
 def test_public_candidate_submission_honeypot_is_acknowledged_not_saved():
     headers = auth_headers()
     before = len(client.get("/records", headers=headers).json()["data"])
 
     response = client.post(
         "/records/public",
-        json={**record_payload(), "website": "automated spam"},
+        json={**public_record_payload(), "website": "automated spam"},
     )
 
     assert response.status_code == 201
@@ -82,7 +131,7 @@ def test_public_candidate_submission_honeypot_is_acknowledged_not_saved():
 
 
 def test_public_candidate_submission_is_rate_limited():
-    payload = record_payload()
+    payload = public_record_payload()
     for _ in range(5):
         assert client.post("/records/public", json=payload).status_code == 201
 

@@ -18,9 +18,28 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nexova.com"),
   title: "Nexova Solutions | Talento que transforma empresas",
   description:
     "Consultora de recursos humanos y selección de talento con servicios de headhunting, outsourcing de soporte al cliente y formación corporativa.",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    siteName: "Nexova",
+    title: "Nexova Solutions | Talento que transforma empresas",
+    description:
+      "Consultora de recursos humanos y selección de talento con servicios de headhunting, outsourcing de soporte al cliente y formación corporativa.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Nexova Solutions | Talento que transforma empresas",
+    description:
+      "Consultora de recursos humanos y selección de talento con servicios de headhunting, outsourcing de soporte al cliente y formación corporativa.",
+  },
 };
 
 export default function RootLayout({

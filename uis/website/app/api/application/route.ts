@@ -8,6 +8,12 @@ const candidateFields = [
   "experience_years",
   "linkedin_url",
   "cv_url",
+  "country",
+  "sector",
+  "english_level",
+  "availability",
+  "comments",
+  "accept_terms",
 ] as const;
 
 export async function POST(request: Request) {
