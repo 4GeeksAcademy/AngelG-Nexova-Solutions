@@ -59,6 +59,13 @@ def aggregate(events: list[TelemetryEvent]) -> list[dict]:
         quantity = Decimal(str(p.get("quantity")))
         if not quantity.is_finite() or quantity <= 0:
             raise ValueError("Invalid event quantity")
+        cost_increase = True
+        if event.event_type == "kit_cost_variance_detected":
+            previous = Decimal(str(p.get("previous_unit_cost")))
+            current = Decimal(str(p.get("unit_cost")))
+            if not previous.is_finite() or not current.is_finite() or previous <= 0 or current < 0:
+                raise ValueError("Invalid cost variance baseline")
+            cost_increase = current > previous
         key = (office, programme)
         group = groups.setdefault(key, {
             "office": office, "programme_id": programme, "currency": CURRENCIES[office],
@@ -66,6 +73,9 @@ def aggregate(events: list[TelemetryEvent]) -> list[dict]:
             "shortage_events_count": 0, "cost_variance_events_count": 0,
         })
         metric = EVENT_METRICS[event.event_type]
+        # Keep the group with zero so recalculation clears a previously counted decrease.
+        if not cost_increase:
+            continue
         if event.event_type == "inbound_order_created":
             amount = Decimal(str(p.get("total_cost")))
             if not amount.is_finite() or amount < 0 or amount != amount.quantize(Decimal("0.01")):

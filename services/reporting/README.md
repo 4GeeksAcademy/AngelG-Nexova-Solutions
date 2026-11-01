@@ -12,7 +12,9 @@ manual autorizada. No se modifica `/telemetry/report` ni `analysis.py`.
 - Costo total: SUM de costos de entradas, Decimal; salida JSON numerica sin
   convertir el costo a float en el backend.
 - `kits_delivered_count`: COUNT de eventos de salida, no SUM de unidades.
-- Escasez/variacion: COUNT de los respectivos eventos. Rechazos no son KPI.
+- Escasez: COUNT de eventos. Variacion: COUNT de eventos con costo nuevo
+  mayor que el anterior; rebajas capturadas en telemetria no son subidas.
+  Base/costos invalidos fallan explicitamente. Rechazos no son KPI.
 - EUR/USD permanecen separados. No deduce dimensiones del Item actual.
 - UPSERT reemplaza valores por grano. Fuente append-only; no se borra ni
   modifica telemetria. Recalcular incorpora eventos tardios.
@@ -48,14 +50,16 @@ Desde `services/api/`, entorno del proyecto y base autorizada configurados:
 El scheduler recupera la ultima semana completa al arrancar y despues ejecuta
 cada lunes a las 06:00 UTC. Hace hasta tres intentos, separados 60 segundos,
 registra fallos y continua con la siguiente fecha semanal.
-Debe mantenerse el proceso activo; no se instalo ni inicio scheduler,
-cron, servicio del sistema o workflow en el entorno del usuario.
+Debe mantenerse el proceso activo. El usuario aporto captura del scheduler
+iniciado y de su primera corrida completada. No se instalo cron, servicio
+del sistema o workflow, ni se observo la siguiente corrida automatica.
 Si el proceso se interrumpe abruptamente una corrida puede quedar running:
 consultar el proceso/logs; no asumir exito a partir de ese estado.
 
-No se modificaron Dockerfile ni despliegues protegidos. La imagen existente
-solo copia `api/`; incorporar estos dos modulos al empaquetado Docker
-requiere autorizacion especifica. Los comandos locales usan el arbol actual.
+El Dockerfile incorpora ahora `telemetry/` y `reporting/` en sus rutas de
+importacion. Se comprobaron imports en el runtime Docker existente; no se
+ejecuto una reconstruccion completa de imagen ni deploy. La imagen anterior
+no se actualiza automaticamente por editar Dockerfile.
 
 ## UI y verificaciones
 
@@ -71,7 +75,15 @@ TypeScript, lint focalizado y cuatro tests existentes del inventario.
 Tras autorizacion para continuar y corregir el script, pasaron los casos
 adicionales de limites UTC/ano ISO/offsets, eventos tardios y calculo del
 proximo lunes del scheduler. Esto no demuestra un scheduler desplegado.
-La migracion en datos del usuario esta autorizada, pero no aplicada:
-DATABASE_URL no esta disponible y la configuracion esta restringida.
-Se solicito ejecutarla desde SQL Editor; sin confirmacion recibida.
-Seed, arranque y validacion visual en la app del usuario siguen pendientes.
+El usuario confirmo migracion, seed 6/12/12 y reporte visual de 6 filas/36
+eventos para 2026-10-26: cada fila 108 EUR/USD, 2 entregas, 1 escasez y
+1 variacion. Backend /health y frontend reporte respondieron HTTP 200
+durante auditoria posterior. No se accedio a configuracion/datos privados.
+
+Fase de cierre: seis tests reproducibles de reportes y cuatro tests
+existentes de inventario pasaron; typegen, TypeScript y lint focalizado
+tambien. El reporte tecnico se implementa en telemetria como entregable
+independiente, no se usa como fuente ni destino del pipeline.
+Eventos historicos no se alteraron; un recalculo actualiza el KPI de
+subidas excluyendo rebajas. El seed confirmado contiene solo aumentos,
+por lo que conserva sus cifras esperadas.

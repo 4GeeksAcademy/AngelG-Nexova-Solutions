@@ -15,6 +15,8 @@ WORKDIR /workspace/services/api
 RUN uv sync --locked --no-dev --no-install-project
 
 COPY api/ ./
+COPY telemetry/ /workspace/services/telemetry/
+COPY reporting/ /workspace/services/reporting/
 RUN mkdir -p /workspace/packages/shared
 EXPOSE 8000
 

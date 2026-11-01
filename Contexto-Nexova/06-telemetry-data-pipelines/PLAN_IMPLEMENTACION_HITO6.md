@@ -1,5 +1,12 @@
 # Hito 6 — Plan de implementacion
 
+Actualizacion de cierre: migracion/seed y pantalla semanal confirmados por
+el usuario. Se agregaron reporte tecnico, UI contextual, COPY de modulos
+hermanos en Docker y seis pruebas reproducibles. El KPI semanal cuenta
+subidas de costo; la telemetria conserva variaciones en ambas direcciones.
+No hubo nuevas migraciones ni reescritura de eventos. Build completo Docker
+y deploy no ejecutados. Los estados historicos siguientes son antecedentes.
+
 **Estado: codigo funcional incorporado siguiendo el Hito 6.
 Validacion principal aislada, frontend y validacion adicional aprobados.
 Migracion/seed/scheduler en el entorno del usuario no ejecutados.**

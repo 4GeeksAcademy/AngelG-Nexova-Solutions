@@ -3,8 +3,8 @@
 Hito 6 adds [`telemetry/`](telemetry/README.md) and
 [`reporting/`](reporting/README.md), imported by the existing API process.
 Local execution requires the explicit inventory migration 003.
-Docker packaging and deployment are unchanged; the current API-only image
-does not yet include these sibling modules.
+The Dockerfile now copies both sibling modules. Existing images must be
+rebuilt to include them; no deployment was performed.
 
 This folder contains **all the backend services** (APIs and background workers) related to the company for the cross-functional AI Engineering project.
 

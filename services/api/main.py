@@ -23,6 +23,7 @@ from routers.inventory_v2 import router as inventory_v2_router
 from routes.suppliers import router as suppliers_router
 from reporting.router import router as reporting_router
 from telemetry.capture import require_hito6_schema
+from telemetry.router import router as telemetry_router
 
 
 load_dotenv()
@@ -64,7 +65,7 @@ async def request_validation_error_handler(
     return JSONResponse(
         # Inventory request schemas follow FastAPI's validation status (422).
         # Preserve the API's existing 400 mapping for all other routers.
-        status_code=422 if request.url.path.startswith(("/inventory/", "/reporting/")) else 400,
+        status_code=422 if request.url.path.startswith(("/inventory/", "/reporting/", "/telemetry/")) else 400,
         content={
             "detail": {
                 "code": "VALIDATION_ERROR",
@@ -128,6 +129,7 @@ app.include_router(inventory_router)
 app.include_router(inventory_v2_router)
 app.include_router(suppliers_router)
 app.include_router(reporting_router)
+app.include_router(telemetry_router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])

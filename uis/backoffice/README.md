@@ -176,5 +176,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 > el cálculo como admin/manager. Artículos admiten programa/categoría formativa
 > y nuevas entradas admiten proveedor registrado/costo unitario.
 > Requiere la [migración 003](../../services/api/migrations/003_hito6.sql).
-> Sin migración/seed sobre datos reales ni validación visual todavía.
+> Migración/seed y cifras del reporte semanal confirmados por el usuario.
+> Inventario → Telemetría técnica incorpora el reporte agregado de eventos
+> para admin/manager; requiere la API actualizada, sin nuevas migraciones.
 > Pasaron typegen, tsc, lint focalizado y 4 tests existentes de inventario.

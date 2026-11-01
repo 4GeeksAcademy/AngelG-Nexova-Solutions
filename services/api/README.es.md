@@ -290,5 +290,9 @@ PostgreSQL ni migraciones. Actualizar Inventario → Proveedores después.
 > [003_hito6.sql](migrations/003_hito6.sql) en la base autorizada.
 > No se ejecutó sobre datos del usuario. Nuevos ajustes se rechazan;
 > el historial se conserva. Validación adicional UTC/eventos tardíos aprobada
-> en PostgreSQL aislado. Migración real autorizada pero bloqueada por conexión
-> no disponible/configuración restringida; se solicitó ejecución en SQL Editor.
+> en PostgreSQL aislado. El usuario confirmó migración en SQL Editor,
+> seed 6/12/12 y reporte visual de 6 filas/36 eventos.
+> Reporte técnico: GET `/telemetry/report`, admin/manager, filtros start/end
+> con zona horaria y conteos sin payloads. Dockerfile incluye módulos hermanos.
+> Seis tests de reportes y cuatro tests existentes de inventario pasaron en
+> la fase de cierre; build Docker completo y deploy no ejecutados.

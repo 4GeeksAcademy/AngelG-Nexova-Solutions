@@ -331,6 +331,7 @@ export function ManagedInventory() {
         <Link className={`${buttonClass} w-fit`} href="/backoffice/inventory/new">Nuevo artículo</Link>
         <Link className={`${buttonClass} w-fit`} href="/backoffice/suppliers">Proveedores</Link>
         <Link className={`${buttonClass} w-fit`} href="/backoffice/inventory/reporting">Reporte semanal</Link>
+        <Link className={`${buttonClass} w-fit`} href="/backoffice/inventory/telemetry">Telemetría técnica</Link>
         <button type="button" className={`rounded-xl border px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
           deleteMode
             ? "border-red-500 bg-red-600 text-white shadow-sm hover:bg-red-700 dark:border-red-400 dark:bg-red-500 dark:text-red-950 dark:hover:bg-red-400"

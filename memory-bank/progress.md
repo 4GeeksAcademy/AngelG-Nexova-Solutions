@@ -317,6 +317,20 @@ Tras cada cambio significativo, actualizar este documento en el mismo conjunto d
 - Verificado: next typegen corrigio referencias generadas a las rutas retiradas; tsc --noEmit, ESLint focalizado y cuatro tests existentes de inventario pasaron. No se anadieron tests nuevos ni se borraron proveedores reales. El cambio local previo de data/db.json se preservo sin leerlo ni modificarlo.
 ## Hito 6 — implementacion con validacion parcial
 
+### Fase de correccion posterior a auditoria
+
+Usuario confirmo migracion 003, seed 6/12/12, scheduler iniciado y captura
+del reporte 6 filas/36 eventos con cifras esperadas. Se agrego reporte tecnico
+GET /telemetry/report y UI contextual; admin/manager, sin payloads/actores.
+Dockerfile ahora copia telemetry/reporting; imports verificados en runtime
+Docker, sin build completo ni deploy. Pipeline cuenta solo subidas de costo,
+conservando telemetria absoluta historica sin reescribirla.
+Seis tests reproducibles de reportes, comprobacion HTTP aislada de permisos/
+validacion, typegen/tsc/lint y cuatro tests existentes de inventario pasaron.
+No nuevas migraciones, datos reales modificados, commit ni deploy en esta fase.
+Pendiente comprobar visualmente la pantalla tecnica y siguiente run automatico;
+la prueba del scheduler no equivale a servicio persistente tras cerrar terminal.
+
 Actualizacion posterior: el usuario autorizo migracion y continuar.
 Se corrigio el script adicional y pasaron UTC/ano ISO/offsets, eventos tardios,
 calculo de lunes, rollback y variacion descendente/base cero en PostgreSQL aislado.
