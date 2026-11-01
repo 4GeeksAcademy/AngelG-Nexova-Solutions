@@ -2,10 +2,11 @@
 seed.py — Load initial suppliers into TinyDB for Nexova Solutions.
 
 Usage:
-    uv run seed
+    cd services/api
+    ./.venv/bin/python -B seed.py
 
-The seed data comes exclusively from CONTEXT-nexova.es.md.
-The script is idempotent: it checks whether each supplier already exists
+The script preserves the existing supplier dataset.
+It is idempotent: it checks whether each supplier already exists
 by name before inserting, and reports the results.
 """
 
@@ -13,8 +14,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from .database import get_db
-from .models import SupplierDict
+import database
+from supplier_schemas import SupplierCreate
 
 
 SUPPLIERS_SEED: list[dict] = [
@@ -179,14 +180,18 @@ SUPPLIERS_SEED: list[dict] = [
 
 def main() -> None:
     """Run the seeder — insert suppliers if they don't already exist."""
-    db = get_db()
-    table = db.table("suppliers")
+    table = database.db.table("suppliers")
     now = datetime.now(timezone.utc).isoformat()
+    # Validate the complete dataset before writing any supplier.
+    suppliers = [
+        {**SupplierCreate.model_validate(data).model_dump(mode="json"), "updated_at": now}
+        for data in SUPPLIERS_SEED
+    ]
 
     inserted = 0
     skipped = 0
 
-    for data in SUPPLIERS_SEED:
+    for data in suppliers:
         # Check if a supplier with this name already exists
         existing = table.search(
             lambda doc: doc.get("name") == data["name"]
@@ -195,10 +200,7 @@ def main() -> None:
             skipped += 1
             continue
 
-        # Build and validate via Pydantic
-        data["updated_at"] = now
-        supplier = SupplierDict(**data)
-        table.insert(supplier.model_dump())
+        table.insert(data)
         inserted += 1
 
     total = len(SUPPLIERS_SEED)

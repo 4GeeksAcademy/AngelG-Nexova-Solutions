@@ -13,19 +13,22 @@ Endpoints:
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from tinydb import where
 
-from ..database import get_db
-from ..models import (
+from auth import get_current_user
+from database import db
+from supplier_schemas import (
     SupplierCreate,
-    SupplierDict,
     SupplierResponse,
     RateUpdate,
     StatusUpdate,
 )
 
-router = APIRouter(prefix="/suppliers", tags=["suppliers"])
+router = APIRouter(
+    prefix="/suppliers", tags=["suppliers"],
+    dependencies=[Depends(get_current_user)],
+)
 
 SUPPLIERS_TABLE = "suppliers"
 
@@ -33,7 +36,7 @@ SUPPLIERS_TABLE = "suppliers"
 # ── Helpers ────────────────────────────────────────────────────────────────
 
 def _table():
-    return get_db().table(SUPPLIERS_TABLE)
+    return db.table(SUPPLIERS_TABLE)
 
 
 def _doc_to_response(doc) -> SupplierResponse:
@@ -69,7 +72,7 @@ def _get_supplier_or_404(supplier_id: int):
 @router.post("", response_model=SupplierResponse, status_code=201)
 def create_supplier(payload: SupplierCreate):
     """Register a new supplier."""
-    data = payload.model_dump()
+    data = payload.model_dump(mode="json")
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
     doc_id = _table().insert(data)
     doc = _table().get(doc_id=doc_id)

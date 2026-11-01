@@ -10,13 +10,19 @@ from sqlmodel import SQLModel
 from pydantic import BaseModel
 
 import database
+import incident_models  # noqa: F401 — registers managed incident and audit tables
+import inventory_models
 from auth import router as auth_router
 from profiles import router as profiles_router
 from records import router as records_router
 from incidents import router as incidents_router
+from managed_incidents import router as managed_incidents_router
 from users import router as users_router
 from routers.inventory import router as inventory_router
-import models  # noqa: F401 — registers inventory tables in SQLModel.metadata
+from routers.inventory_v2 import router as inventory_v2_router
+from routes.suppliers import router as suppliers_router
+from reporting.router import router as reporting_router
+from telemetry.capture import require_hito6_schema
 
 
 load_dotenv()
@@ -26,6 +32,8 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     """Create inventory tables at startup when PostgreSQL is configured."""
     if database.engine is not None:
+        inventory_models.require_unified_inventory(database.engine)
+        require_hito6_schema(database.engine)
         SQLModel.metadata.create_all(database.engine)
     yield
 
@@ -56,7 +64,7 @@ async def request_validation_error_handler(
     return JSONResponse(
         # Inventory request schemas follow FastAPI's validation status (422).
         # Preserve the API's existing 400 mapping for all other routers.
-        status_code=422 if request.url.path.startswith("/inventory/") else 400,
+        status_code=422 if request.url.path.startswith(("/inventory/", "/reporting/")) else 400,
         content={
             "detail": {
                 "code": "VALIDATION_ERROR",
@@ -115,7 +123,11 @@ app.include_router(profiles_router)
 app.include_router(auth_router)
 app.include_router(records_router)
 app.include_router(incidents_router)
+app.include_router(managed_incidents_router)
 app.include_router(inventory_router)
+app.include_router(inventory_v2_router)
+app.include_router(suppliers_router)
+app.include_router(reporting_router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])

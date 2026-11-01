@@ -23,7 +23,7 @@ Monorepo sin runner/workspace común comprobado. Contiene frontend estático, do
 - **API principal:** `services/api/main.py` crea FastAPI, registra routers de usuarios, perfiles, autenticación, records, incidencias e inventario; declara `/health`.
 - **Inventario:** `services/api/routers/inventory.py`; modelos SQLModel en `services/api/models.py`, schemas en `schemas.py`; stock neto se calcula a partir de órdenes y salida con cantidad excesiva es rechazada. El router requiere usuario autenticado en operaciones de creación, según la implementación.
 - **Persistencia mixta:** `services/api/database.py` configura TinyDB en `services/api/data/db.json`; PostgreSQL/SQLModel solo se habilita si existe `DATABASE_URL`. `get_db()` lanza error cuando no se configuró PostgreSQL. Los routers de inventario usan esa sesión.
-- **Proveedores:** `services/api/routes/suppliers.py`, modelos Pydantic/TinyDB, seed y pruebas están presentes. El router de proveedores no se importa ni se incluye en el `main.py` actual; la UI estática que lo consume puede no encontrar esas rutas en esta instancia de la API. No duplicar el dominio ni declararlo integrado hasta resolver el montaje.
+- **Proveedores:** `services/api/routes/suppliers.py` registrado en `main.py`, schema en `supplier_schemas.py`, tabla `suppliers` en la misma TinyDB principal. Se corrigieron imports incompatibles; sus seis endpoints requieren autenticacion. UI `/backoffice/suppliers` desde Inventario, sin cargar seed automaticamente.
 - **Analizador CSV de incidencias:** aplicación separada `services/api/app/main.py`, servicio y endpoints `/api/incidents/...`; `services/api/README.es.md` documenta ese punto de entrada antiguo/alternativo. No confundirlo con `services/api/main.py`.
 - **Seeder del inventario:** `services/api/seed_inventory.py`; requiere base PostgreSQL disponible y UUID existente de TinyDB, y evita crear usuarios.
 - **Contenerización backend:** `services/Dockerfile` utiliza `python:3.12-slim`, instala `uv`, sincroniza `services/api/uv.lock` y ejecuta Uvicorn `main:app` desde `/workspace/services/api`.
@@ -87,7 +87,7 @@ Los nombres observados en ejemplos/configuración incluyen `DATABASE_URL`, `JWT_
 ## Restricciones y problemas conocidos
 
 1. `services/api/tests/conftest.py` tiene una cadena triple aparentemente abierta antes de `test_valid_payload_usa`; pytest terminó en SyntaxError de línea 81, por lo que no se ejecutó la suite.
-2. El router de proveedores no está incluido en `services/api/main.py` pese a tener endpoints, tests y consumidor estático.
+2. Proveedores ya esta integrado en API/backoffice. Las UI adicionales de Usuarios e incidencias por categoria fueron retiradas a peticion del usuario; sus contratos backend siguen presentes sin cambios.
 3. El healthcheck Compose consulta `/`; la API principal expone `/health`.
 4. Manifiestos Python raíz, `services/api/pyproject.toml` y requirements divergen en versión de Python/dependencias.
 5. `TESTING.md` contiene resultados históricos y referencias a `uv` local que no se confirmaron en este entorno. No presentarlos como ejecución actual.

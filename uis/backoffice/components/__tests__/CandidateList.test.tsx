@@ -44,8 +44,6 @@ describe("CandidateList", () => {
 
     render(
       <CandidateList
-        isCreateFormOpen={false}
-        onToggleCreateForm={vi.fn()}
         isDeleteMode={false}
       />,
     );
@@ -71,8 +69,6 @@ describe("CandidateList", () => {
 
     render(
       <CandidateList
-        isCreateFormOpen={false}
-        onToggleCreateForm={vi.fn()}
         isDeleteMode={false}
       />,
     );

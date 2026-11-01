@@ -1,167 +1,95 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { IncidentCard } from "@/components/IncidentCard";
-import { IncidentFilters } from "@/components/IncidentFilters";
+import { IncidentFilters, ManagedIncidentFilterValues } from "@/components/IncidentFilters";
 import { Loading } from "@/components/Loading";
-import { getIncidents, updateIncidentStatus } from "@/lib/incidents-api";
-import {
-  Incident,
-  IncidentBranch,
-  IncidentCategory,
-  IncidentOrigin,
-  IncidentStatus,
-} from "@/types/incident";
+import { NumberedPagination } from "@/components/NumberedPagination";
+import { deleteManagedIncident, getManagedIncidents, transitionManagedIncident } from "@/lib/managed-incidents-api";
+import { ManagedIncident, ManagedIncidentStatus } from "@/types/managed-incident";
 
-async function fetchIncidents(
-  onSuccess: (data: Incident[]) => void,
-  onError: (message: string) => void,
-  onSettle: () => void,
-) {
-  try {
-    const data = await getIncidents();
-    onSuccess(data);
-  } catch (error) {
-    onError(error instanceof Error ? error.message : "Error inesperado al consultar incidencias.");
-  } finally {
-    onSettle();
-  }
-}
-
-export function IncidentList() {
-  const [incidents, setIncidents] = useState<Incident[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<IncidentStatus | "all">("all");
-  const [originFilter, setOriginFilter] = useState<IncidentOrigin | "all">("all");
-  const [branchFilter, setBranchFilter] = useState<IncidentBranch | "all">("all");
-  const [categoryFilter, setCategoryFilter] = useState<IncidentCategory | "all">("all");
+const emptyFilters: ManagedIncidentFilterValues = { severity: "all", type: "all", status: "all", responsible_area: "all" };
+export function IncidentList({ onChanged }: { onChanged?: () => void }) {
+  const [incidents, setIncidents] = useState<ManagedIncident[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState(emptyFilters);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [statusError, setStatusError] = useState<string | null>(null);
-
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [attempt, setAttempt] = useState(0);
+  const [searchDraft, setSearchDraft] = useState("");
+  const [search, setSearch] = useState("");
+  const [deleteMode, setDeleteMode] = useState(false);
+  const pendingAction = useRef(false);
   useEffect(() => {
-    fetchIncidents(
-      (data) => {
-        setIncidents(data);
-        setLoadError(null);
-      },
-      setLoadError,
-      () => setIsLoading(false),
-    );
-  }, []);
+    let active = true;
+    void getManagedIncidents({
+      ...(filters.status !== "all" ? { status: filters.status } : {}),
+      ...(filters.severity !== "all" ? { severity: filters.severity } : {}),
+      ...(filters.type !== "all" ? { type: filters.type } : {}),
+      ...(filters.responsible_area !== "all" ? { responsible_area: filters.responsible_area } : {}),
+      ...(search ? { search } : {}),
+      limit: 10, offset: (page - 1) * 10,
+    }).then((result) => {
+      if (!active) return;
+      if (page > 1 && (page - 1) * 10 >= result.total) {
+        setPage(Math.max(1, Math.ceil(result.total / 10)));
+        return;
+      }
+      setIncidents(result.items); setTotal(result.total); setError(null);
+    }).catch((reason: unknown) => {
+      if (active) setError(reason instanceof Error ? reason.message : "No se pudieron cargar las incidencias.");
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [filters, page, attempt, search]);
 
-  function handleRetry() {
-    setIsLoading(true);
-    setLoadError(null);
-    fetchIncidents(
-      (data) => {
-        setIncidents(data);
-        setLoadError(null);
-      },
-      setLoadError,
-      () => setIsLoading(false),
-    );
+  function reload() {
+    setLoading(true); setError(null); setAttempt((value) => value + 1);
   }
 
-  const filteredIncidents = useMemo(() => {
-    return incidents.filter((incident) => {
-      const matchesStatus = statusFilter === "all" || incident.status === statusFilter;
-      const matchesOrigin = originFilter === "all" || incident.origin === originFilter;
-      const matchesBranch = branchFilter === "all" || incident.branch === branchFilter;
-      const matchesCategory = categoryFilter === "all" || incident.category === categoryFilter;
-      return matchesStatus && matchesOrigin && matchesBranch && matchesCategory;
-    });
-  }, [incidents, statusFilter, originFilter, branchFilter, categoryFilter]);
-
-  const hasActiveFilters =
-    statusFilter !== "all" ||
-    originFilter !== "all" ||
-    branchFilter !== "all" ||
-    categoryFilter !== "all";
-
-  async function handleChangeStatus(incident: Incident, nextStatus: IncidentStatus) {
-    const previousIncidents = incidents;
-    setStatusError(null);
-    setUpdatingId(incident.id);
-    setIncidents((current) =>
-      current.map((item) => (item.id === incident.id ? { ...item, status: nextStatus } : item)),
-    );
-
+  async function changeStatus(incident: ManagedIncident, status: ManagedIncidentStatus) {
+    if (pendingAction.current) return;
+    pendingAction.current = true;
+    setUpdatingId(incident.id); setActionError(null);
     try {
-      const updated = await updateIncidentStatus(incident.id, nextStatus);
-      setIncidents((current) => current.map((item) => (item.id === incident.id ? updated : item)));
-    } catch (error) {
-      setIncidents(previousIncidents);
-      setStatusError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo actualizar el estado de la incidencia.",
-      );
-    } finally {
-      setUpdatingId(null);
-    }
+      await transitionManagedIncident(incident.id, status);
+      onChanged?.();
+      reload();
+    } catch (reason) { setActionError(reason instanceof Error ? reason.message : "No se pudo actualizar el estado."); }
+    finally { pendingAction.current = false; setUpdatingId(null); }
   }
-
-  if (isLoading) {
-    return <Loading />;
+  async function remove(incident: ManagedIncident) {
+    if (pendingAction.current) return;
+    if (!window.confirm(`¿Eliminar definitivamente "${incident.title}" y toda su auditoría? Esta acción no se puede deshacer.`)) return;
+    pendingAction.current = true;
+    setUpdatingId(incident.id); setActionError(null);
+    try {
+      await deleteManagedIncident(incident.id);
+      onChanged?.();
+      reload();
+    } catch (reason) { setActionError(reason instanceof Error ? reason.message : "No se pudo eliminar la incidencia."); }
+    finally { pendingAction.current = false; setUpdatingId(null); }
   }
-
-  if (loadError) {
-    return (
-      <div className="space-y-3">
-        <ErrorMessage title="No se pudieron cargar las incidencias" message={loadError} />
-        <button
-          type="button"
-          onClick={handleRetry}
-          className="rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
-        >
-          Reintentar
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <section className="space-y-5">
-      <IncidentFilters
-        status={statusFilter}
-        origin={originFilter}
-        branch={branchFilter}
-        category={categoryFilter}
-        onStatusChange={setStatusFilter}
-        onOriginChange={setOriginFilter}
-        onBranchChange={setBranchFilter}
-        onCategoryChange={setCategoryFilter}
-      />
-
-      {statusError ? (
-        <ErrorMessage title="No se pudo actualizar el estado" message={statusError} />
-      ) : null}
-
-      {incidents.length === 0 ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-          Todavía no hay incidencias registradas.
-        </p>
-      ) : filteredIncidents.length === 0 ? (
-        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">
-          {hasActiveFilters
-            ? "No hay incidencias que coincidan con los filtros seleccionados."
-            : "No hay incidencias para mostrar."}
-        </p>
-      ) : (
-        <div className="grid gap-4">
-          {filteredIncidents.map((incident) => (
-            <IncidentCard
-              key={incident.id}
-              incident={incident}
-              isUpdating={updatingId === incident.id}
-              onChangeStatus={(nextStatus) => handleChangeStatus(incident, nextStatus)}
-            />
-          ))}
-        </div>
-      )}
-    </section>
-  );
+  if (loading) return <Loading />;
+  if (error) return <div className="space-y-3"><ErrorMessage title="No se pudieron cargar las incidencias" message={error} /><button type="button" onClick={reload} className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white">Reintentar</button></div>;
+  return <section className="space-y-5">
+    <form className="flex flex-wrap items-end gap-3" onSubmit={(event) => { event.preventDefault(); setSearch(searchDraft.trim()); setPage(1); reload(); }}>
+      <label className="grid flex-1 gap-2 text-sm font-medium">Buscar incidencias
+        <input type="search" maxLength={200} value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} placeholder="Título, descripción, cliente, responsable o ID" className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900" />
+      </label>
+      <button type="submit" className="rounded-lg border border-cyan-700 px-3 py-2 font-semibold text-cyan-800">Buscar</button>
+      <button type="button" aria-pressed={deleteMode} disabled={updatingId !== null} onClick={() => setDeleteMode((value) => !value)} className={`rounded-xl border px-3 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
+        deleteMode
+          ? "border-red-500 bg-red-600 text-white shadow-sm hover:bg-red-700 dark:border-red-400 dark:bg-red-500 dark:text-red-950 dark:hover:bg-red-400"
+          : "border-red-400 bg-red-50 text-red-800 hover:bg-red-100 dark:border-red-400 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900"
+      }`}>{deleteMode ? "Cancelar eliminación" : "Eliminar incidencias"}</button>
+    </form>
+    <IncidentFilters values={filters} onChange={(values) => { setFilters(values); setPage(1); setLoading(true); }} />
+    <p role="status">{total} incidencias · Página {page}</p>
+    {actionError ? <ErrorMessage title="No se pudo completar la acción" message={actionError} /> : null}
+    {incidents.length === 0 ? <p className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-600">No hay incidencias que coincidan con los filtros seleccionados.</p> : <div className="grid gap-4">{incidents.map((incident) => <IncidentCard key={incident.id} incident={incident} isUpdating={updatingId !== null} onChangeStatus={(status) => void changeStatus(incident, status)} onDelete={deleteMode ? () => void remove(incident) : undefined} />)}</div>}
+    <NumberedPagination page={page} total={total} onChange={(value) => { setPage(value); setLoading(true); }} />
+  </section>;
 }

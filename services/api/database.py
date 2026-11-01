@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from typing import Annotated, Generator
 
@@ -7,6 +8,9 @@ from fastapi import Depends
 from sqlmodel import Session, create_engine
 from sqlalchemy.engine import make_url
 from tinydb import TinyDB
+
+# Sibling services share the API process, including when launched with --app-dir.
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 """
 Uses a JSON file stored in the `data/` directory that survives restarts.

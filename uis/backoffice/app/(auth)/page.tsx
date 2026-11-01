@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import { CandidateList } from "@/components/CandidateList";
 
 export default function Home() {
-  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
 
   return (
@@ -27,13 +27,12 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-3 lg:items-end">
-              <button
-                type="button"
-                onClick={() => setIsCreateFormOpen((current) => !current)}
+              <Link
+                href="/candidates/new"
                 className="rounded-xl bg-cyan-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-800"
               >
-                {isCreateFormOpen ? "Ocultar registro" : "Registrar candidatura"}
-              </button>
+                Registrar candidatura
+              </Link>
               <button
                 type="button"
                 aria-pressed={isDeleteMode}
@@ -51,10 +50,6 @@ export default function Home() {
         </header>
 
         <CandidateList
-          isCreateFormOpen={isCreateFormOpen}
-          onToggleCreateForm={() =>
-            setIsCreateFormOpen((current) => !current)
-          }
           isDeleteMode={isDeleteMode}
         />
       </section>

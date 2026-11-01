@@ -4,7 +4,7 @@ test_seed.py — Tests for the seeder module.
 Covers:
     - Initial insertion creates all 15 suppliers
     - Repeated execution is idempotent (no duplicates)
-    - Seed data validates against SupplierDict
+    - Seed data validates against SupplierCreate
     - All seed entries have valid categories
     - All seed entries have valid countries
     - All seed entries have valid statuses
@@ -15,15 +15,15 @@ from __future__ import annotations
 
 import pytest
 from tinydb import TinyDB
+from typing import get_args
 
-from services.api.models import (
-    SupplierDict,
-    VALID_CATEGORIES,
-    VALID_COUNTRIES,
-    VALID_STATUSES,
-    COUNTRY_CURRENCY_MAP,
-)
-from services.api.seed import SUPPLIERS_SEED, main
+from supplier_schemas import SupplierCategory, SupplierCreate
+from seed import SUPPLIERS_SEED, main
+
+VALID_CATEGORIES = get_args(SupplierCategory)
+VALID_COUNTRIES = ("Spain", "USA")
+VALID_STATUSES = ("active", "suspended")
+COUNTRY_CURRENCY_MAP = {"Spain": "EUR", "USA": "USD"}
 
 
 class TestSeedData:
@@ -34,9 +34,9 @@ class TestSeedData:
         assert len(SUPPLIERS_SEED) == 15
 
     def test_all_seed_entries_valid_against_supplier_dict(self):
-        """Every seed entry passes SupplierDict validation."""
+        """Every seed entry passes the current supplier contract validation."""
         for item in SUPPLIERS_SEED:
-            s = SupplierDict(**item)
+            s = SupplierCreate(**item)
             assert s.name is not None
             assert s.country in VALID_COUNTRIES
             assert all(c in VALID_CATEGORIES for c in s.categories)

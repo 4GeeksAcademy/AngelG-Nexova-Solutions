@@ -6,11 +6,10 @@ from sqlalchemy import event
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
 
-import models  # noqa: F401 — register inventory tables
 from auth import get_current_user
 from database import get_db
 from main import app
-from models import Asset, AssetEntry, AssetExit
+from inventory_models import Item as Asset, Movement as AssetEntry, Movement as AssetExit
 from routers.inventory import create_inbound_order, create_outbound_order
 from routers.inventory import router as inventory_router
 from schemas import (
@@ -450,7 +449,7 @@ def test_list_orders_uses_bounded_queries_without_n_plus_one(
 
     assert response.status_code == 200
     assert len(response.json()) == 6
-    assert len(statements) == 2
+    assert len(statements) == 1
 
 
 def test_inventory_routes_are_registered_only_under_required_prefix():

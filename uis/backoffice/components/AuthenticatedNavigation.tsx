@@ -11,13 +11,6 @@ function isCurrentRoute(pathname: string, href: string): boolean {
     return pathname === "/" || pathname.startsWith("/candidates/");
   }
 
-  if (href === "/incidents") {
-    return (
-      pathname === href ||
-      (pathname.startsWith(`${href}/`) && !pathname.startsWith("/incidents/analyzer"))
-    );
-  }
-
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -140,7 +133,7 @@ export function AuthenticatedNavigation({
         <header className="relative z-50 border-b border-white/40 bg-white/65 backdrop-blur">
           <nav
             aria-label="Navegación principal"
-            className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 md:px-10"
+            className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:px-10"
           >
             <Link
               href="/"
@@ -157,11 +150,11 @@ export function AuthenticatedNavigation({
               Gestión de incidencias
             </Link>
             <Link
-              href="/incidents/analyzer"
-              aria-current={isCurrentRoute(pathname, "/incidents/analyzer") ? "page" : undefined}
-              className={navLinkClassName(pathname, "/incidents/analyzer")}
+              href="/backoffice/inventory"
+              aria-current={isCurrentRoute(pathname, "/backoffice/inventory") ? "page" : undefined}
+              className={navLinkClassName(pathname, "/backoffice/inventory")}
             >
-              Analizador de incidencias
+              Inventario
             </Link>
             <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
               <ThemeToggleButton darkMode={darkMode} onToggle={toggleTheme} />

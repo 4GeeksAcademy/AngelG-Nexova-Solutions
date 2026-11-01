@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 import { IncidentList } from "@/components/IncidentList";
 import { IncidentSummaryPanel } from "@/components/IncidentSummaryPanel";
 
 export default function IncidentsPage() {
+  const [summaryVersion, setSummaryVersion] = useState(0);
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
       <section className="mx-auto w-full max-w-6xl rounded-3xl border border-white/60 bg-white/80 p-6 shadow-xl backdrop-blur md:p-8">
@@ -34,13 +38,12 @@ export default function IncidentsPage() {
         </header>
 
         <div className="mb-8">
-          <h2 className="mb-3 text-lg font-semibold text-slate-900">Resumen</h2>
-          <IncidentSummaryPanel />
+          <h2 className="mb-3 text-lg font-semibold text-slate-900">Resumen por severidad</h2>
+          <IncidentSummaryPanel key={summaryVersion} />
         </div>
 
-        <IncidentList />
+        <IncidentList onChanged={() => setSummaryVersion((value) => value + 1)} />
       </section>
     </main>
   );
 }
-
