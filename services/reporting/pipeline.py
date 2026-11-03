@@ -4,8 +4,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from uuid import uuid4
 
-from sqlalchemy import select, text
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import delete, select, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -86,6 +85,24 @@ def aggregate(events: list[TelemetryEvent]) -> list[dict]:
     return [groups[key] for key in sorted(groups)]
 
 
+def replace_weekly_performance(
+    session: Session, entries: list[dict], week: date, computed_at: datetime
+) -> None:
+    """Replace the complete published snapshot for one week, including empty weeks."""
+    session.execute(
+        delete(WeeklyPerformance).where(WeeklyPerformance.week_start == week)
+    )
+    session.add_all(
+        WeeklyPerformance(
+            **entry,
+            week_start=week,
+            computed_at=computed_at,
+            id=uuid4(),
+        )
+        for entry in entries
+    )
+
+
 def run_pipeline(engine: Engine, week: date) -> PipelineRun:
     validate_week(week)
     start = datetime.combine(week, time.min, timezone.utc)
@@ -116,14 +133,7 @@ def run_pipeline(engine: Engine, week: date) -> PipelineRun:
                 )).all())
                 entries = aggregate(events)
                 now = datetime.now(timezone.utc)
-                for entry in entries:
-                    values = {**entry, "week_start": week, "computed_at": now, "id": uuid4()}
-                    statement = insert(WeeklyPerformance).values(**values)
-                    statement = statement.on_conflict_do_update(
-                        index_elements=["office", "programme_id", "week_start"],
-                        set_={key: value for key, value in values.items() if key not in {"id", "office", "programme_id", "week_start"}},
-                    )
-                    session.execute(statement)
+                replace_weekly_performance(session, entries, week, now)
                 run.status = "succeeded"
                 run.finished_at = now
                 run.source_cutoff = cutoff

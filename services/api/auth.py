@@ -148,6 +148,32 @@ def get_frontend_url() -> str:
     return frontend_url.rstrip("/")
 
 
+def issue_password_reset(user: dict) -> bool:
+    """Create a one-time password reset link and send it to the account email."""
+    now = datetime.now(timezone.utc)
+    now_iso = now.isoformat()
+    invalidate_active_reset_tokens(user["id"], now_iso)
+    reset_token = secrets.token_urlsafe(32)
+    create_reset_token({
+        "id": str(uuid4()),
+        "user_id": user["id"],
+        "token_hash": hash_reset_token(reset_token),
+        "created_at": now_iso,
+        "expires_at": (
+            now + timedelta(minutes=PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES)
+        ).isoformat(),
+        "used_at": None,
+    })
+    reset_url = f"{get_frontend_url()}/reset-password?token={reset_token}"
+    try:
+        return bool(send_password_reset_email(user["email"], reset_url))
+    except Exception:
+        logger.exception(
+            "Error al enviar email de restablecimiento a %s", user["email"]
+        )
+        return False
+
+
 def create_access_token(user_id: str):
     expiration = datetime.now(timezone.utc) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
@@ -274,33 +300,8 @@ def forgot_password(data: ForgotPasswordRequest):
     user = get_user_by_email(data.email)
 
     if user:
-        now = datetime.now(timezone.utc)
-        now_iso = now.isoformat()
-
         # Evita user enumeration: nunca revelamos si el email existe.
-        invalidate_active_reset_tokens(user["id"], now_iso)
-
-        reset_token = secrets.token_urlsafe(32)
-
-        create_reset_token({
-            "id": str(uuid4()),
-            "user_id": user["id"],
-            "token_hash": hash_reset_token(reset_token),
-            "created_at": now_iso,
-            "expires_at": (
-                now + timedelta(minutes=PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES)
-            ).isoformat(),
-            "used_at": None
-        })
-
-        reset_url = f"{get_frontend_url()}/reset-password?token={reset_token}"
-
-        try:
-            send_password_reset_email(user["email"], reset_url)
-        except Exception:
-            logger.exception(
-                "Error al enviar email de restablecimiento a %s", user["email"]
-            )
+        issue_password_reset(user)
 
     return {"message": GENERIC_FORGOT_PASSWORD_MESSAGE}
 

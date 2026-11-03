@@ -71,6 +71,18 @@ services:
       retries: 5
       start_period: 20s
 
+  reporting-scheduler:
+    image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-api:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: ["python", "-B", "reporting_job.py", "--schedule"]
+    working_dir: /workspace/services/api
+    environment:
+      PYTHONPATH: /workspace
+      DATABASE_URL: postgresql://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:?Set POSTGRES_DB}
+    depends_on:
+      database:
+        condition: service_healthy
+
   incidents-api:
     image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-api:${IMAGE_TAG:-latest}
     restart: unless-stopped

@@ -71,15 +71,100 @@ def test_profiles_group_rejects_unauthenticated_access():
     assert response.status_code == 401
 
 
-def test_users_group_lists_and_reads_users():
+def test_users_group_restricts_listing_and_reads_own_user():
     headers = auth_headers("users@example.com")
     listing = client.get("/users", headers=headers)
     owner_id = client.get("/auth/me", headers=headers).json()["id"]
     detail = client.get(f"/users/{owner_id}", headers=headers)
 
-    assert listing.status_code == 200
+    assert listing.status_code == 403
     assert detail.status_code == 200
     assert detail.json()["email"] == "users@example.com"
+
+
+def test_admin_can_list_users(client):
+    headers = auth_headers("admin-list@example.com")
+    admin_id = client.get("/auth/me", headers=headers).json()["id"]
+    from database import users_table
+    from tinydb import Query
+
+    users_table.update({"role": "admin"}, Query().id == admin_id)
+    headers = login_headers("admin-list@example.com")
+    listing = client.get("/users", headers=headers)
+
+    assert listing.status_code == 200
+    assert {item["email"] for item in listing.json()} == {"admin-list@example.com"}
+
+
+def test_user_administration_is_admin_only(client):
+    headers = auth_headers("admin-only@example.com")
+    admin_id = client.get("/auth/me", headers=headers).json()["id"]
+    from database import users_table
+    from tinydb import Query
+
+    users_table.update({"role": "user"}, Query().id == admin_id)
+    user_headers = login_headers("admin-only@example.com")
+
+    assert client.get("/users", headers=user_headers).status_code == 403
+    assert client.post(
+        "/users/admin", headers=user_headers,
+        json={"email": "managed@example.com", "role": "supervisor"},
+    ).status_code == 403
+
+
+def test_admin_can_create_list_reset_and_delete_managed_user(client, monkeypatch):
+    admin_headers = auth_headers("admin-manager@example.com")
+    admin_id = client.get("/auth/me", headers=admin_headers).json()["id"]
+    from database import users_table
+    from tinydb import Query
+
+    users_table.update({"role": "admin"}, Query().id == admin_id)
+    admin_headers = login_headers("admin-manager@example.com")
+    sent = {}
+
+    import auth
+    monkeypatch.setattr(
+        auth,
+        "send_password_reset_email",
+        lambda email, url: sent.update(email=email, url=url) or True,
+    )
+
+    created = client.post(
+        "/users/admin",
+        headers=admin_headers,
+        json={"email": "managed@example.com", "role": "supervisor", "name": "Managed"},
+    )
+    body = created.json()
+    assert created.status_code == 201
+    assert body["role"] == "supervisor"
+    assert body["password_setup_email_sent"] is True
+    assert body["name"] == "Managed"
+    assert "hashed_password" not in created.text
+    assert sent["email"] == "managed@example.com"
+    assert "token=" in sent["url"]
+    assert client.get("/users", headers=admin_headers).json()[0]["email"] in {
+        "admin-manager@example.com", "managed@example.com"
+    }
+
+    forced = client.post(
+        f"/users/{body['id']}/force-password-reset", headers=admin_headers,
+    )
+    assert forced.status_code == 200
+    assert client.delete(f"/users/{body['id']}", headers=admin_headers).status_code == 200
+
+
+def test_admin_cannot_delete_self_or_last_active_admin(client):
+    headers = auth_headers("last-admin@example.com")
+    admin_id = client.get("/auth/me", headers=headers).json()["id"]
+    from database import users_table
+    from tinydb import Query
+
+    users_table.update({"role": "admin"}, Query().id == admin_id)
+    headers = login_headers("last-admin@example.com")
+    assert client.delete(f"/users/{admin_id}", headers=headers).status_code == 400
+    assert client.put(
+        f"/users/{admin_id}", headers=headers, json={"role": "user"},
+    ).status_code == 400
 
 
 def test_users_group_rejects_duplicate_email_and_missing_user():
@@ -95,7 +180,7 @@ def test_users_group_rejects_duplicate_email_and_missing_user():
     assert missing.status_code == 403
 
 
-def test_users_group_updates_and_deletes_user():
+def test_users_group_forbids_non_admin_user_updates_and_deletes():
     headers = auth_headers("owner@example.com")
     user_id = client.get("/auth/me", headers=headers).json()["id"]
 
@@ -104,9 +189,7 @@ def test_users_group_updates_and_deletes_user():
         headers=headers,
         json={"email": "owner-updated@example.com"},
     )
-    updated_headers = login_headers("owner-updated@example.com")
-    deleted = client.delete(f"/users/{user_id}", headers=updated_headers)
+    deleted = client.delete(f"/users/{user_id}", headers=headers)
 
-    assert updated.status_code == 200
-    assert updated.json()["email"] == "owner-updated@example.com"
-    assert deleted.status_code == 200
+    assert updated.status_code == 403
+    assert deleted.status_code == 403

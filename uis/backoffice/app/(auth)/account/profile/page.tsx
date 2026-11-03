@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { ChangePasswordForm } from "@/components/ChangePasswordForm";
+import { UserAdministration } from "@/components/UserAdministration";
 import { Loading } from "@/components/Loading";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
@@ -16,7 +17,7 @@ import {
 } from "@/lib/api-client";
 
 function ProfileContent() {
-  const { updateProfileName } = useAuth();
+  const { updateProfileName, user } = useAuth();
 
   const [me, setMe] = useState<MeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +48,26 @@ function ProfileContent() {
   }
 
   useEffect(() => {
-    loadProfile();
+    let isMounted = true;
+    getMe()
+      .then((data) => {
+        if (!isMounted) return;
+        setMe(data);
+        setName(data.profile?.name ?? "");
+        setPhone(data.profile?.phone ?? "");
+        setAddress(data.profile?.address ?? "");
+      })
+      .catch((error: unknown) => {
+        if (isMounted) {
+          setLoadError(error instanceof Error ? error.message : "Error al cargar el perfil.");
+        }
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   async function handleSave(event: FormEvent<HTMLFormElement>) {
@@ -228,6 +248,7 @@ function ProfileContent() {
           </div>
         </form>
         <ChangePasswordForm />
+        {user?.role === "admin" ? <UserAdministration /> : null}
       </section>
     </main>
   );

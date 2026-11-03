@@ -177,6 +177,26 @@ export interface MeResponse {
   profile: ProfileData | null;
 }
 
+export type UserRole = "admin" | "manager" | "supervisor" | "user";
+
+export interface ManagedUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  is_active: boolean;
+  created_at: string;
+  name: string | null;
+  password_setup_email_sent?: boolean | null;
+}
+
+export interface ManagedUserCreatePayload {
+  email: string;
+  role: UserRole;
+  name?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
+
 export interface ProfileUpdatePayload {
   name?: string | null;
   phone?: string | null;
@@ -250,6 +270,34 @@ export async function updateMyProfile(
     method: "PUT",
     body: JSON.stringify(payload),
   });
+}
+
+export async function getManagedUsers(): Promise<ManagedUser[]> {
+  return authRequest<ManagedUser[]>("/users");
+}
+
+export async function createManagedUser(
+  payload: ManagedUserCreatePayload,
+): Promise<ManagedUser> {
+  return authRequest<ManagedUser>("/users/admin", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteManagedUser(userId: string): Promise<MessageResponse> {
+  return authRequest<MessageResponse>(`/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+  });
+}
+
+export async function forceManagedUserPasswordReset(
+  userId: string,
+): Promise<MessageResponse> {
+  return authRequest<MessageResponse>(
+    `/users/${encodeURIComponent(userId)}/force-password-reset`,
+    { method: "POST" },
+  );
 }
 
 export interface MessageResponse {

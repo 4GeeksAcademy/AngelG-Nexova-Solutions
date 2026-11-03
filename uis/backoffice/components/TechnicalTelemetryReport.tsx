@@ -13,6 +13,14 @@ interface TechnicalReport {
   last_event_at: string | null;
 }
 
+const EVENT_LABELS: Record<string, string> = {
+  inbound_order_created: "Entrada de inventario registrada",
+  outbound_order_created: "Salida de inventario registrada",
+  stock_threshold_triggered: "Umbral mínimo de existencias alcanzado",
+  direct_stock_edit_rejected: "Edición directa de existencias rechazada",
+  kit_cost_variance_detected: "Variación del coste del kit detectada",
+};
+
 export function TechnicalTelemetryReport() {
   const [report, setReport] = useState<TechnicalReport | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +51,7 @@ export function TechnicalTelemetryReport() {
         <table className="w-full text-left text-sm">
           <caption className="sr-only">Conteos de eventos de inventario</caption>
           <thead><tr><th scope="col" className="p-3">Evento</th><th scope="col" className="p-3">Cantidad</th></tr></thead>
-          <tbody>{report.event_counts.map((entry) => <tr key={entry.event_type} className="border-t"><td className="p-3">{entry.event_type}</td><td className="p-3">{entry.count}</td></tr>)}</tbody>
+          <tbody>{report.event_counts.map((entry) => <tr key={entry.event_type} className="border-t"><td className="p-3">{EVENT_LABELS[entry.event_type] ?? `Otro evento (${entry.event_type})`}</td><td className="p-3">{entry.count}</td></tr>)}</tbody>
         </table>
       </>}
     </section>

@@ -40,7 +40,9 @@ currency. Orden estable por oficina/programa.
 
 ## Ejecucion manual y programada
 
-Desde `services/api/`, entorno del proyecto y base autorizada configurados:
+En local, desde `services/api/`, con el entorno del proyecto y una base
+autorizada configurados, se puede ejecutar una semana concreta o dejar el
+scheduler activo:
 
 ```bash
 ./.venv/bin/python -B reporting_job.py --week-start 2026-10-26
@@ -49,17 +51,41 @@ Desde `services/api/`, entorno del proyecto y base autorizada configurados:
 
 El scheduler recupera la ultima semana completa al arrancar y despues ejecuta
 cada lunes a las 06:00 UTC. Hace hasta tres intentos, separados 60 segundos,
-registra fallos y continua con la siguiente fecha semanal.
-Debe mantenerse el proceso activo. El usuario aporto captura del scheduler
-iniciado y de su primera corrida completada. No se instalo cron, servicio
-del sistema o workflow, ni se observo la siguiente corrida automatica.
-Si el proceso se interrumpe abruptamente una corrida puede quedar running:
-consultar el proceso/logs; no asumir exito a partir de ese estado.
+registra fallos y continua con la siguiente fecha semanal. El proceso debe
+permanecer activo.
 
-El Dockerfile incorpora ahora `telemetry/` y `reporting/` en sus rutas de
-importacion. Se comprobaron imports en el runtime Docker existente; no se
-ejecuto una reconstruccion completa de imagen ni deploy. La imagen anterior
-no se actualiza automaticamente por editar Dockerfile.
+En produccion, `infra/compose.production.yml` define el servicio persistente
+`reporting-scheduler` con la misma imagen que la API y reinicio automatico.
+Tras configurar `infra/production.env` con las variables requeridas, el
+despliegue completo lo inicia junto con los demas servicios:
+
+```bash
+docker compose --env-file infra/production.env -f infra/compose.production.yml up -d
+```
+
+Para iniciarlo o consultar su actividad por separado:
+
+```bash
+docker compose --env-file infra/production.env -f infra/compose.production.yml up -d reporting-scheduler
+docker compose --env-file infra/production.env -f infra/compose.production.yml logs -f reporting-scheduler
+```
+
+El comando manual equivalente dentro de `services/api/` es:
+
+```bash
+./.venv/bin/python -B reporting_job.py --schedule
+```
+
+Si el proceso se interrumpe abruptamente, una corrida puede quedar `running`:
+consultar los logs y el estado del pipeline; no asumir exito a partir de ese
+estado. Los cambios en el Dockerfile no actualizan una imagen ya construida:
+hay que reconstruir y desplegar la nueva imagen API para que el servicio
+scheduler pueda ejecutarse.
+
+El Dockerfile incorpora `telemetry/` y `reporting/` en sus rutas de
+importacion. La configuracion de Compose define el scheduler, pero esto no
+implica que ya se haya desplegado ni que la siguiente corrida automatica se
+haya observado.
 
 ## UI y verificaciones
 

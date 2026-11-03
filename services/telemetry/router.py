@@ -15,8 +15,8 @@ def get_report(
     start: datetime | None = None, end: datetime | None = None,
     session: Session = Depends(get_db), user: dict = Depends(get_current_user),
 ):
-    if user.get("role") not in {"admin", "manager"}:
-        raise HTTPException(status_code=403, detail="Solo admin o manager pueden consultar telemetría técnica.")
+    if user.get("role") not in {"admin", "manager", "supervisor"}:
+        raise HTTPException(status_code=403, detail="Solo admin, manager o supervisor pueden consultar telemetría técnica.")
     try:
         return technical_report(session, start, end)
     except ValueError as error:
