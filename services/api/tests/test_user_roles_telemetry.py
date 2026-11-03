@@ -21,11 +21,21 @@ def register_and_login(email: str, role: str) -> dict[str, str]:
 
 
 def test_supervisor_has_technical_telemetry_access_but_user_does_not(monkeypatch):
+    from telemetry.analysis import TechnicalReport
     from telemetry.router import get_db
 
     monkeypatch.setattr(
         "telemetry.router.technical_report",
-        lambda session, start, end: {"events": [], "summary": {}},
+        lambda session, start, end: TechnicalReport(
+            generated_at="2026-01-01T00:00:00Z",
+            start=start,
+            end=end,
+            total_events=0,
+            event_counts=[],
+            unknown_event_count=0,
+            first_event_at=None,
+            last_event_at=None,
+        ),
     )
     app.dependency_overrides[get_db] = lambda: object()
     try:
