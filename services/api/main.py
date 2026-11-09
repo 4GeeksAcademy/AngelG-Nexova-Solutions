@@ -1,5 +1,7 @@
-import os
+import logging
+from time import perf_counter
 from contextlib import asynccontextmanager
+from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -27,6 +29,47 @@ from telemetry.router import router as telemetry_router
 
 
 load_dotenv()
+
+
+request_timing_logger = logging.getLogger("api.request_timing")
+
+
+class RequestTimingMiddleware:
+    """Log safe, low-cardinality timing data for each HTTP request."""
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        started_at = perf_counter()
+        status_code: int | None = None
+
+        async def send_with_status(message: dict[str, Any]) -> None:
+            nonlocal status_code
+            if message["type"] == "http.response.start":
+                status_code = message["status"]
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_with_status)
+        finally:
+            route = scope.get("route")
+            # Never fall back to the raw URL path: unmatched paths can contain
+            # identifiers, and query strings may contain credentials/tokens.
+            route_path = getattr(route, "path", "<unmatched>")
+            request_timing_logger.info(
+                "HTTP request completed",
+                extra={
+                    "http_method": scope.get("method", ""),
+                    "route": route_path,
+                    "status_code": status_code if status_code is not None else 500,
+                    "duration_ms": round((perf_counter() - started_at) * 1000, 3),
+                },
+            )
 
 
 @asynccontextmanager
@@ -117,6 +160,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RequestTimingMiddleware)
 
 
 app.include_router(users_router)

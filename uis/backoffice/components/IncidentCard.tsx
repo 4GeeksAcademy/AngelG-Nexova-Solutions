@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { INCIDENT_SEVERITY_CLASSES, INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_TRANSITIONS, MANAGED_INCIDENT_STATUS_LABELS, ManagedIncident, ManagedIncidentStatus, MANAGED_INCIDENT_TYPE_LABELS, RESPONSIBLE_AREA_LABELS } from "@/types/managed-incident";
+import { INCIDENT_SEVERITY_CLASSES, INCIDENT_SEVERITY_LABELS, INCIDENT_STATUS_TRANSITIONS, MANAGED_INCIDENT_STATUS_LABELS, ManagedIncidentListItem, ManagedIncidentStatus, MANAGED_INCIDENT_TYPE_LABELS, RESPONSIBLE_AREA_LABELS } from "@/types/managed-incident";
 
-export function IncidentCard({ incident, isUpdating, onChangeStatus, onDelete }: { incident: ManagedIncident; isUpdating: boolean; onChangeStatus: (status: ManagedIncidentStatus) => void; onDelete?: () => void }) {
+export function IncidentCard({ incident, isUpdating, onChangeStatus, onDelete }: { incident: ManagedIncidentListItem; isUpdating: boolean; onChangeStatus: (status: ManagedIncidentStatus) => void; onDelete?: () => void }) {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => { const timer = window.setTimeout(() => setNow(Date.now()), 0); return () => window.clearTimeout(timer); }, []);
   const deadline = incident.sla_deadline ? new Date(incident.sla_deadline).getTime() : null;

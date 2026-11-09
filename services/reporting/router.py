@@ -9,9 +9,11 @@ from sqlalchemy.engine import Connection
 from sqlmodel import Session
 
 from auth import get_current_user
+from cache import WEEKLY_REPORT_PREFIX, invalidate_weekly_report, report_cache
 from database import get_db
 from reporting.models import PipelineRun, WeeklyPerformance
 from reporting.pipeline import PipelineBusy, PipelineFailure, previous_week, run_pipeline, validate_week
+from reporting.schemas import WeeklyPerformanceResponse
 
 router = APIRouter(prefix="/reporting", tags=["reporting"], dependencies=[Depends(get_current_user)])
 
@@ -54,7 +56,13 @@ def trigger_run(
     try:
         # Reuse the configured engine, not the request transaction/connection.
         bind = session.get_bind()
-        return run_pipeline(bind.engine if isinstance(bind, Connection) else bind, week)
+        run = run_pipeline(bind.engine if isinstance(bind, Connection) else bind, week)
+        try:
+            invalidate_weekly_report(week.isoformat())
+        except Exception:
+            # A cache failure must not turn an already-committed run into an API error.
+            pass
+        return run
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from None
     except PipelineBusy as error:
@@ -63,7 +71,7 @@ def trigger_run(
         raise HTTPException(status_code=500, detail=str(error)) from None
 
 
-@router.get("/weekly-office-program-performance")
+@router.get("/weekly-office-program-performance", response_model=WeeklyPerformanceResponse)
 def weekly_report(week_start: date | None = None, session: Session = Depends(get_db)):
     if week_start is None:
         week_start = session.scalar(
@@ -76,6 +84,18 @@ def weekly_report(week_start: date | None = None, session: Session = Depends(get
         validate_week(week_start)
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from None
+    cache_key = f"{WEEKLY_REPORT_PREFIX}{week_start.isoformat()}"
+    cache_scope = cache_key
+    try:
+        cache_revision = report_cache.revision(cache_scope)
+    except Exception:
+        cache_revision = -1
+    try:
+        cached_body = report_cache.get(cache_key)
+    except Exception:
+        cached_body = None
+    if isinstance(cached_body, str):
+        return Response(cached_body, media_type="application/json")
     completed = session.scalar(select(PipelineRun.id).where(
         PipelineRun.week_start == week_start, PipelineRun.status == "succeeded"
     ).limit(1))
@@ -93,4 +113,13 @@ def weekly_report(week_start: date | None = None, session: Session = Depends(get
         # Emit an exact JSON number without converting monetary Decimal to float.
         encoded.append(json.dumps(values)[:-1] + ',"total_material_cost":' + format(row.total_material_cost, "f") + "}")
     body = '{"week_start":' + json.dumps(week_start.isoformat()) + ',"entries":[' + ",".join(encoded) + "]}"
+    # The raw Response below preserves Decimal precision as a JSON number, but
+    # bypasses FastAPI's response_model validation; validate the exact wire body.
+    WeeklyPerformanceResponse.model_validate_json(body)
+    try:
+        if cache_revision >= 0:
+            report_cache.set_if_revision(cache_key, body, 300, cache_scope, cache_revision)
+    except Exception:
+        # Cache is an optimization only; return the validated database response.
+        pass
     return Response(body, media_type="application/json")

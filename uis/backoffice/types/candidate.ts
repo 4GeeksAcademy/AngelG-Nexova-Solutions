@@ -38,6 +38,12 @@ export interface Candidate {
   updated_at: string;
 }
 
+/** Compact fields returned by the paginated records endpoint. */
+export type CandidateListItem = Pick<
+  Candidate,
+  "id" | "full_name" | "email" | "position" | "status" | "stage"
+>;
+
 export interface CreateCandidatePayload {
   full_name: string;
   email: string;

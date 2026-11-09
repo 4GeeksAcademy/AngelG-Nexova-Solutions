@@ -111,11 +111,22 @@ class CandidateResponse(BaseModel):
     updated_at: str
 
 
+class CandidateListItemResponse(BaseModel):
+    """Fields needed by the paginated backoffice list; detail stays in CandidateResponse."""
+
+    id: str
+    full_name: str
+    email: str
+    position: str
+    status: CandidateStatus
+    stage: CandidateStage
+
+
 class CandidateListResponse(BaseModel):
     total: int
     page: int
     limit: int
-    data: list[CandidateResponse]
+    data: list[CandidateListItemResponse]
 
 
 class PublicRecordAcceptedResponse(BaseModel):
@@ -341,7 +352,7 @@ def patch_candidate(
         )
 
 
-@router.delete("/{record_id}", response_model=None)
+@router.delete("/{record_id}", response_model=None, status_code=204)
 def remove_candidate(
     record_id: str,
     current_user: dict = Depends(get_current_user)
@@ -425,7 +436,7 @@ def add_note(
     return note
 
 
-@router.delete("/{record_id}/notes/{note_id}", response_model=None)
+@router.delete("/{record_id}/notes/{note_id}", response_model=None, status_code=204)
 def remove_note(
     record_id: str,
     note_id: str,

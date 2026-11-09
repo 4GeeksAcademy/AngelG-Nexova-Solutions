@@ -1,5 +1,6 @@
 import {
   Candidate,
+  CandidateListItem,
   CreateCandidatePayload,
   PatchCandidatePayload,
   UpdateCandidatePayload,
@@ -11,7 +12,7 @@ interface RecordsResponse {
   total: number;
   page: number;
   limit: number;
-  data: Candidate[];
+  data: CandidateListItem[];
 }
 
 const RECORDS_PAGE_SIZE = 100;
@@ -109,7 +110,7 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-export async function getRecords(): Promise<Candidate[]> {
+export async function getRecords(): Promise<CandidateListItem[]> {
   const firstPage = await request<RecordsResponse>(
     `/records?page=1&limit=${RECORDS_PAGE_SIZE}`,
   );

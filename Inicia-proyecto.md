@@ -9,6 +9,7 @@ API_INTERNAL_URL=http://127.0.0.1:8000 npm run dev -- --webpack
 
 
 Iniciar SCHEDULER:
+cd services/api
 ./.venv/bin/python -B reporting_job.py --schedule
 
 Iniciarlo desde Compose:

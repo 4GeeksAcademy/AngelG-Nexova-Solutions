@@ -168,8 +168,23 @@ class IncidentAuditResponse(BaseModel):
     actor_email: str | None
 
 
+class IncidentListItemResponse(BaseModel):
+    """Compact fields used by incident cards; detail remains IncidentResponse."""
+
+    id: str
+    client_name: str | None
+    type: IncidentType
+    severity: IncidentSeverity
+    responsible_area: ResponsibleArea
+    title: str
+    description: str
+    status: IncidentStatus
+    assigned_to: str | None
+    sla_deadline: datetime | None
+
+
 class IncidentListResponse(BaseModel):
-    items: list[IncidentResponse]
+    items: list[IncidentListItemResponse]
     total: int
     limit: int
     offset: int

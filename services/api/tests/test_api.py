@@ -51,7 +51,7 @@ class TestCreateSupplier:
         assert "updated_at" in data
 
     def test_create_supplier_auto_currency(self, client: TestClient):
-        """Currency auto-corrected to EUR for Spain."""
+        """Currency mismatch for Spain is rejected by the request schema."""
         resp = client.post("/suppliers", json={
             "name": "Auto Currency",
             "country": "Spain",
@@ -59,9 +59,8 @@ class TestCreateSupplier:
             "monthly_rate": 100.0,
             "currency": "USD",
         })
-        assert resp.status_code == 201
-        data = resp.json()
-        assert data["currency"] == "EUR"
+        assert resp.status_code == 400
+        assert resp.json()["detail"]["code"] == "VALIDATION_ERROR"
 
     def test_create_supplier_missing_name(self, client: TestClient):
         """Missing name returns 422."""
@@ -71,56 +70,56 @@ class TestCreateSupplier:
             "monthly_rate": 100.0,
             "currency": "EUR",
         })
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_empty_name(self, client: TestClient, valid_payload: dict):
         """Empty name returns 422."""
         payload = valid_payload.copy()
         payload["name"] = ""
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_invalid_country(self, client: TestClient, valid_payload: dict):
         """Invalid country returns 422."""
         payload = valid_payload.copy()
         payload["country"] = "France"
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_invalid_category(self, client: TestClient, valid_payload: dict):
         """Invalid category returns 422."""
         payload = valid_payload.copy()
         payload["categories"] = ["invalid_cat"]
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_zero_rate(self, client: TestClient, valid_payload: dict):
         """Zero rate returns 422."""
         payload = valid_payload.copy()
         payload["monthly_rate"] = 0
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_negative_rate(self, client: TestClient, valid_payload: dict):
         """Negative rate returns 422."""
         payload = valid_payload.copy()
         payload["monthly_rate"] = -100.0
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_invalid_status(self, client: TestClient, valid_payload: dict):
         """Invalid status returns 422."""
         payload = valid_payload.copy()
         payload["status"] = "terminated"
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_create_supplier_invalid_date(self, client: TestClient, valid_payload: dict):
         """Invalid date format returns 422."""
         payload = valid_payload.copy()
         payload["contract_renewal_date"] = "31-12-2025"
         resp = client.post("/suppliers", json=payload)
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
 
 # ── List Suppliers ────────────────────────────────────────────────────────
@@ -152,8 +151,10 @@ class TestListSuppliers:
         assert "categories" in supplier
         assert "monthly_rate" in supplier
         assert "currency" in supplier
-        assert "updated_at" in supplier
         assert "status" in supplier
+        assert set(supplier) == {
+            "id", "name", "country", "categories", "monthly_rate", "currency", "status"
+        }
 
     def test_filter_by_country_spain(self, client: TestClient, seeded_db: TinyDB):
         """Filter by country=Spain returns only Spain suppliers."""
@@ -234,7 +235,7 @@ class TestGetSupplier:
         """Non-existent ID returns 404."""
         resp = client.get("/suppliers/999")
         assert resp.status_code == 404
-        assert "no encontrado" in resp.json()["detail"].lower()
+        assert "no encontrado" in resp.json()["detail"]["message"].lower()
 
 
 # ── Update Rate ───────────────────────────────────────────────────────────
@@ -267,17 +268,17 @@ class TestUpdateRate:
         # Try to set the same rate again
         resp = client.patch("/suppliers/1/rate", json={"monthly_rate": 1250.0})
         assert resp.status_code == 422
-        assert "diferente" in resp.json()["detail"].lower()
+        assert "diferente" in resp.json()["detail"]["message"].lower()
 
     def test_update_rate_zero(self, client: TestClient, seeded_db: TinyDB):
         """Zero rate returns 422."""
         resp = client.patch("/suppliers/1/rate", json={"monthly_rate": 0})
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_update_rate_negative(self, client: TestClient, seeded_db: TinyDB):
         """Negative rate returns 422."""
         resp = client.patch("/suppliers/1/rate", json={"monthly_rate": -50.0})
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_update_rate_not_found(self, client: TestClient):
         """Non-existent ID returns 404."""
@@ -312,7 +313,7 @@ class TestUpdateStatus:
     def test_invalid_status(self, client: TestClient, seeded_db: TinyDB):
         """Invalid status returns 422."""
         resp = client.patch("/suppliers/1/status", json={"status": "terminated"})
-        assert resp.status_code == 422
+        assert resp.status_code == 400
 
     def test_status_not_found(self, client: TestClient):
         """Non-existent ID returns 404."""

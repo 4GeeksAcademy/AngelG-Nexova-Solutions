@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from passlib.hash import bcrypt
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from auth import get_current_user
 from auth import issue_password_reset
@@ -34,7 +34,14 @@ router = APIRouter(
 class Role(str, Enum):
     admin = "admin"
     manager = "manager"
+    # Kept for reading legacy accounts so admins can change them to a supported role.
     supervisor = "supervisor"
+    user = "user"
+
+
+class AssignableRole(str, Enum):
+    admin = "admin"
+    manager = "manager"
     user = "user"
 
 
@@ -52,8 +59,8 @@ class UserUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     email: Optional[str] = None
-    password: Optional[str] = None
-    role: Optional[Role] = None
+    password: Optional[str] = Field(default=None, min_length=8)
+    role: Optional[AssignableRole] = None
     is_active: Optional[bool] = None
 
 
@@ -61,7 +68,7 @@ class AdminUserCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     email: str
-    role: Role
+    role: AssignableRole
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None

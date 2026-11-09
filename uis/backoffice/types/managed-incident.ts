@@ -57,6 +57,21 @@ export interface ManagedIncident {
   is_archived: boolean;
 }
 
+/** Compact fields returned by GET /v2/incidents and consumed by incident cards. */
+export type ManagedIncidentListItem = Pick<
+  ManagedIncident,
+  | "id"
+  | "client_name"
+  | "type"
+  | "severity"
+  | "responsible_area"
+  | "title"
+  | "description"
+  | "status"
+  | "assigned_to"
+  | "sla_deadline"
+>;
+
 export type CreateManagedIncidentPayload = Pick<
   ManagedIncident,
   "client_name" | "channel" | "type" | "severity" | "responsible_area" | "title" | "description" | "assigned_to" | "sla_deadline"
@@ -64,7 +79,7 @@ export type CreateManagedIncidentPayload = Pick<
 export type UpdateManagedIncidentPayload = Partial<CreateManagedIncidentPayload>;
 
 export interface ManagedIncidentListResponse {
-  items: ManagedIncident[];
+  items: ManagedIncidentListItem[];
   total: number;
   limit: number;
   offset: number;

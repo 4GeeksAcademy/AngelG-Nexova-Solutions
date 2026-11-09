@@ -20,7 +20,7 @@ def register_and_login(email: str, role: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {login.json()['access_token']}"}
 
 
-def test_supervisor_has_technical_telemetry_access_but_user_does_not(monkeypatch):
+def test_manager_has_technical_telemetry_access_but_other_roles_do_not(monkeypatch):
     from telemetry.analysis import TechnicalReport
     from telemetry.router import get_db
 
@@ -39,10 +39,12 @@ def test_supervisor_has_technical_telemetry_access_but_user_does_not(monkeypatch
     )
     app.dependency_overrides[get_db] = lambda: object()
     try:
-        supervisor = register_and_login("telemetry-supervisor@example.com", "supervisor")
+        manager = register_and_login("telemetry-manager@example.com", "manager")
         ordinary_user = register_and_login("telemetry-user@example.com", "user")
+        legacy_supervisor = register_and_login("telemetry-supervisor@example.com", "supervisor")
 
-        assert client.get("/telemetry/report", headers=supervisor).status_code == 200
+        assert client.get("/telemetry/report", headers=manager).status_code == 200
         assert client.get("/telemetry/report", headers=ordinary_user).status_code == 403
+        assert client.get("/telemetry/report", headers=legacy_supervisor).status_code == 403
     finally:
         app.dependency_overrides.pop(get_db, None)

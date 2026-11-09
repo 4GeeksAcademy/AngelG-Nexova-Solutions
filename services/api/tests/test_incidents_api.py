@@ -5,13 +5,19 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+import auth
 from main import app as main_app
 from services.api.app.incidents_service import clear_last_result
 from packages.incidents_analysis.cli import analyze_file
 
 
 @pytest.fixture
-def main_client():
+def main_client(monkeypatch):
+    monkeypatch.setitem(
+        main_app.dependency_overrides,
+        auth.get_current_user,
+        lambda: {"id": "incident-test-user", "email": "incident@example.com", "role": "user"},
+    )
     with TestClient(main_app, raise_server_exceptions=False) as test_client:
         yield test_client
 
@@ -21,7 +27,6 @@ def incident_payload(**overrides):
         "title": "No funciona el ATS",
         "description": "El equipo no puede iniciar sesión en el ATS.",
         "category": "technical_failure",
-        "status": "open",
         "origin": "internal",
         "branch": "valencia_operations",
     }
@@ -48,6 +53,25 @@ def test_list_incidents_applies_multiple_filters(main_client):
     assert response.status_code == 200
     assert len(response.json()) == 2
     assert {item["origin"] for item in response.json()} == {"internal", "customer"}
+
+
+def test_legacy_incident_routes_require_authentication(main_client):
+    dependency = auth.get_current_user
+    override = main_app.dependency_overrides.pop(dependency)
+    try:
+        responses = [
+            main_client.get("/incidents"),
+            main_client.get("/incidents/summary"),
+            main_client.get("/incidents/not-found"),
+            main_client.post("/incidents", json=incident_payload()),
+            main_client.patch(
+                "/incidents/not-found/status", json={"status": "in_progress"}
+            ),
+        ]
+    finally:
+        main_app.dependency_overrides[dependency] = override
+
+    assert [response.status_code for response in responses] == [401] * 5
 
 
 def test_invalid_filter_returns_400(main_client):

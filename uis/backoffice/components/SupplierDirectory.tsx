@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { NumberedPagination } from "@/components/NumberedPagination";
 import {
   createSupplier, deleteSupplier, getSupplier, getSuppliers, supplierCategories,
-  updateSupplierRate, updateSupplierStatus, type Supplier,
+  updateSupplierRate, updateSupplierStatus, type Supplier, type SupplierListItem,
 } from "@/lib/suppliers-api";
 
 const input = "w-full rounded-xl border border-slate-300 px-3 py-2";
@@ -18,7 +18,7 @@ function errorText(error: unknown) {
 
 export function SupplierDirectory({ supplierId, creation = false }: { supplierId?: number; creation?: boolean }) {
   const router = useRouter();
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierListItem[]>([]);
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [loading, setLoading] = useState(!creation);
   const [error, setError] = useState<string | null>(null);
@@ -74,7 +74,7 @@ export function SupplierDirectory({ supplierId, creation = false }: { supplierId
     });
   }
 
-  async function removeSupplier(item: Supplier) {
+  async function removeSupplier(item: Pick<Supplier, "id" | "name">) {
     if (pending.current) return;
     if (!window.confirm(`¿Eliminar definitivamente a ${item.name}? Se borrará de la base de datos. No se puede deshacer; los movimientos del inventario conservan su historial.`)) return;
     await act(async () => {

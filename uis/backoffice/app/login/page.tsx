@@ -24,8 +24,20 @@ export default function LoginPage() {
 
   if (isAuthenticated) return null;
 
+  function validateLoginId(value: string): string | null {
+    // El superadministrador usa "admin" sin @ normalmente se requiere un email válido.
+    if (value === "admin") return null;
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return null;
+    return "Introduce un email válido";
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const validationError = validateLoginId(email);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setError(null);
     setIsSubmitting(true);
 
@@ -69,8 +81,10 @@ export default function LoginPage() {
             </label>
             <input
               id="email"
-              type="email"
+              type="text"
               required
+              autoCapitalize="none"
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"

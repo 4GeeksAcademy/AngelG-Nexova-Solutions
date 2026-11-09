@@ -1,17 +1,20 @@
 from collections.abc import Generator
 from datetime import date, timedelta
+from decimal import Decimal
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import event
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine
+from tinydb import TinyDB
 
 import database
 import inventory_models  # noqa: F401 — registers new tables
 from auth import get_current_user
 from database import get_db
 from main import app
+import routes.suppliers as suppliers_routes
 
 
 @pytest.fixture
@@ -130,6 +133,24 @@ def test_stock_is_derived_separated_by_office_and_reorder_alert(inventory_v2_cli
     assert inventory_v2_client.patch(
         f"/inventory/items/{valencia['id']}", json={"current_stock": 999}
     ).status_code == 422
+
+
+def test_item_list_aggregates_stock_and_preserves_decimal_signs(inventory_v2_client):
+    items = [
+        create_item(inventory_v2_client, name=f"Item {index}")
+        for index in range(3)
+    ]
+    assert movement(inventory_v2_client, items[0]["id"], "inbound", "5.25").status_code == 201
+    assert movement(inventory_v2_client, items[0]["id"], "outbound", "1.10").status_code == 201
+    assert movement(inventory_v2_client, items[1]["id"], "inbound", "3.00").status_code == 201
+
+    response = inventory_v2_client.get("/inventory/items")
+    assert response.status_code == 200
+    by_id = {item["id"]: item for item in response.json()}
+    assert by_id[items[0]["id"]]["current_stock"] == "4.15"
+    assert by_id[items[1]["id"]]["current_stock"] == "3.00"
+    assert Decimal(by_id[items[2]["id"]]["current_stock"]) == Decimal("0")
+    assert by_id[items[2]["id"]]["reorder_alert"] is True
 
 
 def test_negative_stock_adjustments_and_outbound_roll_back(inventory_v2_client):
@@ -266,3 +287,36 @@ def test_inventory_v2_endpoints_require_auth(inventory_v2_client):
     app.dependency_overrides.pop(get_current_user, None)
     assert inventory_v2_client.get("/inventory/items").status_code == 401
     assert inventory_v2_client.delete("/inventory/items/1/permanent").status_code == 401
+
+
+def test_supplier_list_uses_compact_response(inventory_v2_client, monkeypatch, tmp_path):
+    supplier_db = TinyDB(str(tmp_path / "suppliers.json"))
+    monkeypatch.setattr(suppliers_routes, "db", supplier_db)
+    supplier_db.table("suppliers").insert(
+        {
+            "name": "Supplier",
+            "country": "Spain",
+            "categories": ["job_boards"],
+            "monthly_rate": 120.0,
+            "currency": "EUR",
+            "status": "active",
+            "updated_at": "2026-11-07T00:00:00+00:00",
+            "contact_email": "private@example.test",
+            "notes": "detail-only field",
+        }
+    )
+
+    response = inventory_v2_client.get("/suppliers")
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "id": 1,
+            "name": "Supplier",
+            "country": "Spain",
+            "categories": ["job_boards"],
+            "monthly_rate": 120.0,
+            "currency": "EUR",
+            "status": "active",
+        }
+    ]
+    supplier_db.close()

@@ -108,7 +108,7 @@ def test_user_administration_is_admin_only(client):
     assert client.get("/users", headers=user_headers).status_code == 403
     assert client.post(
         "/users/admin", headers=user_headers,
-        json={"email": "managed@example.com", "role": "supervisor"},
+        json={"email": "managed@example.com", "role": "manager"},
     ).status_code == 403
 
 
@@ -132,11 +132,11 @@ def test_admin_can_create_list_reset_and_delete_managed_user(client, monkeypatch
     created = client.post(
         "/users/admin",
         headers=admin_headers,
-        json={"email": "managed@example.com", "role": "supervisor", "name": "Managed"},
+        json={"email": "managed@example.com", "role": "manager", "name": "Managed"},
     )
     body = created.json()
     assert created.status_code == 201
-    assert body["role"] == "supervisor"
+    assert body["role"] == "manager"
     assert body["password_setup_email_sent"] is True
     assert body["name"] == "Managed"
     assert "hashed_password" not in created.text
@@ -145,6 +145,33 @@ def test_admin_can_create_list_reset_and_delete_managed_user(client, monkeypatch
     assert client.get("/users", headers=admin_headers).json()[0]["email"] in {
         "admin-manager@example.com", "managed@example.com"
     }
+
+    assert client.put(
+        f"/users/{body['id']}", headers=admin_headers, json={"role": "supervisor"},
+    ).status_code == 400
+    assert client.put(
+        f"/users/{body['id']}", headers=admin_headers, json={"role": "admin"},
+    ).json()["role"] == "admin"
+
+    assert client.put(
+        f"/users/{body['id']}", headers=admin_headers, json={"password": "short"},
+    ).status_code == 400
+    password_update = client.put(
+        f"/users/{body['id']}", headers=admin_headers,
+        json={"password": "NewPassword123!"},
+    )
+    assert password_update.status_code == 200
+    assert "hashed_password" not in password_update.text
+    new_login = client.post(
+        "/auth/login",
+        data={"username": "managed@example.com", "password": "NewPassword123!"},
+    )
+    old_login = client.post(
+        "/auth/login",
+        data={"username": "managed@example.com", "password": "Password123!"},
+    )
+    assert new_login.status_code == 200
+    assert old_login.status_code == 401
 
     forced = client.post(
         f"/users/{body['id']}/force-password-reset", headers=admin_headers,

@@ -6,12 +6,13 @@ import json
 import logging
 from uuid import uuid4
 
-from sqlalchemy import delete
+from sqlalchemy import case, delete, func
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from auth import get_current_user
+from cache import invalidate_telemetry_reports
 from database import db, get_db
 from inventory_models import Item, Lot, Movement
 from inventory_schemas import (
@@ -54,6 +55,10 @@ async def reject_direct_stock_edit(
     item = session.get(Item, raw_id) if isinstance(raw_id, int) and not isinstance(raw_id, bool) else None
     if item is not None:
         capture_rejection(session, item, current_user["id"])
+        try:
+            invalidate_telemetry_reports()
+        except Exception:
+            logger.exception("Telemetry report cache invalidation failed")
     else:
         logger.warning("Direct stock edit rejected without an identifiable inventory item")
     raise HTTPException(status_code=422, detail="El stock solo cambia mediante entradas y salidas.")
@@ -104,6 +109,10 @@ def _lot_stock(session: Session, item_id: int, lot_id: int) -> Decimal:
 
 def _item_response(session: Session, item: Item) -> ItemResponse:
     stock = _item_stock(session, item.id)
+    return _item_response_with_stock(item, stock)
+
+
+def _item_response_with_stock(item: Item, stock: Decimal) -> ItemResponse:
     return ItemResponse.model_validate(
         {
             **item.model_dump(),
@@ -117,11 +126,29 @@ def _movement_response(movement: Movement) -> MovementResponse:
     return MovementResponse.model_validate(movement)
 
 
+def _is_duplicate_sku_error(session: Session, error: IntegrityError) -> bool:
+    """Recognize the inventory SKU unique index without exposing DB error text."""
+    dialect = session.get_bind().dialect.name
+    if dialect == "sqlite":
+        # SQLite reports the table/column pair instead of a constraint name.
+        return str(error.orig) == "UNIQUE constraint failed: inventory_item.sku"
+    if dialect == "postgresql":
+        # The model-created index and production migration use these names.
+        constraint_name = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
+        return constraint_name in {"ix_inventory_item_sku", "ux_inventory_item_sku"}
+    return False
+
+
 def _commit(session: Session) -> None:
     try:
         session.commit()
-    except IntegrityError:
+    except IntegrityError as error:
         session.rollback()
+        if _is_duplicate_sku_error(session, error):
+            raise HTTPException(
+                status_code=409,
+                detail="Ya existe un registro con esos datos únicos.",
+            ) from None
         raise HTTPException(
             status_code=409,
             detail="Conflicto de integridad: revise duplicados y referencias.",
@@ -159,7 +186,28 @@ def list_items(
     if category is not None:
         statement = statement.where(Item.category == category)
     items = session.exec(statement).all()
-    responses = [_item_response(session, item) for item in items]
+    # Avoid one full movement query per item while preserving the same stock
+    # semantics used by detail and mutation responses.
+    stock_by_item: dict[int, Decimal] = {}
+    if items:
+        stock_rows = session.exec(
+            select(
+                Movement.item_id,
+                func.sum(
+                    case(
+                        (Movement.movement_type == "outbound", -Movement.quantity),
+                        else_=Movement.quantity,
+                    )
+                ),
+            )
+            .where(Movement.item_id.in_([item.id for item in items]))
+            .group_by(Movement.item_id)
+        ).all()
+        stock_by_item = {item_id: stock for item_id, stock in stock_rows}
+    responses = [
+        _item_response_with_stock(item, stock_by_item.get(item.id, Decimal("0")))
+        for item in items
+    ]
     return [item for item in responses if item.reorder_alert] if reorder_only else responses
 
 
@@ -203,7 +251,11 @@ def update_item(
     return _item_response(session, item)
 
 
-@router.delete("/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/items/{item_id}",
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_item(
     item_id: int,
     session: Session = Depends(get_db),
@@ -244,7 +296,11 @@ def create_lot(
     return LotResponse.model_validate(lot)
 
 
-@router.delete("/items/{item_id}/permanent", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/items/{item_id}/permanent",
+    response_model=None,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 def delete_item_permanently(
     item_id: int,
     session: Session = Depends(get_db),
@@ -337,6 +393,11 @@ def create_movement(
     session.flush()
     capture_movement(session, item, movement, stock_before)
     _commit(session)
+    if item.telemetry_category is not None:
+        try:
+            invalidate_telemetry_reports()
+        except Exception:
+            logger.exception("Telemetry report cache invalidation failed")
     session.refresh(movement)
     return _movement_response(movement)
 

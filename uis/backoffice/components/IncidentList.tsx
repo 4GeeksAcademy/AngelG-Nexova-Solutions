@@ -6,11 +6,11 @@ import { IncidentFilters, ManagedIncidentFilterValues } from "@/components/Incid
 import { Loading } from "@/components/Loading";
 import { NumberedPagination } from "@/components/NumberedPagination";
 import { deleteManagedIncident, getManagedIncidents, transitionManagedIncident } from "@/lib/managed-incidents-api";
-import { ManagedIncident, ManagedIncidentStatus } from "@/types/managed-incident";
+import { ManagedIncidentListItem, ManagedIncidentStatus } from "@/types/managed-incident";
 
 const emptyFilters: ManagedIncidentFilterValues = { severity: "all", type: "all", status: "all", responsible_area: "all" };
 export function IncidentList({ onChanged }: { onChanged?: () => void }) {
-  const [incidents, setIncidents] = useState<ManagedIncident[]>([]);
+  const [incidents, setIncidents] = useState<ManagedIncidentListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState(emptyFilters);
@@ -49,7 +49,7 @@ export function IncidentList({ onChanged }: { onChanged?: () => void }) {
     setLoading(true); setError(null); setAttempt((value) => value + 1);
   }
 
-  async function changeStatus(incident: ManagedIncident, status: ManagedIncidentStatus) {
+  async function changeStatus(incident: ManagedIncidentListItem, status: ManagedIncidentStatus) {
     if (pendingAction.current) return;
     pendingAction.current = true;
     setUpdatingId(incident.id); setActionError(null);
@@ -60,7 +60,7 @@ export function IncidentList({ onChanged }: { onChanged?: () => void }) {
     } catch (reason) { setActionError(reason instanceof Error ? reason.message : "No se pudo actualizar el estado."); }
     finally { pendingAction.current = false; setUpdatingId(null); }
   }
-  async function remove(incident: ManagedIncident) {
+  async function remove(incident: ManagedIncidentListItem) {
     if (pendingAction.current) return;
     if (!window.confirm(`¿Eliminar definitivamente "${incident.title}" y toda su auditoría? Esta acción no se puede deshacer.`)) return;
     pendingAction.current = true;

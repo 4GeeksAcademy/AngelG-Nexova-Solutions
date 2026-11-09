@@ -29,7 +29,13 @@ export interface Supplier extends SupplierPayload {
   updated_at: string;
 }
 
-export const getSuppliers = () => authRequest<Supplier[]>("/suppliers");
+/** Compact fields returned by GET /suppliers for directory rows and selectors. */
+export type SupplierListItem = Pick<
+  Supplier,
+  "id" | "name" | "country" | "categories" | "monthly_rate" | "currency" | "status"
+>;
+
+export const getSuppliers = () => authRequest<SupplierListItem[]>("/suppliers");
 export const getSupplier = (id: number) => authRequest<Supplier>(`/suppliers/${id}`);
 export const createSupplier = (payload: SupplierPayload) =>
   authRequest<Supplier>("/suppliers", { method: "POST", body: JSON.stringify(payload) });

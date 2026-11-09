@@ -178,6 +178,7 @@ export interface MeResponse {
 }
 
 export type UserRole = "admin" | "manager" | "supervisor" | "user";
+export type ManagedUserRole = Exclude<UserRole, "supervisor">;
 
 export interface ManagedUser {
   id: string;
@@ -191,7 +192,7 @@ export interface ManagedUser {
 
 export interface ManagedUserCreatePayload {
   email: string;
-  role: UserRole;
+  role: ManagedUserRole;
   name?: string | null;
   phone?: string | null;
   address?: string | null;
@@ -282,6 +283,26 @@ export async function createManagedUser(
   return authRequest<ManagedUser>("/users/admin", {
     method: "POST",
     body: JSON.stringify(payload),
+  });
+}
+
+export async function updateManagedUserRole(
+  userId: string,
+  role: ManagedUserRole,
+): Promise<Pick<ManagedUser, "id" | "email" | "role" | "is_active" | "created_at">> {
+  return authRequest<Pick<ManagedUser, "id" | "email" | "role" | "is_active" | "created_at">>(`/users/${encodeURIComponent(userId)}`, {
+    method: "PUT",
+    body: JSON.stringify({ role }),
+  });
+}
+
+export async function updateManagedUserPassword(
+  userId: string,
+  password: string,
+): Promise<ManagedUser> {
+  return authRequest<ManagedUser>(`/users/${encodeURIComponent(userId)}`, {
+    method: "PUT",
+    body: JSON.stringify({ password }),
   });
 }
 

@@ -20,6 +20,7 @@ from auth import get_current_user
 from database import db
 from supplier_schemas import (
     SupplierCreate,
+    SupplierListResponse,
     SupplierResponse,
     RateUpdate,
     StatusUpdate,
@@ -56,6 +57,19 @@ def _doc_to_response(doc) -> SupplierResponse:
     )
 
 
+def _doc_to_list_response(doc) -> SupplierListResponse:
+    """Build only the supplier fields published by the list endpoint."""
+    return SupplierListResponse(
+        id=doc.doc_id,
+        name=doc["name"],
+        country=doc["country"],
+        categories=doc["categories"],
+        monthly_rate=doc["monthly_rate"],
+        currency=doc["currency"],
+        status=doc["status"],
+    )
+
+
 def _get_supplier_or_404(supplier_id: int):
     """Fetch a supplier by ID or raise 404."""
     doc = _table().get(doc_id=supplier_id)
@@ -79,7 +93,7 @@ def create_supplier(payload: SupplierCreate):
     return _doc_to_response(doc)
 
 
-@router.get("", response_model=list[SupplierResponse])
+@router.get("", response_model=list[SupplierListResponse])
 def list_suppliers(
     country: Optional[str] = Query(None, description="Filtrar por país"),
     category: Optional[str] = Query(None, alias="category", description="Filtrar por categoría"),
@@ -103,7 +117,7 @@ def list_suppliers(
             combined = combined & cond
         docs = _table().search(combined)
 
-    return [_doc_to_response(d) for d in docs]
+    return [_doc_to_list_response(d) for d in docs]
 
 
 @router.get("/{supplier_id}", response_model=SupplierResponse)

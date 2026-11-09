@@ -166,6 +166,21 @@ h3 {
   transform-origin: top right;
 }
 
+.profile-section-enter {
+  animation: profile-section-enter 220ms ease-out both;
+}
+
+@keyframes profile-section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes account-menu-enter {
   from {
     opacity: 0;
@@ -179,6 +194,10 @@ h3 {
 
 @media (prefers-reduced-motion: reduce) {
   .account-menu-enter {
+    animation: none;
+  }
+
+  .profile-section-enter {
     animation: none;
   }
 }

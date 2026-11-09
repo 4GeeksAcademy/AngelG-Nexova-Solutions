@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { ApiRequestError } from "@/lib/api-client";
 import {
   createInventoryLot, createInventoryMovement, deleteInventoryItem, deleteInventoryItemPermanently,
@@ -13,7 +13,7 @@ import {
   type InventoryItem, type InventoryLot, type InventoryMovement,
 } from "@/types/managed-inventory";
 import { NumberedPagination } from "@/components/NumberedPagination";
-import { getSuppliers, type Supplier } from "@/lib/suppliers-api";
+import { getSuppliers, type SupplierListItem } from "@/lib/suppliers-api";
 import { telemetryCategories, writableMovementTypes } from "@/types/managed-inventory";
 
 const buttonClass = "rounded-lg border border-cyan-700 px-3 py-2 font-semibold text-cyan-900 disabled:opacity-50";
@@ -109,7 +109,7 @@ function ItemDetail({ item, onChanged, onDeleted, creation }: {
   const [busy, setBusy] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [kind, setKind] = useState<keyof typeof writableMovementTypes>("inbound");
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierListItem[]>([]);
   const [supplierError, setSupplierError] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const pending = useRef(false);
@@ -297,9 +297,15 @@ export function ManagedInventory() {
   }, [attempt]);
   function reload() { setError(null); setLoading(true); setAttempt((value) => value + 1); }
   const term = search.trim().toLocaleLowerCase("es");
-  const visible = items.filter((item) => (!office || item.office === office) && (!category || item.category === category) && (!reorderOnly || item.reorder_alert) && (
-    !term || [String(item.id), item.sku ?? "", item.name, inventoryOffices[item.office], inventoryCategories[item.category], inventoryUnits[item.unit_of_measure]].some((value) => value.toLocaleLowerCase("es").includes(term))
-  ));
+  const { visible, reorderAlertCount } = useMemo(() => {
+    const filteredItems = items.filter((item) => (!office || item.office === office) && (!category || item.category === category) && (!reorderOnly || item.reorder_alert) && (
+      !term || [String(item.id), item.sku ?? "", item.name, inventoryOffices[item.office], inventoryCategories[item.category], inventoryUnits[item.unit_of_measure]].some((value) => value.toLocaleLowerCase("es").includes(term))
+    ));
+    return {
+      visible: filteredItems,
+      reorderAlertCount: filteredItems.filter((item) => item.reorder_alert).length,
+    };
+  }, [items, office, category, reorderOnly, term]);
   async function removeItem(item: InventoryItem) {
     if (pendingDelete.current) return;
     if (!window.confirm(`¿Eliminar definitivamente "${item.name}" en ${inventoryOffices[item.office]}, incluidos todos sus lotes y movimientos? Esta acción no se puede deshacer.`)) return;
@@ -350,7 +356,7 @@ export function ManagedInventory() {
         {loading && <p role="status">Cargando inventario…</p>}
         {error && <p role="alert" className="text-red-800">{error}</p>}
         {!loading && !error && <>
-          <p role="status">{visible.length} artículos · {visible.filter((item) => item.reorder_alert).length} alertas en esta vista</p>
+          <p role="status">{visible.length} artículos · {reorderAlertCount} alertas en esta vista</p>
           {!visible.length ? <p>No hay artículos que coincidan con los filtros.</p> : <div className="overflow-x-auto rounded-xl border border-slate-200"><table className="w-full min-w-[850px] border-collapse text-left text-sm">
             <caption className="sr-only">Artículos por oficina y stock calculado</caption>
             <thead className="bg-slate-100 text-xs uppercase tracking-wide text-slate-700"><tr>{["Artículo", "Oficina", "Categoría", "Unidad", "Stock", "Reorden", "Estado", "Acción"].map((label) => <th key={label} scope="col" className="px-4 py-3">{label}</th>)}</tr></thead>

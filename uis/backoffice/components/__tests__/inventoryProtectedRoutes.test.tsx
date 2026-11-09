@@ -21,7 +21,7 @@ const items: InventoryItem[] = Array.from({ length: 12 }, (_, index) => ({
   id: index + 1, name: `Artículo ${index + 1}`, office: "valencia", category: "it_equipment",
   sku: `NXV-DEMO-${index + 1}`,
   unit_of_measure: "unit", reorder_point: "2.00", current_stock: "3.00",
-  lot_tracked: false, reorder_alert: false, created_at: "2026-01-01T00:00:00Z",
+  lot_tracked: false, reorder_alert: index % 2 === 0, created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-01T00:00:00Z",
 }));
 describe("inventario único protegido y paginado", () => {
@@ -39,6 +39,7 @@ describe("inventario único protegido y paginado", () => {
   it("muestra 10 artículos y navega a los restantes con detalles propios", async () => {
     render(<AuthGroupLayout><InventoryPage /></AuthGroupLayout>);
     const table = await screen.findByRole("table");
+    expect(screen.getByText("12 artículos · 6 alertas en esta vista")).toBeInTheDocument();
     expect(within(table).getAllByRole("row")).toHaveLength(11);
     expect(screen.getByRole("link", { name: "Ver Artículo 1 en Valencia" })).toHaveAttribute("href", "/backoffice/inventory/1");
     expect(screen.getByRole("link", { name: "Nuevo artículo" })).toHaveAttribute("href", "/backoffice/inventory/new");
@@ -78,6 +79,19 @@ describe("inventario único protegido y paginado", () => {
     await screen.findByText("No hay artículos que coincidan con los filtros.");
     expect(deleteInventoryItemPermanently).toHaveBeenLastCalledWith(12);
     confirm.mockRestore();
+  });
+  it("actualiza el total de alertas de forma coherente con los filtros", async () => {
+    render(<InventoryPage />);
+    await screen.findByRole("table");
+
+    fireEvent.click(screen.getByLabelText("Solo alertas de reorden"));
+    expect(screen.getByText("6 artículos · 6 alertas en esta vista")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Buscar artículos"), { target: { value: "NXV-DEMO-3" } });
+    expect(screen.getByText("1 artículos · 1 alertas en esta vista")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Buscar artículos"), { target: { value: "NXV-DEMO-2" } });
+    expect(screen.getByText("No hay artículos que coincidan con los filtros.")).toBeInTheDocument();
   });
   it("abre detalle propio y permite guardar oficina, unidad y control de lotes con historial", async () => {
     render(<ManagedInventoryDetail itemId={1} />);

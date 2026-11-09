@@ -9,7 +9,7 @@ import { CandidateSearch } from "@/components/CandidateSearch";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Loading } from "@/components/Loading";
 import { deleteRecord, getRecords } from "@/lib/api";
-import { Candidate, CandidateStage, CandidateStatus } from "@/types/candidate";
+import { CandidateListItem, CandidateStage, CandidateStatus } from "@/types/candidate";
 
 function isCandidateStatus(value: string): value is CandidateStatus {
   return ["received", "in_progress", "selected", "discarded"].includes(value);
@@ -49,7 +49,7 @@ export function CandidateList({
       ? initialStageParam
       : "all";
 
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<CandidateListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState(initialSearch);
@@ -132,7 +132,7 @@ export function CandidateList({
     }
   }, [pathname, router, search, searchParams, stageFilter, statusFilter]);
 
-  async function handleDeleteCandidate(candidate: Candidate) {
+  async function handleDeleteCandidate(candidate: CandidateListItem) {
     if (!window.confirm(`¿Eliminar la candidatura de ${candidate.full_name}?`)) {
       return;
     }

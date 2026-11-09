@@ -87,7 +87,6 @@ class LotCreate(BaseModel):
     item_id: int = Field(gt=0)
     lot_code: str = Field(min_length=1, max_length=100)
     expiry_date: date | None = None
-    received_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class LotResponse(BaseModel):
@@ -115,7 +114,6 @@ class MovementCreate(BaseModel):
     supplier_id: int | None = Field(default=None, gt=0)
     unit_cost: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
     currency: Literal["EUR", "USD"] | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @model_validator(mode="after")
     def validate_quantity_and_reason(self) -> "MovementCreate":
@@ -127,8 +125,6 @@ class MovementCreate(BaseModel):
             raise ValueError("supplier solo se permite para inbound.")
         if self.movement_type != "inbound" and (self.supplier_id is not None or self.unit_cost is not None):
             raise ValueError("supplier_id y unit_cost solo se permiten para inbound.")
-        if self.created_at.tzinfo is None:
-            raise ValueError("created_at requiere zona horaria.")
         if self.movement_type != "outbound" and (self.exit_type is not None or self.assigned_to is not None):
             raise ValueError("exit_type y assigned_to solo se permiten para outbound.")
         if self.exit_type == "allocation" and (not self.assigned_to or not self.assigned_to.strip()):

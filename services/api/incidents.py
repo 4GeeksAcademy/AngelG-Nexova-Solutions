@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -28,6 +28,7 @@ from packages.shared.incidents import (  # noqa: E402
     transition_is_valid,
     utc_now_iso,
 )
+from auth import get_current_user  # noqa: E402
 from services import (  # noqa: E402
     create_incident,
     get_incident_by_id,
@@ -36,7 +37,11 @@ from services import (  # noqa: E402
 )
 
 
-router = APIRouter(prefix="/incidents", tags=["incidents"])
+router = APIRouter(
+    prefix="/incidents",
+    tags=["incidents"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 class IncidentCreate(BaseModel):
@@ -45,7 +50,6 @@ class IncidentCreate(BaseModel):
     title: str = Field(min_length=1, max_length=120)
     description: str = Field(min_length=1)
     category: IncidentCategory
-    status: IncidentStatus = IncidentStatus.OPEN
     origin: IncidentOrigin
     branch: IncidentBranch
 
@@ -112,7 +116,7 @@ def create(data: IncidentCreate):
             title=data.title,
             description=data.description,
             category=data.category,
-            status=data.status,
+            status=IncidentStatus.OPEN,
             origin=data.origin,
             branch=data.branch,
             created_at=now,

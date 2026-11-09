@@ -40,6 +40,20 @@ class SupplierResponse(SupplierCreate):
     updated_at: datetime
 
 
+class SupplierListResponse(BaseModel):
+    """Supplier fields required by directory rows and inventory selectors."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    country: Literal["Spain", "USA"]
+    categories: list[SupplierCategory]
+    monthly_rate: float
+    currency: Literal["EUR", "USD"]
+    status: Literal["active", "suspended"]
+
+
 class RateUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     monthly_rate: float = Field(gt=0, allow_inf_nan=False)

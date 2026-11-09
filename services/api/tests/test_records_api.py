@@ -230,6 +230,19 @@ def test_records_group_deletes_candidate_and_its_notes():
     assert client.get(f"/records/{record['id']}/notes", headers=headers).status_code == 404
 
 
+def test_records_delete_routes_publish_204_without_response_schema():
+    paths = {
+        "/records/{record_id}",
+        "/records/{record_id}/notes/{note_id}",
+    }
+    openapi = client.get("/openapi.json").json()
+
+    for path in paths:
+        operation = openapi["paths"][path]["delete"]
+        assert "204" in operation["responses"]
+        assert "content" not in operation["responses"]["204"]
+
+
 def test_records_group_updates_candidate_and_handles_service_error(monkeypatch):
     headers = auth_headers()
     record = create_record(headers)

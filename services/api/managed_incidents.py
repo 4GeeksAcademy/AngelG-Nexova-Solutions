@@ -342,7 +342,7 @@ def update_incident_status(
     return incident
 
 
-@router.delete("/{incident_id}", status_code=204)
+@router.delete("/{incident_id}", response_model=None, status_code=204)
 def archive_incident(
     incident_id: str,
     session: Session = Depends(get_db),
@@ -362,7 +362,7 @@ def archive_incident(
     return None
 
 
-@router.delete("/{incident_id}/permanent", status_code=204)
+@router.delete("/{incident_id}/permanent", response_model=None, status_code=204)
 def delete_incident_permanently(
     incident_id: str,
     session: Session = Depends(get_db),

@@ -67,10 +67,12 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <section className="mt-8 border-t border-slate-200 pt-6">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+    <section aria-labelledby="change-password-heading">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-700">Seguridad</p>
+      <h2 id="change-password-heading" className="mt-2 text-xl font-bold text-slate-900">
         Cambiar contraseña
       </h2>
+      <p className="mt-2 text-sm text-slate-600">Confirma tu contraseña actual para definir una nueva clave de acceso.</p>
       <form onSubmit={handleSubmit} className="mt-4 grid gap-4">
         <div>
           <label

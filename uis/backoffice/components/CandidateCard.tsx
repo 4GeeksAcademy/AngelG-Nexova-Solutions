@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import { Candidate, STAGE_LABELS, STATUS_LABELS } from "@/types/candidate";
+import { CandidateListItem, STAGE_LABELS, STATUS_LABELS } from "@/types/candidate";
 
 interface CandidateCardProps {
-  candidate: Candidate;
+  candidate: CandidateListItem;
   detailHref?: string;
   isDeleteMode?: boolean;
   isDeleting?: boolean;
