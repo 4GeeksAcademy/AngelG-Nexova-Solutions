@@ -21,6 +21,7 @@ export function getToken(): string | null {
  * Lo registra AuthProvider al montarse.
  */
 let onUnauthorized: (() => void) | null = null;
+let authSessionRevision = 0;
 
 export class ApiRequestError extends Error {
   status: number;
@@ -33,12 +34,32 @@ export class ApiRequestError extends Error {
   }
 }
 
-export function setOnUnauthorized(cb: () => void): void {
+export function setOnUnauthorized(cb: () => void): () => void {
   onUnauthorized = cb;
+  return () => {
+    if (onUnauthorized === cb) onUnauthorized = null;
+  };
 }
 
-export function clearOnUnauthorized(): void {
-  onUnauthorized = null;
+export function clearOnUnauthorized(cb?: () => void): void {
+  if (cb === undefined || onUnauthorized === cb) onUnauthorized = null;
+}
+
+/** Invalidates in-flight auth operations after a deliberate session change. */
+export function advanceAuthSessionRevision(): number {
+  authSessionRevision += 1;
+  return authSessionRevision;
+}
+
+export function getAuthSessionRevision(): number {
+  return authSessionRevision;
+}
+
+/** A stale request must not invalidate a newer token/session. */
+export function handleUnauthorizedToken(requestToken: string | null): void {
+  if (!requestToken || getToken() !== requestToken) return;
+  localStorage.removeItem("token");
+  onUnauthorized?.();
 }
 
 export type RequestOptions = Omit<RequestInit, "headers"> & {
@@ -69,11 +90,7 @@ export async function authRequest<T = unknown>(
   }
 
   if (response.status === 401) {
-    // Limpiar sesión y notificar
-    localStorage.removeItem("token");
-    if (onUnauthorized) {
-      onUnauthorized();
-    }
+    handleUnauthorizedToken(token);
     throw new ApiRequestError(
       "Sesión expirada. Redirigiendo al inicio de sesión…",
       response.status,

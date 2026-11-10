@@ -6,7 +6,7 @@ import {
   UpdateCandidatePayload,
 } from "@/types/candidate";
 import { AddNotePayload, Note, NotesResponse } from "@/types/note";
-import { getToken } from "@/lib/api-client";
+import { getToken, handleUnauthorizedToken } from "@/lib/api-client";
 
 interface RecordsResponse {
   total: number;
@@ -43,20 +43,6 @@ function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, "");
 }
 
-/**
- * Callback que se invoca automáticamente ante un 401.
- * Lo registra AuthProvider al montarse.
- */
-let onUnauthorized: (() => void) | null = null;
-
-export function setOnUnauthorized(cb: () => void): void {
-  onUnauthorized = cb;
-}
-
-export function clearOnUnauthorized(): void {
-  onUnauthorized = null;
-}
-
 async function request<T>(
   path: string,
   init?: RequestInit,
@@ -82,10 +68,7 @@ async function request<T>(
   }
 
   if (response.status === 401) {
-    localStorage.removeItem("token");
-    if (onUnauthorized) {
-      onUnauthorized();
-    }
+    handleUnauthorizedToken(token);
     throw new Error("Sesión expirada. Redirigiendo al inicio de sesión…");
   }
 

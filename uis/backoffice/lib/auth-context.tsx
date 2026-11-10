@@ -6,25 +6,22 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  clearOnUnauthorized,
+  advanceAuthSessionRevision,
+  ApiRequestError,
+  getAuthSessionRevision,
   getMe,
+  getToken,
+  handleUnauthorizedToken,
   loginRequest,
   registerRequest,
   setOnUnauthorized,
   type RegisterPayload,
 } from "@/lib/api-client";
-import {
-  clearOnUnauthorized as clearOnUnauthorizedApi,
-  setOnUnauthorized as setOnUnauthorizedApi,
-} from "@/lib/api";
-
-// ─── Tipos ───
 
 export interface User {
   id: string;
@@ -33,151 +30,222 @@ export interface User {
   role: string;
 }
 
-interface AuthContextValue {
-  /** Usuario autenticado (null si no hay sesión). */
-  user: User | null;
-  /** Actualiza el nombre de perfil del usuario autenticado. */
-  updateProfileName: (name: string | null) => void;
-  /** Indica si ya se verificó localStorage. */
-  isReady: boolean;
-  /** Login: recibe email + password, guarda token y actualiza estado. */
-  login: (email: string, password: string) => Promise<void>;
-  /** Registro + login automático. */
-  register: (payload: RegisterPayload) => Promise<void>;
-  /** Logout: elimina token, limpia estado y redirige a /login. */
-  logout: () => void;
-  /** Indica si hay un token guardado. */
-  isAuthenticated: boolean;
-}
+export type AuthState =
+  | { status: "initializing"; user: null }
+  | { status: "anonymous"; user: null }
+  | { status: "authenticated"; user: User }
+  | { status: "error"; user: null; message: string };
 
-// ─── Contexto ───
+interface AuthContextValue {
+  user: User | null;
+  updateProfileName: (name: string | null) => void;
+  isReady: boolean;
+  isAuthenticated: boolean;
+  authState: AuthState;
+  retryAuthentication: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (payload: RegisterPayload) => Promise<void>;
+  logout: () => void;
+}
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// ─── Provider ───
+const INITIAL_STATE: AuthState = { status: "initializing", user: null };
+
+function parseUser(payload: unknown): User {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("La respuesta de autenticación no tiene un formato válido.");
+  }
+
+  const candidate = payload as Record<string, unknown>;
+  const profile = candidate.profile;
+  if (
+    typeof candidate.id !== "string" || !candidate.id.trim() ||
+    typeof candidate.email !== "string" || !candidate.email.trim() ||
+    typeof candidate.role !== "string" || !candidate.role.trim() ||
+    !(profile === null || (
+      typeof profile === "object" && profile !== null &&
+      (typeof (profile as Record<string, unknown>).name === "string" ||
+        (profile as Record<string, unknown>).name === null)
+    ))
+  ) {
+    throw new Error("La respuesta de autenticación no tiene un formato válido.");
+  }
+
+  const profileName = profile === null
+    ? null
+    : (profile as Record<string, unknown>).name as string | null;
+  return {
+    id: candidate.id,
+    email: candidate.email,
+    name: profileName?.trim() || null,
+    role: candidate.role,
+  };
+}
+
+function isUnauthorized(error: unknown): boolean {
+  return error instanceof ApiRequestError && error.status === 401;
+}
+
+function isRecoverableAuthError(error: unknown): boolean {
+  if (error instanceof ApiRequestError) return error.status >= 500;
+  return error instanceof Error;
+}
+
+let bootstrapInFlight: Promise<User> | null = null;
+let bootstrapToken: string | null = null;
+
+function getOrStartBootstrap(token: string): Promise<User> {
+  if (bootstrapInFlight && bootstrapToken === token) return bootstrapInFlight;
+  bootstrapToken = token;
+  bootstrapInFlight = getMe().then(parseUser);
+  return bootstrapInFlight;
+}
+
+function clearBootstrap(promise?: Promise<User>) {
+  if (!promise || bootstrapInFlight === promise) {
+    bootstrapInFlight = null;
+    bootstrapToken = null;
+  }
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [isReady, setIsReady] = useState(false);
-  const fetchedMe = useRef(false);
+  const [authState, setAuthState] = useState<AuthState>(INITIAL_STATE);
+  const [retryKey, setRetryKey] = useState(0);
 
-  // Al montar, si hay token, obtener datos del usuario desde /auth/me
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    let active = true;
+    const revision = getAuthSessionRevision();
+    const token = getToken();
 
     if (!token) {
-      setIsReady(true);
-      return;
+      // Promise continuation avoids a synchronous state update in the effect.
+      void Promise.resolve().then(() => {
+        if (active && revision === getAuthSessionRevision()) {
+          setAuthState({ status: "anonymous", user: null });
+        }
+      });
+      return () => {
+        active = false;
+      };
     }
 
-    if (fetchedMe.current) return;
-    fetchedMe.current = true;
-
-    getMe()
-      .then((me) => {
-        setUser({
-          id: me.id,
-          email: me.email,
-          name: me.profile?.name?.trim() || null,
-          role: me.role,
-        });
+    const request = getOrStartBootstrap(token);
+    request
+      .then((user) => {
+        if (active && revision === getAuthSessionRevision() && getToken() === token) {
+          setAuthState({ status: "authenticated", user });
+        }
       })
-      .catch(() => {
-        // Token inválido o expirado → limpiar
-        localStorage.removeItem("token");
+      .catch((error: unknown) => {
+        if (!active || revision !== getAuthSessionRevision() || getToken() !== token) return;
+        if (isUnauthorized(error)) {
+          handleUnauthorizedToken(token);
+          // Without a mounted callback (e.g. effect ordering), settle anonymously.
+          if (getToken() === null) setAuthState({ status: "anonymous", user: null });
+        } else if (isRecoverableAuthError(error)) {
+          setAuthState({
+            status: "error",
+            user: null,
+            message: error instanceof Error
+              ? error.message
+              : "No se pudo verificar la sesión. Inténtalo de nuevo.",
+          });
+        } else {
+          setAuthState({
+            status: "error",
+            user: null,
+            message: "No se pudo verificar la sesión. Inténtalo de nuevo.",
+          });
+        }
       })
-      .finally(() => {
-        setIsReady(true);
-      });
-  }, []);
-
-  // Registrar el callback de 401 en ambos clientes HTTP
-  useEffect(() => {
-    const handler = () => {
-      setUser(null);
-      localStorage.removeItem("token");
-      router.push("/login");
-    };
-
-    setOnUnauthorized(handler);
-    setOnUnauthorizedApi(handler);
+      .finally(() => clearBootstrap(request));
 
     return () => {
-      clearOnUnauthorized();
-      clearOnUnauthorizedApi();
+      active = false;
     };
-  }, [router]);
+  }, [retryKey]);
 
-  const login = useCallback(
-    async (email: string, password: string) => {
-      const response = await loginRequest(email, password);
-      localStorage.setItem("token", response.access_token);
-
-      try {
-        // Obtener datos completos del usuario
-        const me = await getMe();
-        setUser({
-          id: me.id,
-          email: me.email,
-          name: me.profile?.name?.trim() || null,
-          role: me.role,
-        });
-      } catch {
-        // Si getMe() falla, no podemos dejar el token guardado
-        localStorage.removeItem("token");
-        throw new Error("Error al obtener datos del usuario. Intente nuevamente.");
-      }
-    },
-    [],
-  );
-
-  const updateProfileName = useCallback((name: string | null) => {
-    setUser((current) =>
-      current ? { ...current, name: name?.trim() || null } : current,
-    );
+  useEffect(() => {
+    const handler = () => {
+      advanceAuthSessionRevision();
+      setAuthState({ status: "anonymous", user: null });
+    };
+    const unsubscribe = setOnUnauthorized(handler);
+    return unsubscribe;
   }, []);
 
-  const register = useCallback(
-    async (payload: RegisterPayload) => {
-      // 1. Crear usuario → POST /users
-      await registerRequest(payload);
-      // 2. Login automático
-      await login(payload.email, payload.password);
-    },
-    [login],
-  );
+  const retryAuthentication = useCallback(() => {
+    if (authState.status !== "error") return;
+    setAuthState({ status: "initializing", user: null });
+    setRetryKey((current) => current + 1);
+  }, [authState.status]);
+
+  const login = useCallback(async (email: string, password: string) => {
+    const response = await loginRequest(email, password);
+    if (typeof response.access_token !== "string" || !response.access_token.trim()) {
+      throw new Error("El servidor no devolvió un token válido.");
+    }
+
+    advanceAuthSessionRevision();
+    const revision = getAuthSessionRevision();
+    localStorage.setItem("token", response.access_token);
+    setAuthState({ status: "initializing", user: null });
+
+    try {
+      const me = parseUser(await getMe());
+      if (revision !== getAuthSessionRevision() || getToken() !== response.access_token) return;
+      setAuthState({ status: "authenticated", user: me });
+    } catch {
+      if (revision === getAuthSessionRevision() && getToken() === response.access_token) {
+        advanceAuthSessionRevision();
+        localStorage.removeItem("token");
+        setAuthState({ status: "anonymous", user: null });
+      }
+      throw new Error("Error al obtener datos del usuario. Intente nuevamente.");
+    }
+  }, []);
+
+  const updateProfileName = useCallback((name: string | null) => {
+    setAuthState((current) => current.status === "authenticated"
+      ? { status: "authenticated", user: { ...current.user, name: name?.trim() || null } }
+      : current);
+  }, []);
+
+  const register = useCallback(async (payload: RegisterPayload) => {
+    await registerRequest(payload);
+    await login(payload.email, payload.password);
+  }, [login]);
 
   const logout = useCallback(() => {
+    advanceAuthSessionRevision();
     localStorage.removeItem("token");
-    setUser(null);
+    setAuthState({ status: "anonymous", user: null });
     router.push("/login");
   }, [router]);
 
-  const isAuthenticated = !!user;
+  const user = authState.status === "authenticated" ? authState.user : null;
+  const isReady = authState.status !== "initializing";
+  const isAuthenticated = authState.status === "authenticated" && user !== null;
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      user,
-      updateProfileName,
-      isReady,
-      login,
-      register,
-      logout,
-      isAuthenticated,
-    }),
-    [user, updateProfileName, isReady, login, register, logout, isAuthenticated],
-  );
+  const value = useMemo<AuthContextValue>(() => ({
+    user,
+    updateProfileName,
+    isReady,
+    isAuthenticated,
+    authState,
+    retryAuthentication,
+    login,
+    register,
+    logout,
+  }), [authState, user, updateProfileName, isReady, isAuthenticated, retryAuthentication, login, register, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ─── Hook ───
-
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth debe usarse dentro de un <AuthProvider>");
-  }
+  if (!context) throw new Error("useAuth debe usarse dentro de un <AuthProvider>");
   return context;
 }

@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { useAuth } from "@/lib/auth-context";
+import {
+  getServerThemeSnapshot,
+  getThemeSnapshot,
+  setTheme,
+  subscribeToTheme,
+} from "@/lib/theme-store";
 
 function isCurrentRoute(pathname: string, href: string): boolean {
   if (href === "/") {
@@ -74,23 +80,14 @@ export function AuthenticatedNavigation({
 }) {
   const { isAuthenticated, isReady, logout, user } = useAuth();
   const pathname = usePathname();
-  const [darkMode, setDarkMode] = useState(false);
+  const darkMode = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getServerThemeSnapshot,
+  );
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuTriggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const savedTheme = window.localStorage.getItem("theme");
-    const prefersDark =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark =
-      savedTheme === "dark" ||
-      (!savedTheme && prefersDark);
-
-    document.documentElement.classList.toggle("dark", shouldUseDark);
-    setDarkMode(shouldUseDark);
-  }, []);
 
   useEffect(() => {
     if (!isUserMenuOpen) return;
@@ -118,10 +115,7 @@ export function AuthenticatedNavigation({
   }, [isUserMenuOpen]);
 
   function toggleTheme() {
-    const nextDarkMode = !darkMode;
-    document.documentElement.classList.toggle("dark", nextDarkMode);
-    window.localStorage.setItem("theme", nextDarkMode ? "dark" : "light");
-    setDarkMode(nextDarkMode);
+    setTheme(!darkMode);
   }
 
   const showNavigation = isReady && isAuthenticated;

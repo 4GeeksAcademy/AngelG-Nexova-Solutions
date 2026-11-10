@@ -9,6 +9,8 @@ dependencies = [
     "tinydb",
     "uvicorn",
     "httpx",
+    "scikit-learn>=1.7.2",
+    "matplotlib>=3.10.9",
 ]
 
 [project.scripts]
