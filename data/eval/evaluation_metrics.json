@@ -1,0 +1,127 @@
+{
+  "dataset": "data/raw/nexova_sales.csv",
+  "training_period": [
+    "2016-01-01",
+    "2023-12-01"
+  ],
+  "folds": [
+    {
+      "fold": 1,
+      "train_start": "2016-01-01",
+      "train_end": "2017-04-01",
+      "validation_start": "2017-05-01",
+      "validation_end": "2018-08-01",
+      "train_size": 16,
+      "validation_size": 16,
+      "train_mae_usd": 24984.297341440626,
+      "train_rmse_usd": 33960.01232755125,
+      "validation_mae_usd": 47863.83529402883,
+      "validation_rmse_usd": 62017.24911324505
+    },
+    {
+      "fold": 2,
+      "train_start": "2016-01-01",
+      "train_end": "2018-08-01",
+      "validation_start": "2018-09-01",
+      "validation_end": "2019-12-01",
+      "train_size": 32,
+      "validation_size": 16,
+      "train_mae_usd": 18967.042533165273,
+      "train_rmse_usd": 25718.407360956196,
+      "validation_mae_usd": 56483.59472762053,
+      "validation_rmse_usd": 62863.92813429807
+    },
+    {
+      "fold": 3,
+      "train_start": "2016-01-01",
+      "train_end": "2019-12-01",
+      "validation_start": "2020-01-01",
+      "validation_end": "2021-04-01",
+      "train_size": 48,
+      "validation_size": 16,
+      "train_mae_usd": 17085.706432144547,
+      "train_rmse_usd": 23273.33029612703,
+      "validation_mae_usd": 70421.73211013386,
+      "validation_rmse_usd": 79855.5285734139
+    },
+    {
+      "fold": 4,
+      "train_start": "2016-01-01",
+      "train_end": "2021-04-01",
+      "validation_start": "2021-05-01",
+      "validation_end": "2022-08-01",
+      "train_size": 64,
+      "validation_size": 16,
+      "train_mae_usd": 15995.972614095423,
+      "train_rmse_usd": 21498.0826682147,
+      "validation_mae_usd": 60998.775144048515,
+      "validation_rmse_usd": 67291.24779766469
+    },
+    {
+      "fold": 5,
+      "train_start": "2016-01-01",
+      "train_end": "2022-08-01",
+      "validation_start": "2022-09-01",
+      "validation_end": "2023-12-01",
+      "train_size": 80,
+      "validation_size": 16,
+      "train_mae_usd": 17130.49361735163,
+      "train_rmse_usd": 21518.85126301995,
+      "validation_mae_usd": 53762.15572591142,
+      "validation_rmse_usd": 61251.10526374192
+    }
+  ],
+  "cross_validation_summary": {
+    "train_mae_mean_usd": 18832.7025076395,
+    "train_mae_std_usd": 3600.5802700607646,
+    "train_rmse_mean_usd": 25193.73678317383,
+    "train_rmse_std_usd": 5195.514174128547,
+    "validation_mae_mean_usd": 57906.01860034864,
+    "validation_mae_std_usd": 8459.440916088854,
+    "validation_rmse_mean_usd": 66655.81177647272,
+    "validation_rmse_std_usd": 7741.798887883159
+  },
+  "learning_curve": [
+    {
+      "train_size": 20,
+      "train_mae_usd": 25902.48647900099,
+      "validation_mae_usd": 162061.43295373122,
+      "train_rmse_usd": 35198.73519214982,
+      "validation_rmse_usd": 176313.76228030006
+    },
+    {
+      "train_size": 35,
+      "train_mae_usd": 17559.678532860384,
+      "validation_mae_usd": 85770.4084503396,
+      "train_rmse_usd": 25082.55871618909,
+      "validation_rmse_usd": 110279.50306466878
+    },
+    {
+      "train_size": 50,
+      "train_mae_usd": 16514.145518917332,
+      "validation_mae_usd": 55162.06512760457,
+      "train_rmse_usd": 22946.870112392975,
+      "validation_rmse_usd": 70837.58614093463
+    },
+    {
+      "train_size": 65,
+      "train_mae_usd": 17302.330416961908,
+      "validation_mae_usd": 59562.99506699857,
+      "train_rmse_usd": 22566.656810444936,
+      "validation_rmse_usd": 68037.64354778799
+    },
+    {
+      "train_size": 80,
+      "train_mae_usd": 17130.493617351636,
+      "validation_mae_usd": 53762.15572591144,
+      "train_rmse_usd": 21518.851263019955,
+      "validation_rmse_usd": 61251.10526374195
+    }
+  ],
+  "diagnosis": "overfitting",
+  "diagnosis_evidence": "En el último punto de la curva, MAE validación/train = 3.14×, por encima del umbral operativo >=1.50×; no se afirma persistencia porque la curva aún muestra sensibilidad al tamaño de entrenamiento. La variación entre folds de MAE de validación (desviación estándar/media) es 14.6%; interpretar con cautela por la muestra mensual pequeña.",
+  "artifacts": [
+    "learning_curve.png",
+    "evaluation_report.md"
+  ]
+}

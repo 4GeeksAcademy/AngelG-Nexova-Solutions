@@ -49,3 +49,16 @@ La banda **P5–P95 entre árboles** refleja variabilidad de predicciones de ár
 ```bash
 .venv/bin/python -m unittest tests.pipelines.test_forecast_sales -v
 ```
+
+## Evaluación técnica del modelo
+
+La evaluación temporal formal se ejecuta con:
+
+```bash
+.venv/bin/python scripts/evaluate_forecast.py
+.venv/bin/python -m unittest tests.pipelines.test_evaluate_forecast -v
+```
+
+Usa los 96 meses 2016–2023 (el holdout final 2024–2025 se reserva) y `TimeSeriesSplit` de cinco folds expansivos, sin barajar. En cada objetivo los lags y medias rodantes se reconstruyen desde los registros anteriores; la validación es rolling one-step-ahead. Calcula MAE y RMSE de train y validación, e informa media ± desviación estándar de folds. Genera `data/eval/learning_curve.png`, `data/eval/evaluation_report.md` y `data/eval/evaluation_metrics.json`.
+
+El informe elige MAE como métrica principal por su interpretación directa en USD; RMSE complementa al penalizar errores grandes. El briefing no cuantifica pérdidas diferentes por sobre/subestimación. Una brecha amplia de MAE train/validación se trata como señal operacional compatible con overfitting; una brecha reducida o intermedia no basta para afirmar buen ajuste o underfitting sin umbrales de error absoluto definidos por negocio y comparación con un baseline. Estas reglas no son pruebas estadísticas.
