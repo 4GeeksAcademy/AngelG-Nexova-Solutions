@@ -1,0 +1,26 @@
+[
+  {
+    "id": "pricing_standard_rate",
+    "question": "¿Cuál es la tarifa estándar de headhunting?",
+    "expected_source": "pricing-model",
+    "expected_answer_fragment": "22%",
+    "expected_status": "answered",
+    "expected_trace": ["receive", "retrieve", "generate"]
+  },
+  {
+    "id": "support_outsourcing_scope",
+    "question": "¿Qué incluye el outsourcing de soporte?",
+    "expected_source": "service-lines",
+    "expected_answer_fragment": "atención de solicitudes",
+    "expected_status": "answered",
+    "expected_trace": ["receive", "retrieve", "generate"]
+  },
+  {
+    "id": "unsupported_policy_fallback",
+    "question": "¿Cuál es la política para un servicio no documentado?",
+    "expected_source": null,
+    "expected_answer_fragment": null,
+    "expected_status": "fallback",
+    "expected_trace": ["receive", "retrieve", "fallback"]
+  }
+]
