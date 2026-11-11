@@ -1,0 +1,38 @@
+{
+  "kind": "offline deterministic traces; SQLite in-memory + mocked RAG retrieval/generation",
+  "runs": [
+    {
+      "thread_id": "pr-ticket-tool-trace",
+      "question": "¿Qué incidencias abiertas hay del servidor?",
+      "status": "answered",
+      "answer": "Se encontraron 1 incidencias coincidentes.\n- INC-EVAL-001: Fallo de acceso al servidor (estado: open; severidad: high; área: Tecnología; cliente: Cliente de evaluación; asignada a: Equipo de soporte).",
+      "sources": [
+        {
+          "document": "incidents-tool",
+          "section": "Búsqueda de incidencias"
+        }
+      ],
+      "trace": [
+        "receive",
+        "incidents_tool"
+      ]
+    },
+    {
+      "thread_id": "pr-rag-routing-trace",
+      "question": "¿Cuál es la tarifa estándar de headhunting?",
+      "status": "answered",
+      "answer": "La tarifa estándar de headhunting es 22% del salario anual.",
+      "sources": [
+        {
+          "document": "pricing-model",
+          "section": "Tarifas"
+        }
+      ],
+      "trace": [
+        "receive",
+        "retrieve",
+        "generate"
+      ]
+    }
+  ]
+}
