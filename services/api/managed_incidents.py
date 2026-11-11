@@ -11,6 +11,7 @@ from sqlmodel import Session, select
 from auth import get_current_user
 from database import get_db
 from incident_models import IncidentAuditEvent, ManagedIncident
+from managed_incident_service import list_managed_incidents
 from incident_schemas import (
     IncidentAuditResponse,
     IncidentCreate,
@@ -162,43 +163,17 @@ def list_incidents(
     current_user: dict = Depends(get_current_user),
 ):
     del current_user
-    statement = select(ManagedIncident).where(ManagedIncident.is_archived.is_(False))
-    for column, value in (
-        (ManagedIncident.status, status),
-        (ManagedIncident.severity, severity),
-        (ManagedIncident.type, type),
-        (ManagedIncident.responsible_area, responsible_area),
-    ):
-        if value is not None:
-            statement = statement.where(column == value)
-    now = _now()
-    if search and search.strip():
-        term = search.strip().lower()
-        statement = statement.where(or_(*[
-            func.lower(func.coalesce(column, "")).contains(term, autoescape=True)
-            for column in (
-                ManagedIncident.id, ManagedIncident.title, ManagedIncident.description,
-                ManagedIncident.client_name, ManagedIncident.assigned_to,
-            )
-        ]))
-    if overdue_sla is True:
-        statement = statement.where(
-            ManagedIncident.type == "sla_breach",
-            ManagedIncident.sla_deadline < now,
-            ManagedIncident.status.notin_(["resolved", "closed"]),
-        )
-    elif overdue_sla is False:
-        statement = statement.where(
-            (ManagedIncident.type != "sla_breach")
-            | (ManagedIncident.sla_deadline >= now)
-            | (ManagedIncident.status.in_(["resolved", "closed"]))
-        )
-    total = session.exec(select(func.count()).select_from(statement.subquery())).one()
-    items = session.exec(
-        statement.order_by(ManagedIncident.created_at.desc(), ManagedIncident.id)
-        .offset(offset)
-        .limit(limit)
-    ).all()
+    items, total = list_managed_incidents(
+        session,
+        status=status,
+        severity=severity,
+        incident_type=type,
+        responsible_area=responsible_area,
+        overdue_sla=overdue_sla,
+        search=search,
+        limit=limit,
+        offset=offset,
+    )
     return {"items": items, "total": total, "limit": limit, "offset": offset}
 
 

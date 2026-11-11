@@ -25,7 +25,14 @@ if DATABASE_URL:
     database_url = make_url(DATABASE_URL)
     if database_url.drivername == "postgresql":
         database_url = database_url.set(drivername="postgresql+psycopg2")
-    engine = create_engine(database_url, pool_pre_ping=True)
+        engine = create_engine(
+            database_url,
+            pool_pre_ping=True,
+            connect_args={"connect_timeout": 3},
+            pool_timeout=3,
+        )
+    else:
+        engine = create_engine(database_url, pool_pre_ping=True)
 else:
     # The API and TinyDB remain usable without PostgreSQL configuration.
     engine = None

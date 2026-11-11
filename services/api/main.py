@@ -24,6 +24,7 @@ from routers.inventory import router as inventory_router
 from routers.inventory_v2 import router as inventory_v2_router
 from routes.suppliers import router as suppliers_router
 from routes.knowledge import router as knowledge_router
+from routes.agent import router as agent_router
 from reporting.router import router as reporting_router
 from telemetry.capture import require_hito6_schema
 from telemetry.router import router as telemetry_router
@@ -80,7 +81,13 @@ async def lifespan(app: FastAPI):
         inventory_models.require_unified_inventory(database.engine)
         require_hito6_schema(database.engine)
         SQLModel.metadata.create_all(database.engine)
+    from agent.graph import _connection_pool
+
+    if _connection_pool is not None and _connection_pool.closed:
+        _connection_pool.open(wait=True)
     yield
+    if _connection_pool is not None and not _connection_pool.closed:
+        _connection_pool.close()
 
 
 app = FastAPI(
@@ -109,7 +116,7 @@ async def request_validation_error_handler(
     return JSONResponse(
         # Inventory request schemas follow FastAPI's validation status (422).
         # Preserve the API's existing 400 mapping for all other routers.
-        status_code=422 if request.url.path.startswith(("/inventory/", "/reporting/", "/telemetry/", "/knowledge/")) else 400,
+        status_code=422 if request.url.path.startswith(("/inventory/", "/reporting/", "/telemetry/", "/knowledge/", "/agent/")) else 400,
         content={
             "detail": {
                 "code": "VALIDATION_ERROR",
@@ -174,6 +181,7 @@ app.include_router(inventory_router)
 app.include_router(inventory_v2_router)
 app.include_router(suppliers_router)
 app.include_router(knowledge_router)
+app.include_router(agent_router)
 app.include_router(reporting_router)
 app.include_router(telemetry_router)
 
