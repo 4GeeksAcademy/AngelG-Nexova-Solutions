@@ -150,6 +150,13 @@ export function AuthenticatedNavigation({
             >
               Inventario
             </Link>
+            <Link
+              href="/backoffice/knowledge"
+              aria-current={isCurrentRoute(pathname, "/backoffice/knowledge") ? "page" : undefined}
+              className={navLinkClassName(pathname, "/backoffice/knowledge")}
+            >
+              Conocimiento RAG
+            </Link>
             <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
               <ThemeToggleButton darkMode={darkMode} onToggle={toggleTheme} />
               <div className="relative" ref={userMenuRef}>
