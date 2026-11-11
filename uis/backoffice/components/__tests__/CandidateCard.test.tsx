@@ -27,9 +27,22 @@ describe("CandidateCard", () => {
     expect(screen.getByText("Lucia Martinez")).toBeInTheDocument();
     expect(screen.getByText("Executive Assistant")).toBeInTheDocument();
     expect(screen.getByText(/Estado:/)).toBeInTheDocument();
-    expect(screen.getByText(/Received/)).toBeInTheDocument();
+    expect(screen.getByText(/Recibida/)).toBeInTheDocument();
     expect(screen.getByText(/Etapa:/)).toBeInTheDocument();
-    expect(screen.getByText(/Pending review/)).toBeInTheDocument();
+    expect(screen.getByText(/Pendiente de revisión/)).toBeInTheDocument();
+    expect(screen.queryByText("received")).not.toBeInTheDocument();
+    expect(screen.queryByText("pending")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ver detalle" })).toBeInTheDocument();
+  });
+
+  it("muestra la etiqueta traducida para candidaturas seleccionadas", () => {
+    render(
+      <CandidateCard
+        candidate={{ ...candidateFixture, status: "selected" }}
+      />,
+    );
+
+    expect(screen.getByText(/Seleccionada/)).toBeInTheDocument();
+    expect(screen.queryByText("selected")).not.toBeInTheDocument();
   });
 });

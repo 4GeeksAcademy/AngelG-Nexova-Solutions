@@ -1,5 +1,7 @@
-import os
+import logging
+from time import perf_counter
 from contextlib import asynccontextmanager
+from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -7,24 +9,76 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlmodel import SQLModel
+from pydantic import BaseModel
 
 import database
+import incident_models  # noqa: F401 — registers managed incident and audit tables
+import inventory_models
 from auth import router as auth_router
 from profiles import router as profiles_router
 from records import router as records_router
 from incidents import router as incidents_router
+from managed_incidents import router as managed_incidents_router
 from users import router as users_router
 from routers.inventory import router as inventory_router
-import models  # noqa: F401 — registers inventory tables in SQLModel.metadata
+from routers.inventory_v2 import router as inventory_v2_router
+from routes.suppliers import router as suppliers_router
+from routes.knowledge import router as knowledge_router
+from reporting.router import router as reporting_router
+from telemetry.capture import require_hito6_schema
+from telemetry.router import router as telemetry_router
 
 
 load_dotenv()
+
+
+request_timing_logger = logging.getLogger("api.request_timing")
+
+
+class RequestTimingMiddleware:
+    """Log safe, low-cardinality timing data for each HTTP request."""
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: dict[str, Any], receive: Any, send: Any) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        started_at = perf_counter()
+        status_code: int | None = None
+
+        async def send_with_status(message: dict[str, Any]) -> None:
+            nonlocal status_code
+            if message["type"] == "http.response.start":
+                status_code = message["status"]
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_with_status)
+        finally:
+            route = scope.get("route")
+            # Never fall back to the raw URL path: unmatched paths can contain
+            # identifiers, and query strings may contain credentials/tokens.
+            route_path = getattr(route, "path", "<unmatched>")
+            request_timing_logger.info(
+                "HTTP request completed",
+                extra={
+                    "http_method": scope.get("method", ""),
+                    "route": route_path,
+                    "status_code": status_code if status_code is not None else 500,
+                    "duration_ms": round((perf_counter() - started_at) * 1000, 3),
+                },
+            )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create inventory tables at startup when PostgreSQL is configured."""
     if database.engine is not None:
+        inventory_models.require_unified_inventory(database.engine)
+        require_hito6_schema(database.engine)
         SQLModel.metadata.create_all(database.engine)
     yield
 
@@ -33,6 +87,14 @@ app = FastAPI(
     title="Company API",
     lifespan=lifespan,
 )
+
+
+class HealthResponse(BaseModel):
+    status: str
+
+
+class RootResponse(BaseModel):
+    message: str
 
 
 @app.exception_handler(RequestValidationError)
@@ -47,7 +109,7 @@ async def request_validation_error_handler(
     return JSONResponse(
         # Inventory request schemas follow FastAPI's validation status (422).
         # Preserve the API's existing 400 mapping for all other routers.
-        status_code=422 if request.url.path.startswith("/inventory/") else 400,
+        status_code=422 if request.url.path.startswith(("/inventory/", "/reporting/", "/telemetry/", "/knowledge/")) else 400,
         content={
             "detail": {
                 "code": "VALIDATION_ERROR",
@@ -65,6 +127,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail},
+            headers=exc.headers,
         )
     return JSONResponse(
         status_code=exc.status_code,
@@ -73,6 +136,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
                 "message": str(exc.detail),
             }
         },
+        headers=exc.headers,
     )
 
 
@@ -97,6 +161,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(RequestTimingMiddleware)
 
 
 app.include_router(users_router)
@@ -104,15 +169,21 @@ app.include_router(profiles_router)
 app.include_router(auth_router)
 app.include_router(records_router)
 app.include_router(incidents_router)
+app.include_router(managed_incidents_router)
 app.include_router(inventory_router)
+app.include_router(inventory_v2_router)
+app.include_router(suppliers_router)
+app.include_router(knowledge_router)
+app.include_router(reporting_router)
+app.include_router(telemetry_router)
 
 
-@app.get("/health", tags=["health"])
+@app.get("/health", response_model=HealthResponse, tags=["health"])
 def health_check():
     """Simple health-check endpoint."""
     return {"status": "ok"}
 
 
-@app.get("/", tags=["health"])
+@app.get("/", response_model=RootResponse, tags=["health"])
 def root():
     return {"message": "API Encendida y funcionando correctamente"}

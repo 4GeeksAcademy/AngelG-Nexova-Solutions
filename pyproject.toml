@@ -9,6 +9,10 @@ dependencies = [
     "tinydb",
     "uvicorn",
     "httpx",
+    "scikit-learn>=1.7.2",
+    "matplotlib>=3.10.9",
+    "qdrant-client>=1.20.0",
+    "openai>=3.49.0",
 ]
 
 [project.scripts]

@@ -1,4 +1,6 @@
 from datetime import datetime
+from decimal import Decimal
+from inventory_schemas import Category as InventoryCategory, TelemetryCategory
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -21,6 +23,8 @@ class AssetCreate(BaseModel):
     sku: str
     category: AssetCategory
     office: Office
+    telemetry_category: TelemetryCategory | None = None
+    programme_id: str | None = Field(default=None, pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", max_length=100)
 
 
 class AssetResponse(BaseModel):
@@ -29,9 +33,11 @@ class AssetResponse(BaseModel):
     id: int
     name: str
     sku: str
-    category: AssetCategory
+    category: InventoryCategory
     office: Office
-    current_stock: int
+    current_stock: int | Decimal
+    telemetry_category: TelemetryCategory | None = None
+    programme_id: str | None = None
 
 
 class AssetEntryCreate(BaseModel):
@@ -41,6 +47,9 @@ class AssetEntryCreate(BaseModel):
     quantity: int = Field(gt=0)
     supplier: str
     office: Office
+    supplier_id: int | None = Field(default=None, gt=0)
+    unit_cost: Decimal | None = Field(default=None, ge=0, max_digits=12, decimal_places=2)
+    currency: Literal["EUR", "USD"] | None = None
 
 
 class AssetEntryResponse(BaseModel):
@@ -61,8 +70,10 @@ class AssetOrderProduct(BaseModel):
     id: int
     name: str
     sku: str
-    category: AssetCategory
+    category: InventoryCategory
     office: Office
+    telemetry_category: TelemetryCategory | None = None
+    programme_id: str | None = None
 
 
 class AssetExitCreate(BaseModel):
@@ -102,13 +113,15 @@ class InventoryOrderResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: int
-    order_type: Literal["inbound", "outbound"]
+    order_type: Literal["inbound", "outbound", "adjustment"]
     asset_id: int
-    quantity: int
-    office: Office
+    quantity: int | Decimal
+    office: Office | None
     created_at: datetime
-    user_uuid: str
+    user_uuid: str | None
     supplier: str | None = None
     exit_type: ExitType | None = None
     assigned_to: str | None = None
+    reason: str | None = None
+    lot_id: int | None = None
     asset: AssetOrderProduct

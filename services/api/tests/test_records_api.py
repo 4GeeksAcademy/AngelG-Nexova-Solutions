@@ -12,6 +12,7 @@ def auth_headers():
         json={"email": "records@example.com", "password": "Password123!"},
     )
     assert registered.status_code == 200
+    assert registered.json() == {"message": "Registro completado correctamente."}
     login = client.post(
         "/auth/login",
         data={"username": "records@example.com", "password": "Password123!"},
@@ -29,6 +30,20 @@ def record_payload(**overrides):
         "experience_years": 8,
         "linkedin_url": None,
         "cv_url": None,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def public_record_payload(**overrides):
+    payload = {
+        **record_payload(),
+        "country": "España",
+        "sector": "Tecnología",
+        "english_level": "Avanzado",
+        "availability": "Inmediata",
+        "comments": "",
+        "accept_terms": True,
     }
     payload.update(overrides)
     return payload
@@ -56,31 +71,67 @@ def test_records_group_lists_and_creates_candidates():
 
 
 def test_public_candidate_submission_creates_record_without_auth():
-    response = client.post("/records/public", json=record_payload())
+    response = client.post("/records/public", json=public_record_payload())
 
     assert response.status_code == 201
-    assert response.json()["full_name"] == "Ada Lovelace"
-    assert response.json()["status"] == "received"
-    assert response.json()["stage"] == "pending"
+    assert response.json() == {"message": "Solicitud recibida correctamente."}
+    assert "Ada Lovelace" not in response.text
+    assert "ada@example.com" not in response.text
     assert client.get("/records").status_code == 401
 
 
+def test_public_candidate_submission_persists_every_form_field(_temp_db):
+    payload = {
+        **record_payload(),
+        "country": "España",
+        "sector": "Tecnología",
+        "english_level": "Avanzado",
+        "availability": "Inmediata",
+        "comments": "Experiencia en equipos distribuidos.",
+        "accept_terms": True,
+    }
+
+    response = client.post("/records/public", json=payload)
+
+    assert response.status_code == 201
+    assert "Ada Lovelace" not in response.text
+    assert "ada@example.com" not in response.text
+    stored_records = _temp_db.table("records").all()
+    assert len(stored_records) == 1
+    stored = stored_records[0]
+    assert {key: stored[key] for key in payload if key not in {"accept_terms"}} == {
+        key: value for key, value in payload.items() if key not in {"accept_terms"}
+    }
+    assert stored["consent_given"] is True
+    assert stored["consent_timestamp"]
+
+
+def test_public_candidate_submission_requires_explicit_consent():
+    response = client.post(
+        "/records/public",
+        json={**record_payload(), "country": "España", "sector": "Tecnología", "english_level": "Avanzado", "availability": "Inmediata", "accept_terms": False},
+    )
+
+    assert response.status_code == 400
+
+
 def test_public_candidate_submission_honeypot_is_acknowledged_not_saved():
-    before = len(client.get("/records", headers=auth_headers()).json()["data"])
+    headers = auth_headers()
+    before = len(client.get("/records", headers=headers).json()["data"])
 
     response = client.post(
         "/records/public",
-        json={**record_payload(), "website": "automated spam"},
+        json={**public_record_payload(), "website": "automated spam"},
     )
 
     assert response.status_code == 201
-    assert response.json() == {"ok": True}
-    after = len(client.get("/records", headers=auth_headers()).json()["data"])
+    assert response.json() == {"message": "Solicitud recibida correctamente."}
+    after = len(client.get("/records", headers=headers).json()["data"])
     assert after == before
 
 
 def test_public_candidate_submission_is_rate_limited():
-    payload = record_payload()
+    payload = public_record_payload()
     for _ in range(5):
         assert client.post("/records/public", json=payload).status_code == 201
 
@@ -177,6 +228,19 @@ def test_records_group_deletes_candidate_and_its_notes():
     assert deleted.status_code == 204
     assert client.get(f"/records/{record['id']}", headers=headers).status_code == 404
     assert client.get(f"/records/{record['id']}/notes", headers=headers).status_code == 404
+
+
+def test_records_delete_routes_publish_204_without_response_schema():
+    paths = {
+        "/records/{record_id}",
+        "/records/{record_id}/notes/{note_id}",
+    }
+    openapi = client.get("/openapi.json").json()
+
+    for path in paths:
+        operation = openapi["paths"][path]["delete"]
+        assert "204" in operation["responses"]
+        assert "content" not in operation["responses"]["204"]
 
 
 def test_records_group_updates_candidate_and_handles_service_error(monkeypatch):

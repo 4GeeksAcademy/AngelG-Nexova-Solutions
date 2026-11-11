@@ -8,18 +8,18 @@ export type CandidateStage =
   | "offer_presented";
 
 export const STATUS_LABELS: Record<CandidateStatus, string> = {
-  received: "Received",
-  in_progress: "In progress",
-  selected: "Selected",
-  discarded: "Discarded",
+  received: "Recibida",
+  in_progress: "En proceso",
+  selected: "Seleccionada",
+  discarded: "Descartada",
 };
 
 export const STAGE_LABELS: Record<CandidateStage, string> = {
-  pending: "Pending review",
-  review: "Under review",
-  personal_interview: "Personal interview",
-  technical_interview: "Technical interview",
-  offer_presented: "Offer presented",
+  pending: "Pendiente de revisión",
+  review: "En revisión",
+  personal_interview: "Entrevista personal",
+  technical_interview: "Entrevista técnica",
+  offer_presented: "Oferta presentada",
 };
 
 export interface Candidate {
@@ -37,6 +37,12 @@ export interface Candidate {
   applied_at: string;
   updated_at: string;
 }
+
+/** Compact fields returned by the paginated records endpoint. */
+export type CandidateListItem = Pick<
+  Candidate,
+  "id" | "full_name" | "email" | "position" | "status" | "stage"
+>;
 
 export interface CreateCandidatePayload {
   full_name: string;

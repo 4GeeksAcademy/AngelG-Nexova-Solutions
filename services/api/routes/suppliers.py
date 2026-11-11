@@ -13,19 +13,23 @@ Endpoints:
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from tinydb import where
 
-from ..database import get_db
-from ..models import (
+from auth import get_current_user
+from database import db
+from supplier_schemas import (
     SupplierCreate,
-    SupplierDict,
+    SupplierListResponse,
     SupplierResponse,
     RateUpdate,
     StatusUpdate,
 )
 
-router = APIRouter(prefix="/suppliers", tags=["suppliers"])
+router = APIRouter(
+    prefix="/suppliers", tags=["suppliers"],
+    dependencies=[Depends(get_current_user)],
+)
 
 SUPPLIERS_TABLE = "suppliers"
 
@@ -33,7 +37,7 @@ SUPPLIERS_TABLE = "suppliers"
 # ── Helpers ────────────────────────────────────────────────────────────────
 
 def _table():
-    return get_db().table(SUPPLIERS_TABLE)
+    return db.table(SUPPLIERS_TABLE)
 
 
 def _doc_to_response(doc) -> SupplierResponse:
@@ -53,6 +57,19 @@ def _doc_to_response(doc) -> SupplierResponse:
     )
 
 
+def _doc_to_list_response(doc) -> SupplierListResponse:
+    """Build only the supplier fields published by the list endpoint."""
+    return SupplierListResponse(
+        id=doc.doc_id,
+        name=doc["name"],
+        country=doc["country"],
+        categories=doc["categories"],
+        monthly_rate=doc["monthly_rate"],
+        currency=doc["currency"],
+        status=doc["status"],
+    )
+
+
 def _get_supplier_or_404(supplier_id: int):
     """Fetch a supplier by ID or raise 404."""
     doc = _table().get(doc_id=supplier_id)
@@ -69,14 +86,14 @@ def _get_supplier_or_404(supplier_id: int):
 @router.post("", response_model=SupplierResponse, status_code=201)
 def create_supplier(payload: SupplierCreate):
     """Register a new supplier."""
-    data = payload.model_dump()
+    data = payload.model_dump(mode="json")
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
     doc_id = _table().insert(data)
     doc = _table().get(doc_id=doc_id)
     return _doc_to_response(doc)
 
 
-@router.get("", response_model=list[SupplierResponse])
+@router.get("", response_model=list[SupplierListResponse])
 def list_suppliers(
     country: Optional[str] = Query(None, description="Filtrar por país"),
     category: Optional[str] = Query(None, alias="category", description="Filtrar por categoría"),
@@ -100,7 +117,7 @@ def list_suppliers(
             combined = combined & cond
         docs = _table().search(combined)
 
-    return [_doc_to_response(d) for d in docs]
+    return [_doc_to_list_response(d) for d in docs]
 
 
 @router.get("/{supplier_id}", response_model=SupplierResponse)
@@ -165,7 +182,7 @@ def update_supplier_status(supplier_id: int, payload: StatusUpdate):
     return _doc_to_response(updated)
 
 
-@router.delete("/{supplier_id}", status_code=204)
+@router.delete("/{supplier_id}", response_model=None, status_code=204)
 def delete_supplier(supplier_id: int):
     """Delete a supplier by ID. Returns 404 if not found."""
     _get_supplier_or_404(supplier_id)

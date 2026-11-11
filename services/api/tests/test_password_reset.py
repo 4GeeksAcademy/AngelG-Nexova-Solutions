@@ -13,7 +13,10 @@ def register_user(email="user@example.com", password="OldPassword123!"):
         json={"email": email, "password": password}
     )
     assert response.status_code == 200
-    return response.json()["user"]
+    assert response.json() == {
+        "message": "Registro completado correctamente."
+    }
+    return response.json()
 
 
 def login(email, password):

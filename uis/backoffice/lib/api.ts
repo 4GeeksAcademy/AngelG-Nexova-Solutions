@@ -1,18 +1,21 @@
 import {
   Candidate,
+  CandidateListItem,
   CreateCandidatePayload,
   PatchCandidatePayload,
   UpdateCandidatePayload,
 } from "@/types/candidate";
 import { AddNotePayload, Note, NotesResponse } from "@/types/note";
-import { getToken } from "@/lib/api-client";
+import { getToken, handleUnauthorizedToken } from "@/lib/api-client";
 
 interface RecordsResponse {
   total: number;
   page: number;
   limit: number;
-  data: Candidate[];
+  data: CandidateListItem[];
 }
+
+const RECORDS_PAGE_SIZE = 100;
 
 function getApiBaseUrl(): string {
   const baseUrl = process.env.NEXT_PUBLIC_RECORDS_API_URL?.trim();
@@ -40,20 +43,6 @@ function getApiBaseUrl(): string {
   return baseUrl.replace(/\/$/, "");
 }
 
-/**
- * Callback que se invoca automáticamente ante un 401.
- * Lo registra AuthProvider al montarse.
- */
-let onUnauthorized: (() => void) | null = null;
-
-export function setOnUnauthorized(cb: () => void): void {
-  onUnauthorized = cb;
-}
-
-export function clearOnUnauthorized(): void {
-  onUnauthorized = null;
-}
-
 async function request<T>(
   path: string,
   init?: RequestInit,
@@ -79,10 +68,7 @@ async function request<T>(
   }
 
   if (response.status === 401) {
-    localStorage.removeItem("token");
-    if (onUnauthorized) {
-      onUnauthorized();
-    }
+    handleUnauthorizedToken(token);
     throw new Error("Sesión expirada. Redirigiendo al inicio de sesión…");
   }
 
@@ -107,9 +93,28 @@ async function request<T>(
   return (await response.json()) as T;
 }
 
-export async function getRecords(): Promise<Candidate[]> {
-  const payload = await request<RecordsResponse>("/records");
-  return payload.data;
+export async function getRecords(): Promise<CandidateListItem[]> {
+  const firstPage = await request<RecordsResponse>(
+    `/records?page=1&limit=${RECORDS_PAGE_SIZE}`,
+  );
+  const pageCount = Math.ceil(firstPage.total / firstPage.limit);
+
+  if (pageCount <= 1) {
+    return firstPage.data;
+  }
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: pageCount - 1 }, (_, index) => index + 2).map(
+      async (page) => {
+        const response = await request<RecordsResponse>(
+          `/records?page=${page}&limit=${RECORDS_PAGE_SIZE}`,
+        );
+        return response.data;
+      },
+    ),
+  );
+
+  return [firstPage.data, ...remainingPages].flat();
 }
 
 export async function getRecordById(id: string): Promise<Candidate> {

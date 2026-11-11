@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -28,6 +28,7 @@ from packages.shared.incidents import (  # noqa: E402
     transition_is_valid,
     utc_now_iso,
 )
+from auth import get_current_user  # noqa: E402
 from services import (  # noqa: E402
     create_incident,
     get_incident_by_id,
@@ -36,7 +37,11 @@ from services import (  # noqa: E402
 )
 
 
-router = APIRouter(prefix="/incidents", tags=["incidents"])
+router = APIRouter(
+    prefix="/incidents",
+    tags=["incidents"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 class IncidentCreate(BaseModel):
@@ -45,7 +50,6 @@ class IncidentCreate(BaseModel):
     title: str = Field(min_length=1, max_length=120)
     description: str = Field(min_length=1)
     category: IncidentCategory
-    status: IncidentStatus = IncidentStatus.OPEN
     origin: IncidentOrigin
     branch: IncidentBranch
 
@@ -54,6 +58,26 @@ class IncidentStatusUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     status: IncidentStatus
+
+
+class IncidentResponse(BaseModel):
+    id: str
+    title: str
+    description: str
+    category: IncidentCategory
+    status: IncidentStatus
+    origin: IncidentOrigin
+    branch: IncidentBranch
+    created_at: str
+    updated_at: str
+
+
+class IncidentSummaryResponse(BaseModel):
+    total: int
+    by_status: dict[str, int]
+    by_category: dict[str, int]
+    by_origin: dict[str, int]
+    by_branch: dict[str, int]
 
 
 def _validation_error(error: IncidentValidationError) -> HTTPException:
@@ -83,7 +107,7 @@ def _parse_filter(name: str, value: str | None, enum_type):
         ) from error
 
 
-@router.post("", status_code=201)
+@router.post("", response_model=IncidentResponse, status_code=201)
 def create(data: IncidentCreate):
     now = utc_now_iso()
     try:
@@ -92,7 +116,7 @@ def create(data: IncidentCreate):
             title=data.title,
             description=data.description,
             category=data.category,
-            status=data.status,
+            status=IncidentStatus.OPEN,
             origin=data.origin,
             branch=data.branch,
             created_at=now,
@@ -113,7 +137,7 @@ def create(data: IncidentCreate):
     return created
 
 
-@router.get("")
+@router.get("", response_model=list[IncidentResponse])
 def list_all(
     status: Annotated[str | None, Query()] = None,
     origin: Annotated[str | None, Query()] = None,
@@ -129,7 +153,7 @@ def list_all(
     return [record for record in get_incidents({key: value for key, value in filters.items() if value is not None})]
 
 
-@router.patch("/{incident_id}/status")
+@router.patch("/{incident_id}/status", response_model=IncidentResponse)
 def update_status(incident_id: str, data: IncidentStatusUpdate):
     incident = get_incident_by_id(incident_id)
     if incident is None:
@@ -170,7 +194,7 @@ def update_status(incident_id: str, data: IncidentStatusUpdate):
         )
 
 
-@router.get("/summary")
+@router.get("/summary", response_model=IncidentSummaryResponse)
 def summary():
     records = get_incidents()
     return {
@@ -182,7 +206,7 @@ def summary():
     }
 
 
-@router.get("/{incident_id}")
+@router.get("/{incident_id}", response_model=IncidentResponse)
 def get_one(incident_id: str):
     incident = get_incident_by_id(incident_id)
     if incident is None:

@@ -45,151 +45,151 @@ type LandingCopy = {
 const copy: Record<"es" | "en", LandingCopy> = {
   es: {
     heroEyebrow: "Desde 2011 · Valencia & Miami",
-    heroDescription: "Nexova Solutions lleva doce años ayudando a medianas empresas a encontrar, formar y retener el talento que necesitan para crecer, ahora potenciado con inteligencia artificial.",
-    apply: "Trabaja con nosotros",
+    heroDescription: "Consultora de recursos humanos y adquisición de talento con experiencia desde 2011 ayudando a empresas de tecnología, retail y servicios financieros a encontrar y desarrollar talento.",
+    apply: "Únete a nuestro banco de talento",
     servicesLink: "Ver servicios",
-    statLabels: ["Profesionales", "Años de experiencia", "ES · USA"],
-    orbitLabels: ["CV Scoring con IA", "Dashboard en tiempo real", "SLA 24h"],
+    statLabels: ["Personas en el equipo", "Fundación", "Presencia"],
+    orbitLabels: ["Headhunting", "Atención al cliente", "Formación corporativa"],
     servicesEyebrow: "Lo que hacemos",
     servicesHeading: ["Tres líneas de negocio,", "un único objetivo."],
-    servicesNote: "Soluciones para acompañar a las personas y a las organizaciones en cada etapa de su crecimiento.",
+    servicesNote: "Acompañamos a las organizaciones a encontrar, desarrollar y cuidar el talento que necesitan.",
     services: [
       {
         title: "Headhunting",
-        accent: "& Selección",
-        description: "Identificamos y reclutamos perfiles de mandos medios y directivos con scoring automatizado de CVs y matching inteligente candidato–vacante.",
-        bullets: ["Pipeline de selección con IA", "Portal de candidatos en tiempo real", "Comunicación automatizada"],
-        link: "Explora oportunidades",
+        accent: "ejecutivo",
+        description: "Búsqueda y selección personalizada de perfiles ejecutivos y mandos medios, desde el briefing hasta la presentación de candidatos.",
+        bullets: ["Búsqueda y selección de perfiles ejecutivos y mandos medios", "Proceso personalizado", "Garantía de reemplazo"],
+        link: "Consulta el servicio",
       },
       {
         title: "Outsourcing",
-        accent: "de soporte",
-        description: "Equipos de atención al cliente dedicados para empresas tech, retail y finanzas, con chatbot IA de primera línea y dashboards en tiempo real.",
-        bullets: ["Chatbot RAG — 40% resolución automática", "SLA 24h", "Análisis de sentimiento"],
-        link: "Conoce el servicio",
+        accent: "de atención al cliente",
+        description: "Equipos especializados de atención al cliente para organizaciones que externalizan parte o toda su operación de soporte.",
+        bullets: ["Equipos especializados para empresas tecnológicas", "Formación continua", "Supervisión dedicada"],
+        link: "Consulta el servicio",
       },
       {
         title: "Formación",
         accent: "corporativa",
-        description: "Programas de liderazgo, comunicación y gestión de equipos con recomendación personalizada y seguimiento de progreso por alumno.",
-        bullets: ["Catálogo con inscripción online", "Motor de recomendación IA", "Portal del alumno"],
-        link: "Conoce el servicio",
+        description: "Programas de soft skills y liderazgo adaptados a las necesidades de cada organización.",
+        bullets: ["Programas de soft skills y liderazgo", "Cursos presenciales y en línea", "Programas adaptados a cada organización"],
+        link: "Consulta el servicio",
       },
     ],
     processEyebrow: "El proceso",
     processHeading: ["Cómo trabajamos", "con tu equipo."],
-    processDescription: "Transformamos procesos manuales en flujos operativos con IA, datos y visibilidad en tiempo real. Cada fase tiene entregables concretos para generar impacto desde el primer sprint.",
+    processDescription: "Acompañamos cada búsqueda de talento con un proceso personalizado, desde la comprensión de la necesidad hasta la presentación de perfiles y el seguimiento.",
     steps: [
       { title: "Briefing", description: "Entendemos tus necesidades específicas de talento o formación." },
-      { title: "Análisis IA", description: "Nuestra IA procesa candidatos y genera rankings explicables." },
-      { title: "Selección", description: "Los consultores validan y presentan los mejores perfiles." },
-      { title: "Seguimiento", description: "Portal en tiempo real con visibilidad total del proceso." },
+      { title: "Análisis", description: "Definimos el perfil y los criterios de búsqueda junto con la organización." },
+      { title: "Selección", description: "El equipo de consultoría identifica y presenta perfiles relevantes." },
+      { title: "Seguimiento", description: "Acompañamos a la organización durante las etapas del proceso." },
     ],
     phases: [
-      { title: "Diagnóstico de operación", description: "Mapa de herramientas, brechas y cuellos de botella por área." },
-      { title: "Diseño técnico de solución", description: "Arquitectura, integraciones y criterios de calidad y seguridad." },
-      { title: "Implementación guiada", description: "Automatizaciones, agentes IA y paneles listos para producción." },
-      { title: "Escalado y optimización", description: "Métricas, mejora continua y entrenamiento de equipos." },
+      { title: "Necesidad", description: "Alineamos el objetivo y el perfil con la organización." },
+      { title: "Búsqueda", description: "Iniciamos un proceso de selección adaptado al encargo." },
+      { title: "Presentación", description: "Compartimos perfiles para su valoración por el cliente." },
+      { title: "Acompañamiento", description: "Damos seguimiento a las siguientes etapas del proceso." },
     ],
     sectorEyebrow: "Experiencia sectorial",
-    sectorHeading: ["Doce años de red.", "Tres sectores clave."],
-    sectorDescription: "Nexova trabaja con medianas empresas de tecnología, retail y servicios financieros que han decidido externalizar parte o la totalidad de su gestión de talento.",
+    sectorHeading: ["Experiencia en talento.", "Tres sectores clave."],
+    sectorDescription: "Nexova acompaña principalmente a empresas medianas de tecnología, retail y servicios financieros en sus necesidades de talento.",
     sectorLink: "Inicia una conversación",
     sectors: [
       { title: "Tecnología", description: "Startups y scale-ups que necesitan talento técnico y soporte de calidad a escala." },
       { title: "Retail", description: "Cadenas con alta rotación que requieren procesos de selección rápidos y eficientes." },
       { title: "Servicios financieros", description: "Entidades que necesitan perfiles especializados y cumplimiento normativo en selección." },
     ],
-    technologyEyebrow: "Ventaja competitiva",
-    technologyHeading: ["En Nexova, la IA no es", "un complemento: es el núcleo."],
-    technologyDescription: "Desde el scoring de CVs hasta el análisis de sentimiento en soporte: construimos sistemas inteligentes que hacen el trabajo de manera más rápida, precisa y a mayor escala.",
-    technologyPoints: ["Scoring de CVs", "Búsqueda semántica", "Análisis de sentimiento"],
+    technologyEyebrow: "Por qué Nexova",
+    technologyHeading: ["Experiencia en talento.", "Presencia internacional."],
+    technologyDescription: "Combinamos conocimiento de selección y formación con una presencia en España y Estados Unidos para acompañar a empresas y profesionales.",
+    technologyPoints: ["12 años de experiencia en el mercado latinoamericano", "España y Estados Unidos", "+500 procesos exitosos de selección", "Tecnología, retail y servicios financieros"],
     technologyStats: [
-      { value: "RAG", description: "Búsqueda semántica sobre perfiles y conocimiento." },
-      { value: "40%", description: "Tickets de soporte resueltos automáticamente." },
-      { value: "24h", description: "SLA de resolución con monitoreo en tiempo real." },
-      { value: "0 retraso", description: "Dashboard ejecutivo con KPIs actualizados al instante." },
+      { value: "12 años", description: "De experiencia en el mercado latinoamericano." },
+      { value: "+500", description: "Procesos exitosos de selección completados." },
+      { value: "3", description: "Sectores: tecnología, retail y finanzas." },
+      { value: "ES · USA", description: "Presencia regional en España y Estados Unidos." },
     ],
     ctaEyebrow: "Hablemos",
     ctaHeading: ["¿Listo para formar parte", "del equipo Nexova?"],
-    ctaDescription: "Completa el formulario de aplicación y cuéntanos tu visión.",
+    ctaDescription: "Únete a nuestro banco de talento y comparte tu perfil para futuras oportunidades.",
     backToTop: "Volver al inicio",
-    footerDescription: "Consultoría de RRHH y selección de talento, con presencia en Valencia y Miami.",
+    footerDescription: "Consultoría de recursos humanos y adquisición de talento, con presencia en Valencia y Miami.",
     servicesTitle: "Servicios",
     contactTitle: "Contacto",
   },
   en: {
     heroEyebrow: "Since 2011 · Valencia & Miami",
-    heroDescription: "Nexova Solutions has spent twelve years helping mid-sized companies find, train, and retain the talent they need to grow, now enhanced with artificial intelligence.",
-    apply: "Work with us",
+    heroDescription: "A human resources and talent acquisition consultancy with experience dating back to 2011, helping technology, retail, and financial services companies find and develop talent.",
+    apply: "Join our talent pool",
     servicesLink: "View services",
-    statLabels: ["Professionals", "Years of experience", "ES · USA"],
-    orbitLabels: ["AI CV scoring", "Real-time dashboard", "24h SLA"],
+    statLabels: ["Team members", "Founded", "Presence"],
+    orbitLabels: ["Executive search", "Customer support", "Corporate training"],
     servicesEyebrow: "What we do",
     servicesHeading: ["Three business lines,", "one common goal."],
-    servicesNote: "Solutions that support people and organizations through every stage of growth.",
+    servicesNote: "We help organizations find, develop, and support the talent they need.",
     services: [
       {
-        title: "Headhunting",
-        accent: "& Selection",
-        description: "We identify and recruit mid-level and executive profiles using automated CV scoring and intelligent candidate-role matching.",
-        bullets: ["AI-powered recruiting pipeline", "Real-time candidate portal", "Automated communication"],
-        link: "Explore opportunities",
+        title: "Executive",
+        accent: "headhunting",
+        description: "Personalized search and recruitment for executive and mid-level profiles, from briefing through candidate presentation.",
+        bullets: ["Search and selection of executive and mid-management profiles", "Personalized process", "Replacement guarantee"],
+        link: "Ask about this service",
       },
       {
-        title: "Support",
-        accent: "outsourcing",
-        description: "Dedicated customer support teams for tech, retail, and finance companies, with frontline AI chatbots and real-time dashboards.",
-        bullets: ["RAG chatbot — 40% automated resolution", "24h SLA", "Sentiment analysis"],
-        link: "Explore the service",
+        title: "Customer",
+        accent: "support outsourcing",
+        description: "Specialized customer support teams for organizations outsourcing part or all of their support operations.",
+        bullets: ["Specialized teams for technology companies", "Ongoing training", "Dedicated supervision"],
+        link: "Ask about this service",
       },
       {
         title: "Corporate",
         accent: "training",
-        description: "Leadership, communication, and team management programs with personalized recommendations and learner progress tracking.",
-        bullets: ["Catalog with online enrollment", "AI recommendation engine", "Learner portal"],
-        link: "Explore the service",
+        description: "Soft skills and leadership programs tailored to each organization's needs.",
+        bullets: ["Soft skills and leadership programs", "In-person and online courses", "Programs adapted to each organization"],
+        link: "Ask about this service",
       },
     ],
     processEyebrow: "The process",
     processHeading: ["How we work", "with your team."],
-    processDescription: "We turn manual processes into operational workflows with AI, data, and real-time visibility. Each phase has concrete deliverables to make an impact from the first sprint.",
+    processDescription: "We support each talent search through a tailored process, from understanding the need to presenting profiles and following up.",
     steps: [
       { title: "Briefing", description: "We understand your specific talent or training needs." },
-      { title: "AI analysis", description: "Our AI processes candidates and generates explainable rankings." },
-      { title: "Selection", description: "Consultants validate and present the strongest profiles." },
-      { title: "Follow-up", description: "A real-time portal provides full visibility into the process." },
+      { title: "Analysis", description: "We define the profile and search criteria with the organization." },
+      { title: "Selection", description: "Our consultants identify and present relevant profiles." },
+      { title: "Follow-up", description: "We support the organization throughout the process." },
     ],
     phases: [
-      { title: "Operational assessment", description: "Map tools, gaps, and bottlenecks across teams." },
-      { title: "Technical solution design", description: "Architecture, integrations, and quality and security criteria." },
-      { title: "Guided implementation", description: "Automations, AI agents, and dashboards ready for production." },
-      { title: "Scale and optimize", description: "Metrics, continuous improvement, and team training." },
+      { title: "Needs", description: "We align goals and profiles with the organization." },
+      { title: "Search", description: "We begin a recruitment process tailored to the brief." },
+      { title: "Presentation", description: "We share profiles for the client to consider." },
+      { title: "Support", description: "We follow up through the next stages of the process." },
     ],
     sectorEyebrow: "Industry experience",
-    sectorHeading: ["Twelve years of reach.", "Three key industries."],
-    sectorDescription: "Nexova works with mid-sized technology, retail, and financial services companies that choose to outsource part or all of their talent management.",
+    sectorHeading: ["Talent experience.", "Three key industries."],
+    sectorDescription: "Nexova primarily supports mid-sized technology, retail, and financial services companies with their talent needs.",
     sectorLink: "Start a conversation",
     sectors: [
       { title: "Technology", description: "Startups and scale-ups that need technical talent and high-quality support at scale." },
       { title: "Retail", description: "Retail chains with high turnover that need fast, efficient hiring processes." },
       { title: "Financial services", description: "Organizations that need specialized profiles and compliant hiring." },
     ],
-    technologyEyebrow: "Competitive edge",
-    technologyHeading: ["At Nexova, AI is not", "an add-on: it is the core."],
-    technologyDescription: "From CV scoring to sentiment analysis in support, we build intelligent systems that make work faster, more accurate, and more scalable.",
-    technologyPoints: ["CV scoring", "Semantic search", "Sentiment analysis"],
+    technologyEyebrow: "Why Nexova",
+    technologyHeading: ["Talent experience.", "International presence."],
+    technologyDescription: "We combine recruitment and training expertise with a presence in Spain and the United States to support companies and professionals.",
+    technologyPoints: ["12 years of experience in the Latin American market", "Spain and the United States", "+500 successful selection processes", "Technology, retail, and financial services"],
     technologyStats: [
-      { value: "RAG", description: "Semantic search across profiles and knowledge." },
-      { value: "40%", description: "Support tickets resolved automatically." },
-      { value: "24h", description: "Resolution SLA with real-time monitoring." },
-      { value: "0 delay", description: "Executive dashboard with instantly updated KPIs." },
+      { value: "12 years", description: "Of experience in the Latin American market." },
+      { value: "+500", description: "Successful selection processes completed." },
+      { value: "3", description: "Sectors: technology, retail, and finance." },
+      { value: "ES · USA", description: "Regional presence in Spain and the United States." },
     ],
     ctaEyebrow: "Get in touch",
     ctaHeading: ["Ready to join", "the Nexova team?"],
-    ctaDescription: "Complete the application form and tell us your vision.",
+    ctaDescription: "Join our talent pool and share your profile for future opportunities.",
     backToTop: "Back to top",
-    footerDescription: "HR consulting and talent acquisition, with a presence in Valencia and Miami.",
+    footerDescription: "Human resources and talent acquisition consultancy, with a presence in Valencia and Miami.",
     servicesTitle: "Services",
     contactTitle: "Contact",
   },
@@ -238,8 +238,8 @@ export function LandingContent() {
 
   return (
     <>
-      <SiteHeader />
       <a className="skip-link" href="#main">{language === "es" ? "Saltar al contenido principal" : "Skip to main content"}</a>
+      <SiteHeader />
       <main id="main">
         <section className="hero" id="inicio" aria-labelledby="hero-title">
           <div className="hero-glow" aria-hidden="true" />
@@ -247,7 +247,7 @@ export function LandingContent() {
             <div className="hero-copy" data-reveal>
               <p className="eyebrow">{t.heroEyebrow}</p>
               <h1 id="hero-title">
-                {language === "es" ? <>El talento <em>correcto</em>,<br />en el momento<br />exacto.</> : <>The <em>right</em> talent,<br />when your business<br />needs it.</>}
+                {language === "es" ? <>Construimos equipos <em>excepcionales</em> para empresas en crecimiento</> : <>We build <em>exceptional teams</em> for growing companies</>}
               </h1>
               <p className="hero-intro">{t.heroDescription}</p>
               <div className="hero-actions">
@@ -255,8 +255,8 @@ export function LandingContent() {
                 <a className="button button-outline" href="#servicios">{t.servicesLink}</a>
               </div>
               <div className="stats" aria-label={language === "es" ? "Nexova en cifras" : "Nexova in numbers"}>
-                <div><strong>120<span>+</span></strong><span>{t.statLabels[0]}</span></div>
-                <div><strong>12<span>+</span></strong><span>{t.statLabels[1]}</span></div>
+                <div><strong>120</strong><span>{t.statLabels[0]}</span></div>
+                <div><strong>2011</strong><span>{t.statLabels[1]}</span></div>
                 <div><strong>2 <small>{language === "es" ? "países" : "countries"}</small></strong><span>{t.statLabels[2]}</span></div>
               </div>
             </div>
@@ -264,7 +264,7 @@ export function LandingContent() {
               <div className="orbit orbit-one" />
               <div className="orbit orbit-two" />
               <div className="orbit orbit-three" />
-              <div className="core"><span className="brand-mark large">N</span><small>AI-POWERED</small></div>
+              <div className="core"><span className="brand-mark large">N</span><small>NEXOVA</small></div>
               <div className="float-card float-top"><span className="float-icon">✳</span><b>{t.orbitLabels[0]}</b></div>
               <div className="float-card float-right"><span className="float-icon">▥</span><b>{t.orbitLabels[1]}</b></div>
               <div className="float-card float-bottom"><span className="float-icon">✓</span><b>{t.orbitLabels[2]}</b></div>
@@ -309,7 +309,7 @@ export function LandingContent() {
                     <p>{service.description}</p>
                     <ul>{service.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
                   </div>
-                  <Link href="/application" className="text-link">{service.link}<span aria-hidden="true"> →</span></Link>
+                  <a href="#contacto" className="text-link">{service.link}<span aria-hidden="true"> →</span></a>
                 </article>
               ))}
             </div>
@@ -366,7 +366,7 @@ export function LandingContent() {
           </div>
         </section>
 
-        <section className="tech" id="ia" aria-labelledby="technology-title">
+        <section className="tech" id="porque-nexova" aria-labelledby="technology-title">
           <div className="container tech-layout">
             <div data-reveal><SectionTitle eyebrow={t.technologyEyebrow} id="technology-title">{t.technologyHeading[0]}<br /><em>{t.technologyHeading[1]}</em></SectionTitle></div>
             <div className="tech-copy" data-reveal data-reveal-delay="1">
@@ -384,7 +384,7 @@ export function LandingContent() {
             <div><SectionTitle eyebrow={language === "es" ? "Banco de Talento" : "Talent Pool"} id="cta-title">{language === "es" ? "Únete al equipo Nexova" : "Join the Nexova team"}</SectionTitle></div>
             <div className="cta-action">
               <p>{language === "es" ? "Regístrate en nuestro banco de talento y te contactaremos cuando tengamos una oportunidad que encaje con tu perfil." : "Register in our talent pool and we will contact you when an opportunity matches your profile."}</p>
-              <p>{language === "es" ? "¿Eres una empresa buscando talento? Escríbenos a " : "Are you a company looking for talent? Write to us at "}<a href="mailto:hola@nexovasolutions.com">hola@nexovasolutions.com</a></p>
+              <p>{language === "es" ? "¿Eres una empresa buscando talento? Escríbenos a " : "Are you a company looking for talent? Write to us at "}<a href="mailto:contacto@nexova.com">contacto@nexova.com</a></p>
               <Link className="button button-dark" href="/application">{language === "es" ? "Ir al formulario" : "Go to form"}<span aria-hidden="true">↗</span></Link>
             </div>
           </div>

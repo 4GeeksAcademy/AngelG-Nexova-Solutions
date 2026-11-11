@@ -1,225 +1,112 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-
 import { ErrorMessage } from "@/components/ErrorMessage";
 import {
-  CreateIncidentPayload,
-  INCIDENT_BRANCHES,
-  INCIDENT_BRANCH_LABELS,
-  INCIDENT_CATEGORIES,
-  INCIDENT_CATEGORY_LABELS,
-  INCIDENT_ORIGINS,
-  INCIDENT_ORIGIN_LABELS,
-  INCIDENT_STATUSES,
-  INCIDENT_STATUS_LABELS,
-  IncidentBranch,
-  IncidentCategory,
-  IncidentOrigin,
-  IncidentStatus,
-} from "@/types/incident";
+  CreateManagedIncidentPayload,
+  ManagedIncident,
+  INCIDENT_CHANNELS,
+  INCIDENT_CHANNEL_LABELS,
+  INCIDENT_SEVERITIES,
+  INCIDENT_SEVERITY_LABELS,
+  MANAGED_INCIDENT_TYPES,
+  MANAGED_INCIDENT_TYPE_LABELS,
+  RESPONSIBLE_AREAS,
+  RESPONSIBLE_AREA_LABELS,
+} from "@/types/managed-incident";
 
 interface IncidentFormProps {
   isSubmitting?: boolean;
   error?: string | null;
   fieldErrors?: Record<string, string>;
-  onSubmit: (payload: CreateIncidentPayload) => Promise<void>;
+  initialIncident?: ManagedIncident;
+  submitLabel?: string;
+  onSubmit: (payload: CreateManagedIncidentPayload) => Promise<void>;
 }
-
-interface FormValues {
-  title: string;
-  description: string;
-  category: IncidentCategory | "";
-  status: IncidentStatus;
-  origin: IncidentOrigin | "";
-  branch: IncidentBranch | "";
-}
-
-type FormErrors = Partial<Record<keyof FormValues, string>>;
-
-const initialValues: FormValues = {
-  title: "",
-  description: "",
-  category: "",
-  status: "open",
-  origin: "",
-  branch: "",
+type Values = Omit<CreateManagedIncidentPayload, "sla_deadline"> & { sla_deadline: string };
+const initialValues: Values = {
+  client_name: "", channel: "email", type: "client_escalation", severity: "medium",
+  responsible_area: "customer_support", title: "", description: "", assigned_to: "", sla_deadline: "",
 };
+const inputClass = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-100";
 
-const inputClassName =
-  "w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100";
-
-function validate(values: FormValues): FormErrors {
-  const errors: FormErrors = {};
-  if (!values.title.trim()) errors.title = "El título es obligatorio.";
-  if (!values.description.trim()) errors.description = "La descripción es obligatoria.";
-  if (!values.category) errors.category = "Selecciona una categoría.";
-  if (!values.status) errors.status = "Selecciona un estado.";
-  if (!values.origin) errors.origin = "Selecciona un origen.";
-  if (!values.branch) errors.branch = "Selecciona una sede.";
-  return errors;
+function localDeadline(value: string): string {
+  const date = new Date(value);
+  const pad = (number: number) => String(number).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export function IncidentForm({
-  isSubmitting = false,
-  error,
-  fieldErrors = {},
-  onSubmit,
-}: IncidentFormProps) {
-  const [values, setValues] = useState<FormValues>(initialValues);
-  const [errors, setErrors] = useState<FormErrors>({});
+export function IncidentForm({ isSubmitting = false, error, fieldErrors = {}, initialIncident, submitLabel, onSubmit }: IncidentFormProps) {
+  const [values, setValues] = useState<Values>(() => initialIncident ? {
+    client_name: initialIncident.client_name ?? "", channel: initialIncident.channel, type: initialIncident.type,
+    severity: initialIncident.severity, responsible_area: initialIncident.responsible_area,
+    title: initialIncident.title, description: initialIncident.description,
+    assigned_to: initialIncident.assigned_to ?? "",
+    sla_deadline: initialIncident.sla_deadline ? localDeadline(initialIncident.sla_deadline) : "",
+  } : initialValues);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const needsDeadline = values.type === "sla_breach";
 
-  function updateValue<Field extends keyof FormValues>(field: Field, value: FormValues[Field]) {
-    setValues((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
+  function setValue<K extends keyof Values>(key: K, value: Values[K]) {
+    setValues((current) => ({ ...current, [key]: value }));
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const validationErrors = validate(values);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0 || !values.category || !values.origin || !values.branch) {
+    if (!values.title.trim() || !values.description.trim()) {
+      setValidationError("Completa el título y la descripción.");
       return;
     }
-
+    if (needsDeadline && !values.sla_deadline) {
+      setValidationError("Indica la fecha límite del SLA para este tipo de incidencia.");
+      return;
+    }
+    setValidationError(null);
     await onSubmit({
+      client_name: (values.client_name ?? "").trim() || null,
+      channel: values.channel,
+      type: values.type,
+      severity: values.severity,
+      responsible_area: values.responsible_area,
       title: values.title.trim(),
       description: values.description.trim(),
-      category: values.category,
-      status: values.status,
-      origin: values.origin,
-      branch: values.branch,
+      assigned_to: (values.assigned_to ?? "").trim() || null,
+      sla_deadline: needsDeadline
+        ? initialIncident?.sla_deadline && values.sla_deadline === localDeadline(initialIncident.sla_deadline)
+          ? initialIncident.sla_deadline
+          : new Date(values.sla_deadline).toISOString()
+        : null,
     });
   }
 
-  const branchNeedsAttention = values.origin === "branch";
-
   return (
-    <form onSubmit={handleSubmit} noValidate className="grid gap-6">
-      {error ? <ErrorMessage title="No se pudo crear la incidencia" message={error} /> : null}
-
-      <div className="grid gap-2">
-        <label htmlFor="incident-title" className="text-sm font-semibold text-slate-800">
-          Título
-        </label>
-        <input
-          id="incident-title"
-          value={values.title}
-          maxLength={120}
-          onChange={(event) => updateValue("title", event.target.value)}
-          aria-invalid={Boolean(errors.title || fieldErrors.title)}
-          aria-describedby={errors.title || fieldErrors.title ? "incident-title-error" : undefined}
-          className={inputClassName}
-        />
-        {errors.title || fieldErrors.title ? <p id="incident-title-error" className="text-sm text-red-700">{errors.title ?? fieldErrors.title}</p> : null}
+    <form onSubmit={submit} noValidate className="grid gap-5">
+      {error ? <ErrorMessage title="No se pudo guardar la incidencia" message={error} /> : null}
+      {validationError ? <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-900">{validationError}</p> : null}
+      <Field label="Título" id="incident-title" error={fieldErrors.title}>
+        <input id="incident-title" className={inputClass} maxLength={200} required value={values.title} onChange={(e) => setValue("title", e.target.value)} />
+      </Field>
+      <Field label="Descripción" id="incident-description" error={fieldErrors.description}>
+        <textarea id="incident-description" className={inputClass} rows={5} required value={values.description} onChange={(e) => setValue("description", e.target.value)} />
+      </Field>
+      <div className="grid gap-4 md:grid-cols-2">
+        <SelectField id="incident-channel" label="Canal de entrada" value={values.channel} onChange={(v) => setValue("channel", v as Values["channel"])} options={INCIDENT_CHANNELS.map((v) => [v, INCIDENT_CHANNEL_LABELS[v]])} />
+        <SelectField id="incident-type" label="Tipo" value={values.type} onChange={(v) => setValue("type", v as Values["type"])} options={MANAGED_INCIDENT_TYPES.map((v) => [v, MANAGED_INCIDENT_TYPE_LABELS[v]])} />
+        <SelectField id="incident-severity" label="Severidad" value={values.severity} onChange={(v) => setValue("severity", v as Values["severity"])} options={INCIDENT_SEVERITIES.map((v) => [v, INCIDENT_SEVERITY_LABELS[v]])} />
+        <SelectField id="incident-area" label="Área responsable" value={values.responsible_area} onChange={(v) => setValue("responsible_area", v as Values["responsible_area"])} options={RESPONSIBLE_AREAS.map((v) => [v, RESPONSIBLE_AREA_LABELS[v]])} />
+        <Field label="Cliente (opcional)" id="incident-client"><input id="incident-client" className={inputClass} value={values.client_name ?? ""} onChange={(e) => setValue("client_name", e.target.value)} /></Field>
+        <Field label="Asignar a (opcional)" id="incident-assignee" error={fieldErrors.assigned_to}><input id="incident-assignee" className={inputClass} value={values.assigned_to ?? ""} onChange={(e) => setValue("assigned_to", e.target.value)} /></Field>
+        {needsDeadline ? <Field label="Fecha límite del SLA" id="incident-deadline" error={fieldErrors.sla_deadline}><input id="incident-deadline" type="datetime-local" required className={inputClass} value={values.sla_deadline} onChange={(e) => setValue("sla_deadline", e.target.value)} /></Field> : null}
       </div>
-
-      <div className="grid gap-2">
-        <label htmlFor="incident-description" className="text-sm font-semibold text-slate-800">
-          Descripción
-        </label>
-        <textarea
-          id="incident-description"
-          value={values.description}
-          rows={5}
-          onChange={(event) => updateValue("description", event.target.value)}
-          aria-invalid={Boolean(errors.description || fieldErrors.description)}
-          aria-describedby={errors.description || fieldErrors.description ? "incident-description-error" : undefined}
-          className={inputClassName}
-        />
-        {errors.description || fieldErrors.description ? <p id="incident-description-error" className="text-sm text-red-700">{errors.description ?? fieldErrors.description}</p> : null}
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2">
-        <SelectField
-          id="incident-category"
-          label="Categoría"
-          value={values.category}
-          placeholder="Selecciona una categoría"
-          options={INCIDENT_CATEGORIES.map((value) => ({ value, label: INCIDENT_CATEGORY_LABELS[value] }))}
-          error={errors.category ?? fieldErrors.category}
-          onChange={(value) => updateValue("category", value as IncidentCategory)}
-        />
-
-        <SelectField
-          id="incident-status"
-          label="Estado"
-          value={values.status}
-          options={INCIDENT_STATUSES.map((value) => ({ value, label: INCIDENT_STATUS_LABELS[value] }))}
-          error={errors.status ?? fieldErrors.status}
-          onChange={(value) => updateValue("status", value as IncidentStatus)}
-        />
-
-        <SelectField
-          id="incident-origin"
-          label="Origen"
-          value={values.origin}
-          placeholder="Selecciona un origen"
-          options={INCIDENT_ORIGINS.map((value) => ({ value, label: INCIDENT_ORIGIN_LABELS[value] }))}
-          error={errors.origin ?? fieldErrors.origin}
-          onChange={(value) => updateValue("origin", value as IncidentOrigin)}
-        />
-
-        <div className={branchNeedsAttention ? "rounded-2xl border-2 border-cyan-500 bg-cyan-50 p-3" : ""}>
-          {branchNeedsAttention ? (
-            <p className="mb-3 text-sm font-semibold text-cyan-950">Selecciona la sede desde la que se reporta la incidencia.</p>
-          ) : null}
-          <SelectField
-            id="incident-branch"
-            label="Sede"
-            value={values.branch}
-            placeholder="Selecciona una sede"
-            options={INCIDENT_BRANCHES.map((value) => ({ value, label: INCIDENT_BRANCH_LABELS[value] }))}
-            error={errors.branch ?? fieldErrors.branch}
-            onChange={(value) => updateValue("branch", value as IncidentBranch)}
-          />
-        </div>
-      </div>
-
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isSubmitting ? "Creando incidencia..." : "Crear incidencia"}
-      </button>
+      <button type="submit" disabled={isSubmitting} className="rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? "Guardando…" : submitLabel ?? "Crear incidencia"}</button>
     </form>
   );
 }
 
-interface SelectFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  placeholder?: string;
-  options: Array<{ value: string; label: string }>;
-  error?: string;
-  onChange: (value: string) => void;
-}
-
-function SelectField({ id, label, value, placeholder, options, error, onChange }: SelectFieldProps) {
+function Field({ label, id, error, children }: { label: string; id: string; error?: string; children: React.ReactNode }) {
   const errorId = `${id}-error`;
-  return (
-    <div className="grid gap-2">
-      <label htmlFor={id} className="text-sm font-semibold text-slate-800">
-        {label}
-      </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? errorId : undefined}
-        className={inputClassName}
-      >
-        {placeholder ? <option value="">{placeholder}</option> : null}
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {error ? <p id={errorId} className="text-sm text-red-700">{error}</p> : null}
-    </div>
-  );
+  return <div className="grid gap-2"><label htmlFor={id} className="text-sm font-semibold text-slate-800">{label}</label>{children}{error ? <p id={errorId} className="text-sm text-red-700">{error}</p> : null}</div>;
+}
+function SelectField({ id, label, value, options, onChange }: { id: string; label: string; value: string; options: Array<[string, string]>; onChange: (value: string) => void }) {
+  return <Field id={id} label={label}><select id={id} className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>{options.map(([option, text]) => <option key={option} value={option}>{text}</option>)}</select></Field>;
 }

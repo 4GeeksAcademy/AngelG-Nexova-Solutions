@@ -21,6 +21,7 @@ export function getToken(): string | null {
  * Lo registra AuthProvider al montarse.
  */
 let onUnauthorized: (() => void) | null = null;
+let authSessionRevision = 0;
 
 export class ApiRequestError extends Error {
   status: number;
@@ -33,12 +34,32 @@ export class ApiRequestError extends Error {
   }
 }
 
-export function setOnUnauthorized(cb: () => void): void {
+export function setOnUnauthorized(cb: () => void): () => void {
   onUnauthorized = cb;
+  return () => {
+    if (onUnauthorized === cb) onUnauthorized = null;
+  };
 }
 
-export function clearOnUnauthorized(): void {
-  onUnauthorized = null;
+export function clearOnUnauthorized(cb?: () => void): void {
+  if (cb === undefined || onUnauthorized === cb) onUnauthorized = null;
+}
+
+/** Invalidates in-flight auth operations after a deliberate session change. */
+export function advanceAuthSessionRevision(): number {
+  authSessionRevision += 1;
+  return authSessionRevision;
+}
+
+export function getAuthSessionRevision(): number {
+  return authSessionRevision;
+}
+
+/** A stale request must not invalidate a newer token/session. */
+export function handleUnauthorizedToken(requestToken: string | null): void {
+  if (!requestToken || getToken() !== requestToken) return;
+  localStorage.removeItem("token");
+  onUnauthorized?.();
 }
 
 export type RequestOptions = Omit<RequestInit, "headers"> & {
@@ -69,11 +90,7 @@ export async function authRequest<T = unknown>(
   }
 
   if (response.status === 401) {
-    // Limpiar sesión y notificar
-    localStorage.removeItem("token");
-    if (onUnauthorized) {
-      onUnauthorized();
-    }
+    handleUnauthorizedToken(token);
     throw new ApiRequestError(
       "Sesión expirada. Redirigiendo al inicio de sesión…",
       response.status,
@@ -177,6 +194,27 @@ export interface MeResponse {
   profile: ProfileData | null;
 }
 
+export type UserRole = "admin" | "manager" | "supervisor" | "user";
+export type ManagedUserRole = Exclude<UserRole, "supervisor">;
+
+export interface ManagedUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  is_active: boolean;
+  created_at: string;
+  name: string | null;
+  password_setup_email_sent?: boolean | null;
+}
+
+export interface ManagedUserCreatePayload {
+  email: string;
+  role: ManagedUserRole;
+  name?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
+
 export interface ProfileUpdatePayload {
   name?: string | null;
   phone?: string | null;
@@ -250,6 +288,54 @@ export async function updateMyProfile(
     method: "PUT",
     body: JSON.stringify(payload),
   });
+}
+
+export async function getManagedUsers(): Promise<ManagedUser[]> {
+  return authRequest<ManagedUser[]>("/users");
+}
+
+export async function createManagedUser(
+  payload: ManagedUserCreatePayload,
+): Promise<ManagedUser> {
+  return authRequest<ManagedUser>("/users/admin", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateManagedUserRole(
+  userId: string,
+  role: ManagedUserRole,
+): Promise<Pick<ManagedUser, "id" | "email" | "role" | "is_active" | "created_at">> {
+  return authRequest<Pick<ManagedUser, "id" | "email" | "role" | "is_active" | "created_at">>(`/users/${encodeURIComponent(userId)}`, {
+    method: "PUT",
+    body: JSON.stringify({ role }),
+  });
+}
+
+export async function updateManagedUserPassword(
+  userId: string,
+  password: string,
+): Promise<ManagedUser> {
+  return authRequest<ManagedUser>(`/users/${encodeURIComponent(userId)}`, {
+    method: "PUT",
+    body: JSON.stringify({ password }),
+  });
+}
+
+export async function deleteManagedUser(userId: string): Promise<MessageResponse> {
+  return authRequest<MessageResponse>(`/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+  });
+}
+
+export async function forceManagedUserPasswordReset(
+  userId: string,
+): Promise<MessageResponse> {
+  return authRequest<MessageResponse>(
+    `/users/${encodeURIComponent(userId)}/force-password-reset`,
+    { method: "POST" },
+  );
 }
 
 export interface MessageResponse {

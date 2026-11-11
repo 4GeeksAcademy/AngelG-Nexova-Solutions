@@ -1,109 +1,22 @@
 "use client";
+import { INCIDENT_SEVERITIES, INCIDENT_SEVERITY_LABELS, MANAGED_INCIDENT_STATUSES, MANAGED_INCIDENT_STATUS_LABELS, MANAGED_INCIDENT_TYPES, MANAGED_INCIDENT_TYPE_LABELS, RESPONSIBLE_AREAS, RESPONSIBLE_AREA_LABELS, IncidentSeverity, ManagedIncidentStatus, ManagedIncidentType, ResponsibleArea } from "@/types/managed-incident";
 
-import {
-  INCIDENT_BRANCHES,
-  INCIDENT_BRANCH_LABELS,
-  INCIDENT_CATEGORIES,
-  INCIDENT_CATEGORY_LABELS,
-  INCIDENT_ORIGINS,
-  INCIDENT_ORIGIN_LABELS,
-  INCIDENT_STATUSES,
-  INCIDENT_STATUS_LABELS,
-  IncidentBranch,
-  IncidentCategory,
-  IncidentOrigin,
-  IncidentStatus,
-} from "@/types/incident";
-
-interface IncidentFiltersProps {
-  status: IncidentStatus | "all";
-  origin: IncidentOrigin | "all";
-  branch: IncidentBranch | "all";
-  category: IncidentCategory | "all";
-  onStatusChange: (value: IncidentStatus | "all") => void;
-  onOriginChange: (value: IncidentOrigin | "all") => void;
-  onBranchChange: (value: IncidentBranch | "all") => void;
-  onCategoryChange: (value: IncidentCategory | "all") => void;
+export interface ManagedIncidentFilterValues {
+  severity: IncidentSeverity | "all";
+  type: ManagedIncidentType | "all";
+  status: ManagedIncidentStatus | "all";
+  responsible_area: ResponsibleArea | "all";
 }
-
-const selectClassName =
-  "mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900";
-
-export function IncidentFilters({
-  status,
-  origin,
-  branch,
-  category,
-  onStatusChange,
-  onOriginChange,
-  onBranchChange,
-  onCategoryChange,
-}: IncidentFiltersProps) {
-  return (
-    <div className="grid w-full gap-3 md:grid-cols-4">
-      <label className="text-sm font-medium text-slate-700">
-        Estado
-        <select
-          className={selectClassName}
-          value={status}
-          onChange={(event) => onStatusChange(event.target.value as IncidentStatus | "all")}
-        >
-          <option value="all">Todos los estados</option>
-          {INCIDENT_STATUSES.map((value) => (
-            <option key={value} value={value}>
-              {INCIDENT_STATUS_LABELS[value]}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="text-sm font-medium text-slate-700">
-        Categoría
-        <select
-          className={selectClassName}
-          value={category}
-          onChange={(event) => onCategoryChange(event.target.value as IncidentCategory | "all")}
-        >
-          <option value="all">Todas las categorías</option>
-          {INCIDENT_CATEGORIES.map((value) => (
-            <option key={value} value={value}>
-              {INCIDENT_CATEGORY_LABELS[value]}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="text-sm font-medium text-slate-700">
-        Origen
-        <select
-          className={selectClassName}
-          value={origin}
-          onChange={(event) => onOriginChange(event.target.value as IncidentOrigin | "all")}
-        >
-          <option value="all">Todos los orígenes</option>
-          {INCIDENT_ORIGINS.map((value) => (
-            <option key={value} value={value}>
-              {INCIDENT_ORIGIN_LABELS[value]}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <label className="text-sm font-medium text-slate-700">
-        Sede
-        <select
-          className={selectClassName}
-          value={branch}
-          onChange={(event) => onBranchChange(event.target.value as IncidentBranch | "all")}
-        >
-          <option value="all">Todas las sedes</option>
-          {INCIDENT_BRANCHES.map((value) => (
-            <option key={value} value={value}>
-              {INCIDENT_BRANCH_LABELS[value]}
-            </option>
-          ))}
-        </select>
-      </label>
-    </div>
-  );
+export function IncidentFilters({ values, onChange }: { values: ManagedIncidentFilterValues; onChange: (values: ManagedIncidentFilterValues) => void }) {
+  const selectClass = "mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900";
+  return <div className="grid w-full gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Filtros de incidencias">
+    <Filter label="Severidad" value={values.severity} className={selectClass} options={[["all", "Todas las severidades"], ...INCIDENT_SEVERITIES.map((v) => [v, INCIDENT_SEVERITY_LABELS[v]] as [string, string])]} onChange={(v) => onChange({ ...values, severity: v as ManagedIncidentFilterValues["severity"] })} />
+    <Filter label="Área" value={values.responsible_area} className={selectClass} options={[["all", "Todas las áreas"], ...RESPONSIBLE_AREAS.map((v) => [v, RESPONSIBLE_AREA_LABELS[v]] as [string, string])]} onChange={(v) => onChange({ ...values, responsible_area: v as ManagedIncidentFilterValues["responsible_area"] })} />
+    <Filter label="Tipo" value={values.type} className={selectClass} options={[["all", "Todos los tipos"], ...MANAGED_INCIDENT_TYPES.map((v) => [v, MANAGED_INCIDENT_TYPE_LABELS[v]] as [string, string])]} onChange={(v) => onChange({ ...values, type: v as ManagedIncidentFilterValues["type"] })} />
+    <Filter label="Estado" value={values.status} className={selectClass} options={[["all", "Todos los estados"], ...MANAGED_INCIDENT_STATUSES.map((v) => [v, MANAGED_INCIDENT_STATUS_LABELS[v]] as [string, string])]} onChange={(v) => onChange({ ...values, status: v as ManagedIncidentFilterValues["status"] })} />
+  </div>;
+}
+function Filter({ label, value, options, onChange, className }: { label: string; value: string; options: Array<[string, string]>; onChange: (value: string) => void; className: string }) {
+  const id = `incident-filter-${label.toLowerCase()}`;
+  return <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}<select id={id} className={className} value={value} onChange={(e) => onChange(e.target.value)}>{options.map(([key, text]) => <option key={key} value={key}>{text}</option>)}</select></label>;
 }

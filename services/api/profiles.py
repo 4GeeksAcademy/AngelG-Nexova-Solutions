@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from auth import get_current_user
 from services import (
@@ -20,12 +20,22 @@ router = APIRouter(
 
 
 class ProfileUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     name: Optional[str] = None
     phone: Optional[str] = None
     address: Optional[str] = None
 
 
-@router.get("/me")
+class ProfileResponse(BaseModel):
+    id: str
+    user_id: str
+    name: str | None = None
+    phone: str | None = None
+    address: str | None = None
+
+
+@router.get("/me", response_model=ProfileResponse)
 def get_my_profile(
     current_user: dict = Depends(get_current_user)
 ):
@@ -42,7 +52,7 @@ def get_my_profile(
     return profile
 
 
-@router.put("/me")
+@router.put("/me", response_model=ProfileResponse)
 def edit_my_profile(
     data: ProfileUpdate,
     current_user: dict = Depends(get_current_user)

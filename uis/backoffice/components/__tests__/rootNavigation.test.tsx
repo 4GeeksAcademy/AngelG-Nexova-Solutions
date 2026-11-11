@@ -101,13 +101,12 @@ describe("authenticated navigation", () => {
     const nav = screen.getByRole("navigation", { name: "Navegación principal" });
     expect(nav.querySelectorAll('a[href="/"]')).toHaveLength(1);
     expect(nav.querySelectorAll('a[href="/incidents"]')).toHaveLength(1);
-    expect(nav.querySelectorAll('a[href="/incidents/analyzer"]')).toHaveLength(1);
+    expect(nav.querySelectorAll('a[href="/incidents/analyzer"]')).toHaveLength(0);
     expect(within(nav).getByRole("link", { name: "Pipeline" })).toHaveAttribute("href", "/");
     expect(within(nav).getByRole("link", { name: "Gestión de incidencias" })).toHaveAttribute("href", "/incidents");
-    expect(within(nav).getByRole("link", { name: "Analizador de incidencias" })).toHaveAttribute("href", "/incidents/analyzer");
+    expect(within(nav).queryByRole("link", { name: "Analizador de incidencias" })).not.toBeInTheDocument();
     expect(within(nav).getByRole("link", { name: "Pipeline" })).toHaveAttribute("aria-current", "page");
     expect(within(nav).getByRole("link", { name: "Gestión de incidencias" })).not.toHaveAttribute("aria-current");
-    expect(within(nav).getByRole("link", { name: "Analizador de incidencias" })).not.toHaveAttribute("aria-current");
     const userMenuButton = within(nav).getByRole("button", { name: "Menú de usuario: Prueba" });
     expect(userMenuButton).toHaveAttribute("aria-expanded", "false");
     expect(within(nav).queryByRole("link", { name: "Mi perfil" })).not.toBeInTheDocument();
@@ -116,7 +115,7 @@ describe("authenticated navigation", () => {
     expect(within(nav).getByRole("link", { name: "Mi perfil" })).toHaveAttribute("href", "/account/profile");
     expect(within(nav).queryByRole("link", { name: "Cambiar contraseña" })).not.toBeInTheDocument();
     expect(within(nav).getByRole("button", { name: "Cerrar sesión" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Registrar candidatura" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Registrar candidatura" })).toHaveAttribute("href", "/candidates/new");
     expect(screen.queryByRole("link", { name: "Nueva incidencia" })).not.toBeInTheDocument();
 
     fireEvent.pointerDown(document.body);
@@ -129,12 +128,11 @@ describe("authenticated navigation", () => {
     pathname.current = "/incidents";
     rerender(renderNavigation());
     expect(within(nav).getByRole("link", { name: "Gestión de incidencias" })).toHaveAttribute("aria-current", "page");
-    expect(within(nav).getByRole("link", { name: "Analizador de incidencias" })).not.toHaveAttribute("aria-current");
 
     pathname.current = "/incidents/analyzer";
     rerender(renderNavigation());
-    expect(within(nav).getByRole("link", { name: "Analizador de incidencias" })).toHaveAttribute("aria-current", "page");
-    expect(within(nav).getByRole("link", { name: "Gestión de incidencias" })).not.toHaveAttribute("aria-current");
+    expect(within(nav).queryByRole("link", { name: "Analizador de incidencias" })).not.toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Gestión de incidencias" })).toHaveAttribute("aria-current", "page");
 
     pathname.current = "/account/profile";
     rerender(renderNavigation());
@@ -145,4 +143,3 @@ describe("authenticated navigation", () => {
     expect(logout).toHaveBeenCalledOnce();
   });
 });
-

@@ -1,0 +1,12 @@
+[
+  {"question":"¿Qué servicios ofrece Nexova y qué incluye el outsourcing de soporte?","relevant_chunks":["service-lines:2"]},
+  {"question":"¿Cuál es la tarifa estándar de headhunting y cómo se distribuyen los pagos?","relevant_chunks":["pricing-model:0"]},
+  {"question":"¿Cuánto cuesta un programa de formación corporativa de 8 semanas para 15 personas?","relevant_chunks":["pricing-model:2"]},
+  {"question":"¿Qué garantía hay si el candidato contratado deja el cargo?","relevant_chunks":["pricing-model:0"]},
+  {"question":"¿Cuáles son los tiempos promedio del proceso de contratación?","relevant_chunks":["hiring-process-sla:1","hiring-process-sla:2"]},
+  {"question":"El prospecto dice que la tarifa de headhunting es demasiado alta. ¿Cómo responder a esa objeción?","relevant_chunks":["objection-handling:0","pricing-model:0"]},
+  {"question":"El prospecto compara a Nexova con una empresa competidora; ¿qué debemos decir con transparencia?","relevant_chunks":["objection-handling:3"]},
+  {"question":"El prospecto pide reducir la tarifa estándar del 22% al 15%. ¿Qué puede ofrecer el SDR?","relevant_chunks":["objection-handling:0","pricing-model:0"]},
+  {"question":"¿Qué pasa si al cliente no le convence la terna final presentada?","relevant_chunks":["objection-handling:2"]},
+  {"question":"¿Se puede negociar el esquema de pagos de un nuevo cliente?","relevant_chunks":["objection-handling:1","pricing-model:0"]}
+]

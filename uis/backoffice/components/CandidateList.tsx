@@ -5,12 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CandidateCard } from "@/components/CandidateCard";
 import { CandidateFilters } from "@/components/CandidateFilters";
-import { CandidateForm } from "@/components/CandidateForm";
 import { CandidateSearch } from "@/components/CandidateSearch";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { Loading } from "@/components/Loading";
-import { createRecord, deleteRecord, getRecords } from "@/lib/api";
-import { Candidate, CandidateStage, CandidateStatus } from "@/types/candidate";
+import { deleteRecord, getRecords } from "@/lib/api";
+import { CandidateListItem, CandidateStage, CandidateStatus } from "@/types/candidate";
 
 function isCandidateStatus(value: string): value is CandidateStatus {
   return ["received", "in_progress", "selected", "discarded"].includes(value);
@@ -27,14 +26,10 @@ function isCandidateStage(value: string): value is CandidateStage {
 }
 
 interface CandidateListProps {
-  isCreateFormOpen: boolean;
-  onToggleCreateForm: () => void;
   isDeleteMode: boolean;
 }
 
 export function CandidateList({
-  isCreateFormOpen,
-  onToggleCreateForm,
   isDeleteMode,
 }: CandidateListProps) {
   const router = useRouter();
@@ -54,18 +49,15 @@ export function CandidateList({
       ? initialStageParam
       : "all";
 
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<CandidateListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<CandidateStatus | "all">(initialStatus);
   const [stageFilter, setStageFilter] = useState<CandidateStage | "all">(initialStage);
-  const [isCreating, setIsCreating] = useState(false);
   const [deletingCandidateId, setDeletingCandidateId] = useState<string | null>(null);
-  const [createError, setCreateError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const setCandidateLoadError = useCallback((error: unknown) => {
     setLoadError(
@@ -140,35 +132,7 @@ export function CandidateList({
     }
   }, [pathname, router, search, searchParams, stageFilter, statusFilter]);
 
-  async function handleCreateCandidate(payload: {
-    full_name: string;
-    email: string;
-    phone: string;
-    position: string;
-    linkedin_url?: string | null;
-    cv_url?: string | null;
-    experience_years: number;
-  }) {
-    try {
-      setCreateError(null);
-      setSuccessMessage(null);
-      setIsCreating(true);
-      const created = await createRecord(payload);
-      setCandidates((previous) => [created, ...previous]);
-      onToggleCreateForm();
-      setSuccessMessage("Candidatura registrada correctamente.");
-    } catch (error) {
-      setCreateError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo registrar la candidatura referida.",
-      );
-    } finally {
-      setIsCreating(false);
-    }
-  }
-
-  async function handleDeleteCandidate(candidate: Candidate) {
+  async function handleDeleteCandidate(candidate: CandidateListItem) {
     if (!window.confirm(`¿Eliminar la candidatura de ${candidate.full_name}?`)) {
       return;
     }
@@ -242,33 +206,14 @@ export function CandidateList({
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              Registro de candidaturas por referidos
+              Registro de candidaturas
             </h2>
             <p className="text-sm text-slate-600">
-              Alta rapida de candidatos recomendados para el proceso Executive Assistant.
+              Alta rápida de candidaturas recibidas por distintos canales para el proceso Executive Assistant.
             </p>
           </div>
         </div>
 
-        {isCreateFormOpen ? (
-          <div className="mt-4 space-y-3 rounded-xl border border-cyan-100 bg-white p-4">
-            {successMessage ? (
-              <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
-                {successMessage}
-              </p>
-            ) : null}
-            {createError ? (
-              <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {createError}
-              </p>
-            ) : null}
-            <CandidateForm
-              submitLabel="Guardar candidatura referida"
-              isSubmitting={isCreating}
-              onSubmit={handleCreateCandidate}
-            />
-          </div>
-        ) : null}
       </div>
 
       <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 md:grid-cols-2">
@@ -291,12 +236,6 @@ export function CandidateList({
       {deleteSuccess ? (
         <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {deleteSuccess}
-        </p>
-      ) : null}
-
-      {successMessage && !isCreateFormOpen ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-          {successMessage}
         </p>
       ) : null}
 

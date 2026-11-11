@@ -62,6 +62,39 @@ def _temp_db(monkeypatch: pytest.MonkeyPatch, tmp_path) -> Generator[TinyDB, Non
         if hasattr(monorepo_services, f"{table_name}_table"):
             monkeypatch.setattr(monorepo_services, f"{table_name}_table", table)
 
+    # Keep aliases imported by application modules pointed at this test DB.
+    import auth
+    import incidents
+    import profiles
+    import records
+    import users
+    import routes.suppliers as suppliers
+
+    for table_name in table_names:
+        for module in (auth, incidents, profiles, records, users):
+            if hasattr(module, f"{table_name}_table"):
+                monkeypatch.setattr(module, f"{table_name}_table", tmp_db.table(table_name))
+
+    monkeypatch.setattr(suppliers, "db", tmp_db)
+
+    import records as records_module
+
+    # Tests may import database tables directly, before this fixture runs.
+    # Keep those module-level aliases aligned with the temporary DB too.
+    for module_name, module in tuple(sys.modules.items()):
+        if not module_name.startswith(("tests.", "services.api.tests.")):
+            continue
+        for table_name in table_names:
+            if hasattr(module, f"{table_name}_table"):
+                monkeypatch.setattr(
+                    module,
+                    f"{table_name}_table",
+                    tmp_db.table(table_name),
+                )
+
+    with records_module._public_rate_lock:
+        records_module._public_request_times.clear()
+
     monkeypatch.setattr(database, "db", tmp_db)
 
     try:
@@ -75,6 +108,35 @@ def client() -> Generator[TestClient, None, None]:
     """Provide a FastAPI TestClient."""
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def _supplier_test_auth(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Authenticate supplier API tests only; leave unrelated API tests unchanged."""
+    if request.node.path.name != "test_api.py":
+        return
+
+    import auth
+
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        auth.get_current_user,
+        lambda: {"id": "supplier-test-user", "email": "supplier-test@example.com", "role": "admin"},
+    )
+
+
+@pytest.fixture
+def seeded_db(_temp_db: TinyDB) -> TinyDB:
+    """Seed the isolated test database with the documented supplier sample."""
+    from datetime import datetime, timezone
+
+    from seed import SUPPLIERS_SEED
+
+    table = _temp_db.table("suppliers")
+    now = datetime.now(timezone.utc).isoformat()
+    for supplier in SUPPLIERS_SEED:
+        table.insert({**supplier, "updated_at": now})
+    return _temp_db
 
 
 @pytest.fixture

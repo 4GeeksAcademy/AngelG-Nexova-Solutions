@@ -21,7 +21,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from services.api.models import (
+from supplier_schemas import (
     SupplierDict,
     SupplierCreate,
     RateUpdate,
@@ -300,16 +300,16 @@ class TestSupplierCreateValid:
         )
         assert s.name == "New Supplier"
 
-    def test_valid_usa_with_currency_override(self):
-        """Currency auto-corrected from country."""
-        s = SupplierCreate(
-            name="US Supplier",
-            country="USA",
-            categories=["video_interview"],
-            monthly_rate=300.0,
-            currency="EUR",  # wrong — should become USD
-        )
-        assert s.currency == "USD"
+    def test_currency_mismatch_is_rejected(self):
+        """The API schema rejects a currency inconsistent with country."""
+        with pytest.raises(ValidationError):
+            SupplierCreate(
+                name="US Supplier",
+                country="USA",
+                categories=["video_interview"],
+                monthly_rate=300.0,
+                currency="EUR",
+            )
 
 
 class TestSupplierCreateInvalid:

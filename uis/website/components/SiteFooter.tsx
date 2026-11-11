@@ -23,14 +23,15 @@ export function SiteFooter({ onHome = false }: { onHome?: boolean }) {
         </div>
         <div>
           <h2>{spanish ? "Contacto" : "Contact"}</h2>
-          <a href="mailto:hola@nexovasolutions.com">hola@nexovasolutions.com</a>
-          <span>{spanish ? "Valencia, España" : "Valencia, Spain"}</span>
-          <span>{spanish ? "Miami, Florida, EE. UU." : "Miami, Florida, USA"}</span>
-          <a href="https://linkedin.com/company/nexova-solutions" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="mailto:contacto@nexova.com">contacto@nexova.com</a>
+          <a href="tel:+34960123456">Valencia: +34 960 123 456</a>
+          <a href="tel:+13055550191">Miami: +1 305 555 0191</a>
+          <a href="https://linkedin.com/company/nexova" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="https://instagram.com/nexova" target="_blank" rel="noopener noreferrer">Instagram</a>
         </div>
       </div>
       <div className="container footer-bottom">
-        <span>© {new Date().getFullYear()} Nexova Solutions S.L. {spanish ? "Todos los derechos reservados." : "All rights reserved."}</span>
+        <span>© 2025 Nexova Solutions S.L. {spanish ? "Todos los derechos reservados." : "All rights reserved."}</span>
         <span>{spanish ? "Valencia · España | Miami · USA" : "Valencia · Spain | Miami · USA"}</span>
       </div>
     </footer>

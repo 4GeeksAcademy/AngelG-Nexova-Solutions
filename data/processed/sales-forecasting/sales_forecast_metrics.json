@@ -1,0 +1,23 @@
+{
+  "mse_usd_squared": 3509186192.950573,
+  "mse_normalized_percent_of_mean_squared": 0.38127669289147503,
+  "mae_usd": 49655.78996466463,
+  "rmse_usd": 59238.384455946914,
+  "rmse_as_percent_of_mean_revenue": 6.174760666547935,
+  "r2": 0.5295588083990801,
+  "psi_revenue_distribution": 8.160183598312226,
+  "psi_business_line_mix": 0.00339406860057511,
+  "psi_business_line_mix_by_line": {
+    "headhunting": 0.0011624474075735505,
+    "outsourcing": 0.0017282313862019092,
+    "training": 0.0005033898067996504
+  },
+  "gini_anomaly_discrimination_test": null,
+  "k2_ks_anomaly_discrimination_test": null,
+  "gini_synthetic_anomaly_benchmark": 0.3055555555555556,
+  "k2_ks_synthetic_anomaly_benchmark": 0.37500000000000006,
+  "synthetic_anomaly_months": 6,
+  "anomaly_definition": "anomaly = actual below 80% of training mean for the same calendar month; score = 80% seasonal baseline minus forecast; synthetic benchmark adds a 50% downside shock to every fourth holdout month",
+  "test_discrimination_unavailable_reason": "El test real no contiene ambas clases respecto al umbral de 80% del promedio histórico del mismo mes calendario; ROC AUC/Gini y KS no están definidos.",
+  "anomaly_months_in_test": 0
+}

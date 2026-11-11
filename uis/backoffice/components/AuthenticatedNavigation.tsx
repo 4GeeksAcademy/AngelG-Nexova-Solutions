@@ -2,20 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { useAuth } from "@/lib/auth-context";
+import {
+  getServerThemeSnapshot,
+  getThemeSnapshot,
+  setTheme,
+  subscribeToTheme,
+} from "@/lib/theme-store";
 
 function isCurrentRoute(pathname: string, href: string): boolean {
   if (href === "/") {
     return pathname === "/" || pathname.startsWith("/candidates/");
-  }
-
-  if (href === "/incidents") {
-    return (
-      pathname === href ||
-      (pathname.startsWith(`${href}/`) && !pathname.startsWith("/incidents/analyzer"))
-    );
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -81,23 +80,14 @@ export function AuthenticatedNavigation({
 }) {
   const { isAuthenticated, isReady, logout, user } = useAuth();
   const pathname = usePathname();
-  const [darkMode, setDarkMode] = useState(false);
+  const darkMode = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getServerThemeSnapshot,
+  );
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const userMenuTriggerRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const savedTheme = window.localStorage.getItem("theme");
-    const prefersDark =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark =
-      savedTheme === "dark" ||
-      (!savedTheme && prefersDark);
-
-    document.documentElement.classList.toggle("dark", shouldUseDark);
-    setDarkMode(shouldUseDark);
-  }, []);
 
   useEffect(() => {
     if (!isUserMenuOpen) return;
@@ -125,10 +115,7 @@ export function AuthenticatedNavigation({
   }, [isUserMenuOpen]);
 
   function toggleTheme() {
-    const nextDarkMode = !darkMode;
-    document.documentElement.classList.toggle("dark", nextDarkMode);
-    window.localStorage.setItem("theme", nextDarkMode ? "dark" : "light");
-    setDarkMode(nextDarkMode);
+    setTheme(!darkMode);
   }
 
   const showNavigation = isReady && isAuthenticated;
@@ -140,7 +127,7 @@ export function AuthenticatedNavigation({
         <header className="relative z-50 border-b border-white/40 bg-white/65 backdrop-blur">
           <nav
             aria-label="Navegación principal"
-            className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3 md:px-10"
+            className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-3 px-4 py-3 md:px-10"
           >
             <Link
               href="/"
@@ -157,11 +144,18 @@ export function AuthenticatedNavigation({
               Gestión de incidencias
             </Link>
             <Link
-              href="/incidents/analyzer"
-              aria-current={isCurrentRoute(pathname, "/incidents/analyzer") ? "page" : undefined}
-              className={navLinkClassName(pathname, "/incidents/analyzer")}
+              href="/backoffice/inventory"
+              aria-current={isCurrentRoute(pathname, "/backoffice/inventory") ? "page" : undefined}
+              className={navLinkClassName(pathname, "/backoffice/inventory")}
             >
-              Analizador de incidencias
+              Inventario
+            </Link>
+            <Link
+              href="/backoffice/knowledge"
+              aria-current={isCurrentRoute(pathname, "/backoffice/knowledge") ? "page" : undefined}
+              className={navLinkClassName(pathname, "/backoffice/knowledge")}
+            >
+              Conocimiento RAG
             </Link>
             <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
               <ThemeToggleButton darkMode={darkMode} onToggle={toggleTheme} />

@@ -47,6 +47,7 @@ export function CandidateForm({
         required
         value={fullName}
         onChange={(event) => setFullName(event.target.value)}
+        aria-label="Nombre completo"
         placeholder="Nombre completo"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
@@ -55,6 +56,7 @@ export function CandidateForm({
         type="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
+        aria-label="Email"
         placeholder="Email"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
@@ -62,6 +64,7 @@ export function CandidateForm({
         required
         value={phone}
         onChange={(event) => setPhone(event.target.value)}
+        aria-label="Teléfono"
         placeholder="Telefono"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
@@ -69,18 +72,21 @@ export function CandidateForm({
         required
         value={position}
         onChange={(event) => setPosition(event.target.value)}
+        aria-label="Puesto"
         placeholder="Puesto"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
       <input
         value={linkedinUrl}
         onChange={(event) => setLinkedinUrl(event.target.value)}
+        aria-label="LinkedIn URL"
         placeholder="LinkedIn URL"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
       <input
         value={cvUrl}
         onChange={(event) => setCvUrl(event.target.value)}
+        aria-label="CV URL"
         placeholder="CV URL"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
@@ -88,9 +94,10 @@ export function CandidateForm({
         required
         type="number"
         min={0}
-        step={0.5}
+        step={1}
         value={experienceYears}
         onChange={(event) => setExperienceYears(event.target.value)}
+        aria-label="Años de experiencia"
         placeholder="Anos de experiencia"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />

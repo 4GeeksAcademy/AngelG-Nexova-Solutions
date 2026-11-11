@@ -23,4 +23,4 @@ Configura `API_INTERNAL_URL` en el servidor del website con la URL interna base 
 - `app/globals.css` y `styles.css`: Tailwind y estilos visuales compartidos.
 - `components/`: navegación y componentes interactivos compartidos.
 
-El formulario solicita los campos del pipeline (`full_name`, `email`, `phone`, `position`, `experience_years`, y `linkedin_url`/`cv_url` opcionales). El consentimiento de tratamiento se conserva en la interfaz, pero no se envía a la API. `/records/public` solo permite crear candidaturas; el listado y la gestión internos siguen requiriendo autenticación.
+El formulario de `/application` captura datos de contacto y perfil, sector, nivel de inglés, disponibilidad, comentarios y consentimiento explícito. La ruta `/api/application` reenvía los campos permitidos a `/records/public`; la API registra la candidatura en TinyDB junto con el consentimiento y su fecha/hora generada en servidor. No se ofrece carga de CV (el campo `cv_url` se envía como `null`). El listado y la gestión internos siguen requiriendo autenticación.

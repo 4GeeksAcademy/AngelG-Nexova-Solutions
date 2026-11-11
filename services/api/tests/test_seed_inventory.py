@@ -1,7 +1,6 @@
 from sqlmodel import Session, SQLModel, create_engine, select
 
-import models  # noqa: F401 — register inventory tables
-from models import Asset, AssetEntry, AssetExit
+from inventory_models import Item as Asset, Movement
 from seed_inventory import ASSETS, seed_inventory
 
 
@@ -24,8 +23,8 @@ def test_inventory_seed_is_idempotent_and_calculates_expected_stock():
         assert second_run["outbound_existing"] == 3
 
         products = session.exec(select(Asset)).all()
-        entries = session.exec(select(AssetEntry)).all()
-        exits = session.exec(select(AssetExit)).all()
+        entries = session.exec(select(Movement).where(Movement.movement_type == "inbound")).all()
+        exits = session.exec(select(Movement).where(Movement.movement_type == "outbound")).all()
         assert len(products) == len(ASSETS)
         assert len(entries) == 4
         assert len(exits) == 3

@@ -24,4 +24,4 @@ Set `API_INTERNAL_URL` on the website server to the internal base URL of FastAPI
 - `app/globals.css` and `styles.css`: Tailwind and shared visual styles.
 - `components/`: shared navigation and interactive components.
 
-The form collects the pipeline fields (`full_name`, `email`, `phone`, `position`, `experience_years`, plus optional `linkedin_url` and `cv_url`). The data-processing consent is collected in the UI but is not sent to the API. The API's `/records/public` endpoint only creates candidates; internal listing and management stay authenticated.
+The `/application` form captures contact and profile details, sector, English level, availability, comments, and explicit data-processing consent. The allowlisted server-side proxy forwards these fields to `/records/public`; the API persists them in TinyDB with a server-generated consent timestamp. CV upload is not implemented (`cv_url` is sent as `null`). The API does not include candidate details in its unauthenticated acknowledgement; internal listing and management stay authenticated.

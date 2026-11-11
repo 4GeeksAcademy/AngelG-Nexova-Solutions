@@ -10,14 +10,15 @@ or modifies users. PostgreSQL remains the only destination for inventory data.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import text
 from sqlmodel import Session, SQLModel, select
 
-import models  # noqa: F401 — register inventory tables in SQLModel metadata
 from database import engine, users_table
-from models import Asset, AssetEntry, AssetExit
+from inventory_models import Item as Asset, Movement, require_unified_inventory
+from routers.inventory_v2 import _item_stock
 
 
 ASSETS = (
@@ -124,16 +125,16 @@ class SeedDataConflict(RuntimeError):
     """Raised when a known seed SKU already exists with different attributes."""
 
 
-def _stock_totals(session: Session, asset_id: int) -> tuple[int, int, int]:
+def _stock_totals(session: Session, asset_id: int) -> tuple[Decimal, Decimal, Decimal]:
     inbound = session.exec(
-        select(AssetEntry.quantity).where(AssetEntry.asset_id == asset_id)
+        select(Movement.quantity).where(Movement.item_id == asset_id, Movement.movement_type == "inbound")
     ).all()
     outbound = session.exec(
-        select(AssetExit.quantity).where(AssetExit.asset_id == asset_id)
+        select(Movement.quantity).where(Movement.item_id == asset_id, Movement.movement_type == "outbound")
     ).all()
-    entries = sum(inbound)
-    exits = sum(outbound)
-    return entries, exits, entries - exits
+    entries = sum(inbound, Decimal("0"))
+    exits = sum(outbound, Decimal("0"))
+    return entries, exits, _item_stock(session, asset_id)
 
 
 def seed_inventory(session: Session, user_uuid: str) -> dict[str, Any]:
@@ -163,10 +164,10 @@ def seed_inventory(session: Session, user_uuid: str) -> dict[str, Any]:
         assets_by_sku: dict[str, Asset] = {}
         for data in ASSETS:
             asset = session.exec(
-                select(Asset).where(Asset.sku == data["sku"])
+                select(Asset).where(Asset.sku == data["sku"]).with_for_update()
             ).first()
             if asset is None:
-                asset = Asset(**data)
+                asset = Asset(**{**data, "office": data["office"].lower()}, unit_of_measure="unit", reorder_point=0)
                 session.add(asset)
                 session.flush()
                 stats["products_inserted"] += 1
@@ -174,7 +175,7 @@ def seed_inventory(session: Session, user_uuid: str) -> dict[str, Any]:
                 differences = {
                     key: (getattr(asset, key), expected)
                     for key, expected in data.items()
-                    if getattr(asset, key) != expected
+                    if getattr(asset, key) != (expected.lower() if key == "office" else expected)
                 }
                 if differences:
                     raise SeedDataConflict(
@@ -187,22 +188,23 @@ def seed_inventory(session: Session, user_uuid: str) -> dict[str, Any]:
         for data in INBOUND_ORDERS:
             asset = assets_by_sku[data["sku"]]
             existing = session.exec(
-                select(AssetEntry).where(
-                    AssetEntry.asset_id == asset.id,
-                    AssetEntry.quantity == data["quantity"],
-                    AssetEntry.supplier == data["supplier"],
-                    AssetEntry.office == data["office"],
-                    AssetEntry.created_at == data["created_at"],
-                    AssetEntry.user_uuid == user_uuid,
+                select(Movement).where(
+                    Movement.item_id == asset.id,
+                    Movement.movement_type == "inbound",
+                    Movement.quantity == data["quantity"],
+                    Movement.supplier == data["supplier"],
+                    Movement.office == data["office"].lower(),
+                    Movement.created_at == data["created_at"],
+                    Movement.user_uuid == user_uuid,
                 )
             ).first()
             if existing is None:
                 session.add(
-                    AssetEntry(
-                        asset_id=asset.id,
+                    Movement(
+                        item_id=asset.id, movement_type="inbound",
                         quantity=data["quantity"],
                         supplier=data["supplier"],
-                        office=data["office"],
+                        office=data["office"].lower(),
                         created_at=data["created_at"],
                         user_uuid=user_uuid,
                     )
@@ -214,24 +216,25 @@ def seed_inventory(session: Session, user_uuid: str) -> dict[str, Any]:
         for data in OUTBOUND_ORDERS:
             asset = assets_by_sku[data["sku"]]
             existing = session.exec(
-                select(AssetExit).where(
-                    AssetExit.asset_id == asset.id,
-                    AssetExit.quantity == data["quantity"],
-                    AssetExit.exit_type == data["exit_type"],
-                    AssetExit.assigned_to == data["assigned_to"],
-                    AssetExit.office == data["office"],
-                    AssetExit.created_at == data["created_at"],
-                    AssetExit.user_uuid == user_uuid,
+                select(Movement).where(
+                    Movement.item_id == asset.id,
+                    Movement.movement_type == "outbound",
+                    Movement.quantity == data["quantity"],
+                    Movement.exit_type == data["exit_type"],
+                    Movement.assigned_to == data["assigned_to"],
+                    Movement.office == data["office"].lower(),
+                    Movement.created_at == data["created_at"],
+                    Movement.user_uuid == user_uuid,
                 )
             ).first()
             if existing is None:
                 session.add(
-                    AssetExit(
-                        asset_id=asset.id,
+                    Movement(
+                        item_id=asset.id, movement_type="outbound",
                         quantity=data["quantity"],
                         exit_type=data["exit_type"],
                         assigned_to=data["assigned_to"],
-                        office=data["office"],
+                        office=data["office"].lower(),
                         created_at=data["created_at"],
                         user_uuid=user_uuid,
                     )
@@ -246,7 +249,7 @@ def seed_inventory(session: Session, user_uuid: str) -> dict[str, Any]:
             stats["stock"][sku] = {
                 "entries": entries,
                 "exits": exits,
-                "current_stock": stock,
+                "current_stock": int(stock) if stock == stock.to_integral_value() else stock,
             }
 
     return stats
@@ -272,6 +275,7 @@ def main() -> None:
         )
 
     user_uuid = existing_tinydb_user_uuid()
+    require_unified_inventory(engine)
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         stats = seed_inventory(session, user_uuid)
