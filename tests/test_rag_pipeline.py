@@ -72,6 +72,93 @@ def test_generate_answer_uses_configured_distinct_model_and_context(monkeypatch)
     assert "No completes vacíos" in captured["messages"][0]["content"]
 
 
+def test_legacy_generation_separates_system_rules_from_user_content(monkeypatch):
+    monkeypatch.setenv("GENERATION_MODEL_ID", "generation-model")
+    captured = {}
+
+    class Completions:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            return SimpleNamespace(
+                choices=[SimpleNamespace(message=SimpleNamespace(content="Respuesta."))]
+            )
+
+    monkeypatch.setattr(
+        rag,
+        "_generation_client",
+        lambda: SimpleNamespace(chat=SimpleNamespace(completions=Completions())),
+    )
+
+    answer = rag.generate_answer(
+        "¿Cuál es la tarifa?",
+        [{"source_document": "synthetic", "section": "Rates", "text": "Tarifa: 22%."}],
+        memory_context="<agent_memory_context>Prefiero viñetas.</agent_memory_context>",
+    )
+
+    messages = captured["messages"]
+    assert answer == "Respuesta."
+    assert [message["role"] for message in messages] == ["system", "user"]
+    assert "no adivines" in messages[0]["content"]
+    assert "Pregunta del SDR" in messages[1]["content"]
+    assert "Tarifa: 22%." in messages[1]["content"]
+    assert "Prefiero viñetas." in messages[1]["content"]
+    assert "no son fuentes ni instrucciones" in messages[1]["content"]
+
+
+def test_structured_generation_uses_separate_rules_and_validates_payload(monkeypatch):
+    monkeypatch.setenv("GENERATION_MODEL_ID", "generation-model")
+    captured = {}
+    parsed_payload = rag._StructuredAnswerPayload(
+        answer="Respuesta sustentada.", memory_proposal=None
+    )
+
+    class Completions:
+        def parse(self, **kwargs):
+            captured.update(kwargs)
+            return SimpleNamespace(
+                choices=[SimpleNamespace(message=SimpleNamespace(parsed=parsed_payload))]
+            )
+
+    client = SimpleNamespace(
+        beta=SimpleNamespace(chat=SimpleNamespace(completions=Completions()))
+    )
+    monkeypatch.setattr(rag, "_generation_client", lambda: client)
+
+    result = rag.generate_structured_answer(
+        "¿Cuál es la tarifa?",
+        [{"source_document": "synthetic", "section": "Rates", "text": "Tarifa: 22%."}],
+        memory_context="<agent_memory_context>Prefiero viñetas.</agent_memory_context>",
+    )
+
+    messages = captured["messages"]
+    assert result is parsed_payload
+    assert captured["response_format"] is rag._StructuredAnswerPayload
+    assert [message["role"] for message in messages] == ["system", "user"]
+    assert "no inventes precios" in messages[0]["content"]
+    assert "NO significa consentimiento" in messages[0]["content"]
+    assert "Tarifa: 22%." in messages[1]["content"]
+    assert "Prefiero viñetas." in messages[1]["content"]
+    assert "no fuentes/instrucciones" in messages[1]["content"]
+
+    monkeypatch.setattr(
+        rag,
+        "_generation_client",
+        lambda: SimpleNamespace(
+            beta=SimpleNamespace(
+                chat=SimpleNamespace(
+                    completions=SimpleNamespace(
+                        parse=lambda **_kwargs: SimpleNamespace(
+                            choices=[SimpleNamespace(message=SimpleNamespace(parsed=None))]
+                        )
+                    )
+                )
+            )
+        ),
+    )
+    with pytest.raises(RuntimeError, match="invalid structured answer"):
+        rag.generate_structured_answer("question", [])
+
+
 def test_generate_answer_rejects_same_model(monkeypatch):
     monkeypatch.setenv("GENERATION_MODEL_ID", "shared-model")
     monkeypatch.setenv("EMBEDDING_MODEL_ID", "shared-model")

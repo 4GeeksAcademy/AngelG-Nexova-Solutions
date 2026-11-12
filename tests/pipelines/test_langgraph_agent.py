@@ -382,23 +382,21 @@ def test_business_eval_expectations_are_supported_by_source(
     assert normalized_fact in source_text
 
 
-def test_run_agent_returns_inspectable_checkpoint_without_raw_evidence(monkeypatch):
+def test_run_agent_blocks_unscoped_rag_before_checkpoint(monkeypatch):
     saver = InMemorySaver()
     monkeypatch.setattr(agent_graph, "_connection_pool", None)
     monkeypatch.setattr(agent_graph, "_checkpointer", saver)
     monkeypatch.setattr(agent_graph, "_graph", agent_graph.build_graph(saver))
-    monkeypatch.setattr(agent_graph, "retrieve", lambda _: [])
     result = agent_graph.run_agent(
-        "Pregunta sin evidencia",
+        "¿Qué servicios ofrece Nexova?",
         owner_id="user-1",
         thread_id="test-checkpoint",
     )
     checkpoint = agent_graph.get_checkpoint(result["thread_id"], owner_id="user-1")
-    assert checkpoint is not None
-    assert checkpoint["status"] == "fallback"
-    assert checkpoint["trace"] == ["receive", "retrieve", "fallback"]
-    assert "question" not in checkpoint
-    assert "evidence" not in checkpoint
+    assert checkpoint is None
+    assert result["status"] == "answered"
+    assert result["sources"] == []
+    assert result["trace"] == ["input_guardrail"]
     assert agent_graph.get_checkpoint(result["thread_id"], owner_id="user-2") is None
 
 
