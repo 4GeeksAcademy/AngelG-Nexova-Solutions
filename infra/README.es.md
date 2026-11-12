@@ -84,6 +84,8 @@ nano /opt/nexova/infra/.env.production
 
 En ese archivo, sustituye `GHCR_OWNER` por el propietario de GitHub en minúsculas y `FRONTEND_URL` por `http://<IP_DEL_VPS>:3000`. Genera valores distintos para `POSTGRES_PASSWORD` y `JWT_SECRET` con `openssl rand -hex 32`; no uses los valores de ejemplo. Protege el archivo:
 
+Para habilitar las funciones RAG, configura también `OPENAI_API_KEY`, `EMBEDDING_MODEL_ID`, `GENERATION_MODEL_ID` y `QDRANT_URL`. `OPENAI_BASE_URL` y `QDRANT_API_KEY` son opcionales si el proveedor/gateway o Qdrant no los requieren. El Compose pasa esas variables al contenedor `api`; el servicio Qdrant y su colección deben existir y ser accesibles desde la red del contenedor. No pongas las claves en el Compose ni en el repositorio.
+
 ```sh
 chmod 600 /opt/nexova/infra/.env.production
 ```

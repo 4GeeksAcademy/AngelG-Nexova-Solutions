@@ -18,6 +18,10 @@ COPY services/api/ ./
 COPY services/telemetry/ /workspace/services/telemetry/
 COPY services/reporting/ /workspace/services/reporting/
 COPY packages/ /workspace/packages/
+COPY data/__init__.py /workspace/data/__init__.py
+COPY data/pipelines/ /workspace/data/pipelines/
+COPY data/process/ /workspace/data/process/
+COPY docs/company-knowledge-base/ /workspace/docs/company-knowledge-base/
 COPY scripts/incidents_config.json /workspace/scripts/incidents_config.json
 
 RUN mkdir -p /workspace/services/api/data
