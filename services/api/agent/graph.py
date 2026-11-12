@@ -33,6 +33,20 @@ from .memory_repository import (
     resolve_proposal_if_configured,
     retrieve_memory_if_configured,
 )
+from .guardrails import (
+    InputDecision,
+    OUTPUT_BLOCK_MESSAGE,
+    assess_input,
+    redirect_for_input,
+    is_small_talk,
+    redirect_for_small_talk,
+    emit_guardrail_event,
+    is_supported_general_question,
+    respond_to_general_question,
+    sanitize_evidence,
+    sanitize_untrusted_text,
+    validate_answer,
+)
 from .tools import (
     IncidentToolResult,
     InventoryToolResult,
@@ -57,17 +71,20 @@ class AgentState(TypedDict, total=False):
     owner_id: str
     thread_id: str
     memory_context: str
-    route: Literal["rag", "incidents", "inventory", "operational"]
+    route: Literal["rag", "incidents", "inventory", "operational", "blocked"]
+    guardrail_reason: str
 
 
 def receive(state: AgentState) -> AgentState:
     question = state.get("question", "").strip()
-    intent = _classify_question(question)
+    decision = assess_input(question)
+    intent = "blocked" if decision.blocked else _classify_question(question)
     return {
         "question": question,
         "owner_id": state.get("owner_id", ""),
         "thread_id": state.get("thread_id", ""),
         "route": intent,
+        "guardrail_reason": decision.reason or "",
         "trace": [*state.get("trace", []), "receive"],
     }
 
@@ -123,7 +140,9 @@ def _incident_status(question: str) -> Literal[
 
 def route_question(
     state: AgentState,
-) -> Literal["retrieve", "operational_tools", "fallback"]:
+) -> Literal["retrieve", "operational_tools", "fallback", "input_guardrail"]:
+    if state.get("route") == "blocked":
+        return "input_guardrail"
     if not state.get("question"):
         return "fallback"
     if state.get("route") in {"incidents", "inventory", "operational"}:
@@ -132,7 +151,7 @@ def route_question(
 
 
 def retrieve_evidence(state: AgentState) -> AgentState:
-    evidence = retrieve(state["question"])
+    evidence = sanitize_evidence(retrieve(state["question"]))
     memory_context = ""
     try:
         memories = retrieve_memory_if_configured(
@@ -196,6 +215,8 @@ def generate(state: AgentState) -> AgentState:
                     "respuestas futuras? Responde sí para aprobar, no para rechazar, "
                     "o indica cómo cambiarla."
                 )
+    if not validate_answer(answer):
+        answer = OUTPUT_BLOCK_MESSAGE
     # Proposal generation is optional; approval is handled on a later message
     # against the exact owner/thread/proposal triple, never in this same turn.
     unique_sources: list[dict[str, str]] = []
@@ -231,7 +252,7 @@ def _render_incidents(result: IncidentToolResult) -> str:
             f"severidad: {incident.severity}; área: {incident.responsible_area}"
             f"{client}{assignee}{deadline})."
         )
-    return "\n".join(lines)
+    return sanitize_untrusted_text("\n".join(lines))
 
 
 def _render_inventory(result: InventoryToolResult) -> str:
@@ -246,7 +267,7 @@ def _render_inventory(result: InventoryToolResult) -> str:
             f"{item.category}; stock actual: {item.current_stock} {item.unit_of_measure}; "
             f"punto de reposición: {item.reorder_point}{alert})."
         )
-    return "\n".join(lines)
+    return sanitize_untrusted_text("\n".join(lines))
 
 
 def operational_tools(state: AgentState) -> AgentState:
@@ -272,9 +293,12 @@ def operational_tools(state: AgentState) -> AgentState:
         sources.append({"document": "inventory-tool", "section": "Consulta de inventario"})
         trace.append("inventory_tool")
 
+    rendered = sanitize_untrusted_text("\n\n".join(outputs))
+    if not validate_answer(rendered):
+        rendered = OUTPUT_BLOCK_MESSAGE
     has_failure = any(status != "ok" for status in statuses)
     return {
-        "answer": "\n\n".join(outputs),
+        "answer": rendered,
         "sources": sources,
         "status": "fallback" if has_failure else "answered",
         "trace": trace,
@@ -290,6 +314,28 @@ def fallback(state: AgentState) -> AgentState:
     }
 
 
+def input_guardrail(state: AgentState) -> AgentState:
+    """Return a fixed, non-echoing refusal for blocked requests."""
+    reason = state.get("guardrail_reason") or "instruction_override"
+    if reason == "unscoped_data_access":
+        return {
+            "answer": OUTPUT_BLOCK_MESSAGE,
+            "sources": [],
+            "status": "answered",
+            "trace": [*state.get("trace", []), "input_guardrail"],
+        }
+    decision = InputDecision(
+        blocked=True,
+        reason=reason,
+    )
+    return {
+        "answer": redirect_for_input(decision),
+        "sources": [],
+        "status": "answered",
+        "trace": [*state.get("trace", []), "input_guardrail"],
+    }
+
+
 def build_graph(checkpointer=None):
     """Compile the graph with the supplied saver or an in-memory test saver."""
     builder = StateGraph(AgentState)
@@ -298,6 +344,7 @@ def build_graph(checkpointer=None):
     builder.add_node("generate", generate)
     builder.add_node("operational_tools", operational_tools)
     builder.add_node("fallback", fallback)
+    builder.add_node("input_guardrail", input_guardrail)
     builder.add_edge(START, "receive")
     builder.add_conditional_edges(
         "receive",
@@ -306,6 +353,7 @@ def build_graph(checkpointer=None):
             "retrieve": "retrieve",
             "operational_tools": "operational_tools",
             "fallback": "fallback",
+            "input_guardrail": "input_guardrail",
         },
     )
     builder.add_conditional_edges(
@@ -314,6 +362,7 @@ def build_graph(checkpointer=None):
     builder.add_edge("generate", END)
     builder.add_edge("operational_tools", END)
     builder.add_edge("fallback", END)
+    builder.add_edge("input_guardrail", END)
     try:
         return builder.compile(
             checkpointer=checkpointer if checkpointer is not None else InMemorySaver()
@@ -367,6 +416,36 @@ def run_agent(
 ) -> dict[str, object]:
     """Run the compiled graph and return the safe response plus trace metadata."""
     resolved_thread_id = thread_id or str(uuid4())
+    input_decision = assess_input(question.strip())
+    access_blocked = not is_small_talk(question) and _classify_question(question.strip()) in {
+        "rag", "incidents", "operational"
+    }
+    if input_decision.blocked:
+        return {
+            "answer": redirect_for_input(input_decision),
+            "sources": [],
+            "status": "answered",
+            "trace": ["input_guardrail"],
+            "thread_id": resolved_thread_id,
+        }
+    if is_supported_general_question(question):
+        emit_guardrail_event("redirect", "general_question_redirect")
+        return {
+            "answer": respond_to_general_question(question),
+            "sources": [],
+            "status": "answered",
+            "trace": ["general_question_redirect"],
+            "thread_id": resolved_thread_id,
+        }
+    if is_small_talk(question):
+        emit_guardrail_event("redirect", "small_talk_redirect")
+        return {
+            "answer": redirect_for_small_talk(question),
+            "sources": [],
+            "status": "answered",
+            "trace": ["small_talk_redirect"],
+            "thread_id": resolved_thread_id,
+        }
     _ensure_pool_open()
     try:
         pending = get_pending_proposal_if_configured(
@@ -430,19 +509,33 @@ def run_agent(
             and classification.confidence >= MIN_DECISION_CONFIDENCE
             and "No pude confirmar" not in response_text
         ):
-            result = _graph.invoke(
-                {
-                    "question": followup_question.strip(),
-                    "owner_id": owner_id,
-                    "thread_id": resolved_thread_id,
-                },
-                config={"configurable": {"thread_id": resolved_thread_id}},
-            )
-            response["answer"] = f"{response_text}\n\n{result['answer']}"
-            response["sources"] = result.get("sources", [])
-            response["status"] = result["status"]
-            response["trace"] = [*response["trace"], *result.get("trace", [])]
+            followup = followup_question.strip()
+            if _classify_question(followup) in {"rag", "incidents", "operational"}:
+                emit_guardrail_event("security", "unscoped_data_access")
+                response["answer"] = f"{response_text}\n\n{OUTPUT_BLOCK_MESSAGE}"
+            else:
+                result = _graph.invoke(
+                    {
+                        "question": followup,
+                        "owner_id": owner_id,
+                        "thread_id": resolved_thread_id,
+                    },
+                    config={"configurable": {"thread_id": resolved_thread_id}},
+                )
+                response["answer"] = f"{response_text}\n\n{result['answer']}"
+                response["sources"] = result.get("sources", [])
+                response["status"] = result["status"]
+                response["trace"] = [*response["trace"], *result.get("trace", [])]
         return response
+    if question.strip() and access_blocked:
+        emit_guardrail_event("security", "unscoped_data_access")
+        return {
+            "answer": OUTPUT_BLOCK_MESSAGE,
+            "sources": [],
+            "status": "answered",
+            "trace": ["input_guardrail"],
+            "thread_id": resolved_thread_id,
+        }
     result = _graph.invoke(
         {"question": question, "owner_id": owner_id, "thread_id": resolved_thread_id},
         config={"configurable": {"thread_id": resolved_thread_id}},
