@@ -12,6 +12,7 @@ from sqlmodel import SQLModel
 from pydantic import BaseModel
 
 import database
+import agent.memory_models  # noqa: F401 — registers isolated agent-memory tables
 import incident_models  # noqa: F401 — registers managed incident and audit tables
 import inventory_models
 from auth import router as auth_router
@@ -86,8 +87,9 @@ async def lifespan(app: FastAPI):
     if _connection_pool is not None and _connection_pool.closed:
         _connection_pool.open(wait=True)
     yield
-    if _connection_pool is not None and not _connection_pool.closed:
-        _connection_pool.close()
+    # The checkpoint pool is process-global and may serve concurrent clients
+    # and multiple TestClient lifespans. Closing it here races active requests
+    # and later lifespan instances; the process owns its final shutdown.
 
 
 app = FastAPI(

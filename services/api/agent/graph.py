@@ -8,7 +8,31 @@ from uuid import uuid4
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 
-from data.pipelines.rag import NO_CONTEXT_ANSWER, generate_answer, retrieve
+from data.pipelines.rag import (
+    NO_CONTEXT_ANSWER,
+    classify_memory_decision,
+    generate_answer,
+    generate_structured_answer,
+    retrieve,
+)
+from database import engine as memory_engine
+from .memory_contract import (
+    DecisionLabel,
+    MemoryCategory,
+    MemoryDecision,
+    MemoryDecisionClassification,
+    MemoryProposal,
+    MemoryScope,
+    MIN_DECISION_CONFIDENCE,
+)
+from .memory_repository import (
+    MemoryStoreUnavailable,
+    create_proposal_if_configured,
+    get_pending_proposal_if_configured,
+    render_memory_context,
+    resolve_proposal_if_configured,
+    retrieve_memory_if_configured,
+)
 from .tools import (
     IncidentToolResult,
     InventoryToolResult,
@@ -31,6 +55,8 @@ class AgentState(TypedDict, total=False):
     status: Literal["answered", "fallback"]
     trace: list[str]
     owner_id: str
+    thread_id: str
+    memory_context: str
     route: Literal["rag", "incidents", "inventory", "operational"]
 
 
@@ -40,6 +66,7 @@ def receive(state: AgentState) -> AgentState:
     return {
         "question": question,
         "owner_id": state.get("owner_id", ""),
+        "thread_id": state.get("thread_id", ""),
         "route": intent,
         "trace": [*state.get("trace", []), "receive"],
     }
@@ -106,8 +133,21 @@ def route_question(
 
 def retrieve_evidence(state: AgentState) -> AgentState:
     evidence = retrieve(state["question"])
+    memory_context = ""
+    try:
+        memories = retrieve_memory_if_configured(
+            owner_id=state.get("owner_id", ""),
+            engine=memory_engine,
+            categories=[MemoryCategory.RESPONSE_PREFERENCE],
+        )
+        memory_context = render_memory_context(memories)
+    except MemoryStoreUnavailable:
+        # Approved memories are optional; preserve the normal SDR path if the
+        # dedicated memory store is unavailable.
+        pass
     return {
         "evidence": evidence,
+        "memory_context": memory_context,
         "trace": [*state.get("trace", []), "retrieve"],
     }
 
@@ -118,7 +158,46 @@ def route_evidence(state: AgentState) -> Literal["generate", "fallback"]:
 
 def generate(state: AgentState) -> AgentState:
     evidence = state["evidence"]
-    answer = generate_answer(state["question"], evidence)
+    answer: str
+    try:
+        structured = generate_structured_answer(
+            state["question"], evidence, memory_context=state.get("memory_context", "")
+        )
+    except (AttributeError, NotImplementedError):
+        # Preserve compatibility with older generation clients and test doubles.
+        structured = None
+    if structured is None:
+        answer = generate_answer(
+            state["question"], evidence, memory_context=state.get("memory_context", "")
+        )
+    else:
+        answer = structured.answer.strip()
+        candidate = structured.memory_proposal
+        if candidate is not None:
+            try:
+                proposal = MemoryProposal.model_validate(candidate.model_dump())
+                if proposal.category is not MemoryCategory.RESPONSE_PREFERENCE:
+                    raise ValueError("unsupported memory category")
+                if proposal.scope is not MemoryScope.USER:
+                    raise ValueError("unsupported memory scope")
+                record = create_proposal_if_configured(
+                    owner_id=state.get("owner_id", ""),
+                    thread_id=state.get("thread_id", ""),
+                    proposal=proposal,
+                    engine=memory_engine,
+                )
+            except (ValueError, MemoryStoreUnavailable):
+                # Never claim that consent is pending unless a safe proposal was
+                # actually stored in the isolated durable memory repository.
+                record = None
+            if record is not None:
+                answer += (
+                    "\n\n¿Quieres que recuerde esta preferencia general para tus "
+                    "respuestas futuras? Responde sí para aprobar, no para rechazar, "
+                    "o indica cómo cambiarla."
+                )
+    # Proposal generation is optional; approval is handled on a later message
+    # against the exact owner/thread/proposal triple, never in this same turn.
     unique_sources: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()
     for item in evidence:
@@ -289,8 +368,83 @@ def run_agent(
     """Run the compiled graph and return the safe response plus trace metadata."""
     resolved_thread_id = thread_id or str(uuid4())
     _ensure_pool_open()
+    try:
+        pending = get_pending_proposal_if_configured(
+            owner_id=owner_id, thread_id=resolved_thread_id, engine=memory_engine
+        )
+    except MemoryStoreUnavailable:
+        pending = None
+    if pending is not None:
+        try:
+            classified = classify_memory_decision(question, pending.content)
+            classification = MemoryDecisionClassification.model_validate(
+                classified.model_dump()
+                if hasattr(classified, "model_dump")
+                else classified
+            )
+        except Exception:
+            classification = MemoryDecisionClassification(
+                label=DecisionLabel.UNCLEAR, confidence=0
+            )
+        try:
+            resolved = resolve_proposal_if_configured(
+                owner_id=owner_id,
+                thread_id=resolved_thread_id,
+                decision=MemoryDecision(
+                    proposal_id=pending.id,
+                    label=classification.label,
+                    edited_content=classification.edited_content,
+                    confidence=classification.confidence,
+                ),
+                engine=memory_engine,
+            )
+        except (ValueError, MemoryStoreUnavailable):
+            # A race, unavailable store, or ownership inconsistency cannot be
+            # treated as consent; return a neutral response without RAG actions.
+            response_text = "No pude confirmar el consentimiento; no se guardó ninguna preferencia."
+        else:
+            if resolved.status.value == "approved":
+                response_text = "Entendido. Guardé esa preferencia general para tus respuestas futuras."
+            elif resolved.status.value == "pending":
+                response_text = (
+                    f"Actualicé la propuesta a: «{resolved.content}». "
+                    "¿Confirmas que recuerde esta preferencia? Responde sí o no."
+                )
+            elif resolved.status.value == "rejected":
+                response_text = "Entendido. No guardaré esa preferencia."
+            else:
+                response_text = "No pude interpretar un consentimiento claro; no se guardó la preferencia."
+        response: dict[str, object] = {
+            "answer": response_text,
+            "sources": [],
+            "status": "answered",
+            "trace": ["memory_consent", "memory_decision"],
+            "thread_id": resolved_thread_id,
+        }
+        followup_question = classification.followup_question
+        # Run only a separately classified request, never the consent phrase.
+        if (
+            isinstance(followup_question, str)
+            and followup_question.strip()
+            and classification.label in {DecisionLabel.APPROVE, DecisionLabel.REJECT}
+            and classification.confidence >= MIN_DECISION_CONFIDENCE
+            and "No pude confirmar" not in response_text
+        ):
+            result = _graph.invoke(
+                {
+                    "question": followup_question.strip(),
+                    "owner_id": owner_id,
+                    "thread_id": resolved_thread_id,
+                },
+                config={"configurable": {"thread_id": resolved_thread_id}},
+            )
+            response["answer"] = f"{response_text}\n\n{result['answer']}"
+            response["sources"] = result.get("sources", [])
+            response["status"] = result["status"]
+            response["trace"] = [*response["trace"], *result.get("trace", [])]
+        return response
     result = _graph.invoke(
-        {"question": question, "owner_id": owner_id},
+        {"question": question, "owner_id": owner_id, "thread_id": resolved_thread_id},
         config={"configurable": {"thread_id": resolved_thread_id}},
     )
     return {

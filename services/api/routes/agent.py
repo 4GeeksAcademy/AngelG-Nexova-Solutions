@@ -17,6 +17,7 @@ class AgentQueryRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     question: str = Field(min_length=1, max_length=2000)
+    thread_id: str | None = Field(default=None, min_length=1, max_length=128)
 
 
 class AgentSource(BaseModel):
@@ -38,7 +39,11 @@ def query_agent(
     current_user: dict = Depends(get_current_user),
 ) -> AgentQueryResponse:
     try:
-        result = run_agent(payload.question, owner_id=current_user["id"])
+        result = run_agent(
+            payload.question,
+            owner_id=current_user["id"],
+            thread_id=payload.thread_id,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except Exception as exc:
