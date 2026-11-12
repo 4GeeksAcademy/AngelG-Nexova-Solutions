@@ -18,9 +18,7 @@ import {
   getToken,
   handleUnauthorizedToken,
   loginRequest,
-  registerRequest,
   setOnUnauthorized,
-  type RegisterPayload,
 } from "@/lib/api-client";
 
 export interface User {
@@ -44,7 +42,6 @@ interface AuthContextValue {
   authState: AuthState;
   retryAuthentication: () => void;
   login: (email: string, password: string) => Promise<void>;
-  register: (payload: RegisterPayload) => Promise<void>;
   logout: () => void;
 }
 
@@ -213,11 +210,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       : current);
   }, []);
 
-  const register = useCallback(async (payload: RegisterPayload) => {
-    await registerRequest(payload);
-    await login(payload.email, payload.password);
-  }, [login]);
-
   const logout = useCallback(() => {
     advanceAuthSessionRevision();
     localStorage.removeItem("token");
@@ -237,9 +229,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     authState,
     retryAuthentication,
     login,
-    register,
     logout,
-  }), [authState, user, updateProfileName, isReady, isAuthenticated, retryAuthentication, login, register, logout]);
+  }), [authState, user, updateProfileName, isReady, isAuthenticated, retryAuthentication, login, logout]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

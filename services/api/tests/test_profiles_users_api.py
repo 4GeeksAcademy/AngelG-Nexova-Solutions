@@ -1,17 +1,14 @@
 from fastapi.testclient import TestClient
 
 from main import app
+from tests.user_helpers import create_test_user
 
 
 client = TestClient(app, raise_server_exceptions=False)
 
 
 def auth_headers(email="admin@example.com"):
-    registered = client.post(
-        "/users",
-        json={"email": email, "password": "Password123!"},
-    )
-    assert registered.status_code == 200
+    create_test_user(email, "Password123!")
     login = client.post(
         "/auth/login",
         data={"username": email, "password": "Password123!"},
@@ -106,6 +103,10 @@ def test_user_administration_is_admin_only(client):
     user_headers = login_headers("admin-only@example.com")
 
     assert client.get("/users", headers=user_headers).status_code == 403
+    assert client.post(
+        "/users", headers=user_headers,
+        json={"email": "managed@example.com", "password": "Password123!"},
+    ).status_code == 405
     assert client.post(
         "/users/admin", headers=user_headers,
         json={"email": "managed@example.com", "role": "manager"},
@@ -203,7 +204,7 @@ def test_users_group_rejects_duplicate_email_and_missing_user():
     )
     missing = client.get("/users/not-found", headers=headers)
 
-    assert duplicate.status_code == 400
+    assert duplicate.status_code == 405
     assert missing.status_code == 403
 
 

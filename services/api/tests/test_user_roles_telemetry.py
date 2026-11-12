@@ -3,15 +3,14 @@ from fastapi.testclient import TestClient
 from database import users_table
 from main import app
 from tinydb import Query
+from tests.user_helpers import create_test_user
 
 
 client = TestClient(app, raise_server_exceptions=False)
 
 
 def register_and_login(email: str, role: str) -> dict[str, str]:
-    created = client.post("/users", json={"email": email, "password": "Password123!"})
-    assert created.status_code == 200
-    user = users_table.get(Query().email == email)
+    user = create_test_user(email, "Password123!")
     users_table.update({"role": role}, Query().id == user["id"])
     login = client.post(
         "/auth/login", data={"username": email, "password": "Password123!"}

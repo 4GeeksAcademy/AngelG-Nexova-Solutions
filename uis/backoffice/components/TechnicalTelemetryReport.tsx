@@ -35,24 +35,23 @@ export function TechnicalTelemetryReport() {
     return () => { active = false; };
   }, [attempt]);
   return <main className="min-h-screen px-4 py-8 md:px-10">
-    <section className="mx-auto grid max-w-5xl gap-6 rounded-2xl border border-white/70 bg-white/90 p-5 shadow-lg md:p-8">
+    <section className="inventory-page-card mx-auto grid max-w-5xl gap-6 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-lg sm:p-6 md:p-8">
       <header>
         <Link href="/backoffice/inventory" className="font-semibold text-cyan-800">← Volver al inventario</Link>
         <h1 className="mt-3 text-2xl font-bold">Reporte técnico de telemetría</h1>
         <p>Conteos históricos por tipo de evento. Sin datos personales ni eventos crudos. Acceso admin/manager.</p>
       </header>
-      <button className="w-fit rounded-lg border border-cyan-700 px-3 py-2 font-semibold text-cyan-900" onClick={() => { setReport(null); setError(null); setAttempt((value) => value + 1); }}>Actualizar</button>
+      <button className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-cyan-700 px-4 py-2.5 font-semibold text-cyan-900 shadow-sm transition duration-200 hover:border-cyan-600 hover:bg-cyan-50 hover:shadow-md active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none sm:w-fit" onClick={() => { setReport(null); setError(null); setAttempt((value) => value + 1); }}>Actualizar</button>
       {error && <p role="alert" className="text-red-800">{error}</p>}
       {!report && !error && <p role="status">Cargando telemetría…</p>}
       {report && <>
-        <p>Total: {report.total_events} · Tipos desconocidos: {report.unknown_event_count}</p>
-        <p>Calculado: {new Date(report.generated_at).toLocaleString("es")}</p>
-        <p>Primer evento: {report.first_event_at ? new Date(report.first_event_at).toLocaleString("es") : "Sin eventos"} · Último: {report.last_event_at ? new Date(report.last_event_at).toLocaleString("es") : "Sin eventos"}</p>
-        <table className="w-full text-left text-sm">
+        <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div className="inventory-surface-card rounded-2xl border border-slate-200 bg-white/60 p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-600">Total de eventos</dt><dd className="mt-1 text-2xl font-bold">{report.total_events}</dd></div><div className="inventory-surface-card rounded-2xl border border-slate-200 bg-white/60 p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-600">Tipos desconocidos</dt><dd className="mt-1 text-2xl font-bold">{report.unknown_event_count}</dd></div><div className="inventory-surface-card rounded-2xl border border-slate-200 bg-white/60 p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-600">Primer evento</dt><dd className="mt-1 text-sm font-semibold">{report.first_event_at ? new Date(report.first_event_at).toLocaleString("es") : "Sin eventos"}</dd></div><div className="inventory-surface-card rounded-2xl border border-slate-200 bg-white/60 p-4"><dt className="text-xs font-semibold uppercase tracking-wide text-slate-600">Último evento</dt><dd className="mt-1 text-sm font-semibold">{report.last_event_at ? new Date(report.last_event_at).toLocaleString("es") : "Sin eventos"}</dd></div></dl>
+        <p className="text-sm text-slate-600">Calculado: {new Date(report.generated_at).toLocaleString("es")}</p>
+        <div className="overflow-x-auto rounded-xl border border-slate-200"><table className="w-full min-w-[32rem] text-left text-sm">
           <caption className="sr-only">Conteos de eventos de inventario</caption>
           <thead><tr><th scope="col" className="p-3">Evento</th><th scope="col" className="p-3">Cantidad</th></tr></thead>
           <tbody>{report.event_counts.map((entry) => <tr key={entry.event_type} className="border-t"><td className="p-3">{EVENT_LABELS[entry.event_type] ?? `Otro evento (${entry.event_type})`}</td><td className="p-3">{entry.count}</td></tr>)}</tbody>
-        </table>
+        </table></div>
       </>}
     </section>
   </main>;

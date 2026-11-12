@@ -31,7 +31,9 @@ const UserAdministration = dynamic(
 
 function ProfileContent() {
   const { updateProfileName, user } = useAuth();
-  const [activeSection, setActiveSection] = useState<"profile" | "password" | "users">("profile");
+  const [activeSection, setActiveSection] = useState<"profile" | "password" | "users">(() =>
+    user?.role === "admin" && typeof window !== "undefined" && new URLSearchParams(window.location.search).get("section") === "users" ? "users" : "profile",
+  );
 
   const [me, setMe] = useState<MeResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);

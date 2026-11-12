@@ -2,21 +2,14 @@ from fastapi.testclient import TestClient
 
 import auth
 from main import app
+from tests.user_helpers import create_test_user
 
 
 client = TestClient(app)
 
 
 def register_user(email="user@example.com", password="OldPassword123!"):
-    response = client.post(
-        "/users",
-        json={"email": email, "password": password}
-    )
-    assert response.status_code == 200
-    assert response.json() == {
-        "message": "Registro completado correctamente."
-    }
-    return response.json()
+    return create_test_user(email, password)
 
 
 def login(email, password):

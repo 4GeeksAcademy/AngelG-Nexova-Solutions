@@ -9,81 +9,24 @@ from database import password_reset_tokens_table, users_table
 from main import app
 from services import get_user_by_email
 from tinydb import Query
+from tests.user_helpers import create_test_user
 
 
 client = TestClient(app)
 
 
 def register_user(email="user@example.com", password="OldPassword123!"):
+    return create_test_user(email, password)
+
+
+def test_public_registration_endpoint_is_removed():
     response = client.post(
         "/users",
-        json={"email": email, "password": password},
-    )
-    assert response.status_code == 200
-    return get_user_by_email(email)
-
-
-def test_register_creates_active_user_and_profile_without_exposing_password():
-    response = client.post(
-        "/users",
-        json={
-            "email": "new@example.com",
-            "password": "NewPassword123!",
-            "name": "New User",
-        },
+        json={"email": "new@example.com", "password": "NewPassword123!"},
     )
 
-    assert response.status_code == 200
-    body = response.json()
-    assert body == {"message": "Registro completado correctamente."}
-    assert "new@example.com" not in response.text
-    assert "New User" not in response.text
-    assert "hashed_password" not in response.text
-
-
-def test_register_accepts_minimum_password_length_and_optional_fields():
-    response = client.post(
-        "/users",
-        json={"email": "minimum@example.com", "password": "12345678"},
-    )
-
-    assert response.status_code == 200
-    assert response.json() == {"message": "Registro completado correctamente."}
-
-
-def test_register_rejects_duplicate_email_and_missing_credentials():
-    register_user(email="duplicate@example.com")
-
-    duplicate_response = client.post(
-        "/users",
-        json={"email": "duplicate@example.com", "password": "OtherPassword123!"},
-    )
-    missing_password_response = client.post(
-        "/users",
-        json={"email": "missing-password@example.com"},
-    )
-
-    assert duplicate_response.status_code == 400
-    assert missing_password_response.status_code == 400
-
-
-@pytest.mark.parametrize(
-    "payload",
-    [
-        {"email": "empty-password@example.com", "password": ""},
-        {"email": "invalid-email", "password": "Password123!"},
-        {"email": "", "password": "Password123!"},
-        {"email": " ", "password": "Password123!"},
-    ],
-)
-@pytest.mark.xfail(
-    strict=True,
-    reason="UserCreate actualmente no valida formato de email ni longitud de password",
-)
-def test_register_rejects_empty_or_invalid_credentials(payload):
-    response = client.post("/users", json=payload)
-
-    assert response.status_code == 422
+    assert response.status_code == 405
+    assert get_user_by_email("new@example.com") is None
 
 
 def login(email, password):
@@ -502,22 +445,6 @@ def test_reset_password_rejects_empty_token():
     )
 
     assert response.status_code == 400
-
-
-def test_register_returns_controlled_error_when_password_hashing_fails(monkeypatch):
-    monkeypatch.setattr(
-        auth.bcrypt,
-        "hash",
-        lambda _password: (_ for _ in ()).throw(RuntimeError("hash down")),
-    )
-
-    response = client.post(
-        "/users",
-        json={"email": "hash-registration@example.com", "password": "Password123!"},
-    )
-
-    assert response.status_code == 500
-    assert response.json()["detail"]["code"] == "REGISTRATION_FAILED"
 
 
 def test_get_frontend_url_removes_trailing_slash_outside_codespaces(monkeypatch):

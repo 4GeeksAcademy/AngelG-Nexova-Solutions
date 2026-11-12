@@ -3,14 +3,15 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { UserAdministration } from "@/components/UserAdministration";
 import {
-  createManagedUser,
   deleteManagedUser,
   getManagedUsers,
   updateManagedUserPassword,
 } from "@/lib/api-client";
 
+const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+
 vi.mock("@/lib/api-client", () => ({
-  createManagedUser: vi.fn(),
   deleteManagedUser: vi.fn(),
   getManagedUsers: vi.fn(),
   updateManagedUserPassword: vi.fn(),
@@ -32,26 +33,12 @@ describe("Administración de usuarios", () => {
     vi.mocked(getManagedUsers).mockResolvedValue([managedUser]);
   });
 
-  it("lista usuarios, crea una cuenta con rol seleccionable y muestra el estado del correo", async () => {
-    vi.mocked(createManagedUser).mockResolvedValue({
-      ...managedUser,
-      id: "user-2",
-      email: "new@example.com",
-      password_setup_email_sent: true,
-    });
-
+  it("lista usuarios y navega a la vista dedicada para crear una cuenta", async () => {
     render(<UserAdministration />);
     expect(await screen.findByText("supervisor@example.com")).toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Email"), { target: { value: "new@example.com" } });
-    fireEvent.change(screen.getByLabelText("Rol"), { target: { value: "manager" } });
-    fireEvent.click(screen.getByRole("button", { name: "Crear usuario" }));
-
-    await waitFor(() => expect(createManagedUser).toHaveBeenCalledWith({
-      email: "new@example.com",
-      role: "manager",
-      name: null,
-    }));
-    expect(await screen.findByText(/Se envió un enlace de un solo uso/)).toBeInTheDocument();
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Crear cuenta" }));
+    expect(push).toHaveBeenCalledWith("/account/users/new");
   });
 
   it("permite asignar una nueva contraseña directamente con confirmación y volver al listado", async () => {

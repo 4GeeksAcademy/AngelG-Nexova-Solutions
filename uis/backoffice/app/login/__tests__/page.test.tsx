@@ -38,4 +38,11 @@ describe("LoginPage", () => {
       screen.getByRole("link", { name: /¿olvidaste tu contraseña\?/i }),
     ).toHaveAttribute("href", "/forgot-password");
   });
+
+  it("no ofrece registro público desde el login", () => {
+    render(<LoginPage />);
+
+    expect(screen.queryByRole("link", { name: /crear cuenta/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/¿no tienes cuenta\?/i)).not.toBeInTheDocument();
+  });
 });

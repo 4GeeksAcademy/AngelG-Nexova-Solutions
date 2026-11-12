@@ -16,7 +16,7 @@ import { NumberedPagination } from "@/components/NumberedPagination";
 import { getSuppliers, type SupplierListItem } from "@/lib/suppliers-api";
 import { telemetryCategories, writableMovementTypes } from "@/types/managed-inventory";
 
-const buttonClass = "rounded-lg border border-cyan-700 px-3 py-2 font-semibold text-cyan-900 disabled:opacity-50";
+const buttonClass = "inline-flex min-h-11 items-center justify-center rounded-xl border border-cyan-700 px-4 py-2.5 text-center font-semibold text-cyan-900 shadow-sm transition duration-200 hover:border-cyan-600 hover:bg-cyan-50 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none";
 const inputClass = "w-full rounded border border-slate-300 bg-white px-3 py-2 text-slate-950";
 
 function message(error: unknown): string {
@@ -81,7 +81,7 @@ function ItemForm({ item, onSaved }: { item?: InventoryItem; onSaved: () => void
     finally { pending.current = false; setBusy(false); }
   }
   return (
-    <form onSubmit={submit} className="grid gap-3 rounded-xl border border-slate-200 p-4">
+    <form onSubmit={submit} className="inventory-surface-card grid gap-4 rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm sm:p-6">
       <h2 className="text-lg font-bold">{item ? "Editar artículo" : "Nuevo artículo"}</h2>
       <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2">
         <Field label="Nombre"><input className={inputClass} name="name" required maxLength={200} defaultValue={item?.name} /></Field>
@@ -189,15 +189,14 @@ function ItemDetail({ item, onChanged, onDeleted, creation }: {
   }
   return (
     <section aria-label={`Detalle de ${item.name}`} className="grid gap-5">
-      {!creation && <header>
+      {!creation && <header className="inventory-surface-card grid gap-3 rounded-2xl border border-slate-200 bg-white/70 p-4 sm:p-5">
         <h2 className="text-xl font-bold">{item.name} · {inventoryOffices[item.office]}</h2>
-        <p>Stock calculado: {item.current_stock} · Punto de reorden: {item.reorder_point}</p>
-        <p className={item.reorder_alert ? "font-bold text-amber-900" : "text-emerald-800"}>{item.reorder_alert ? "Reabastecimiento necesario" : "Por encima del punto de reorden"}</p>
-        <p>Categoría: {inventoryCategories[item.category]} · Unidad: {inventoryUnits[item.unit_of_measure]}</p>
-        <p>Control de lotes: {item.lot_tracked ? "Sí" : "No"}</p>
-        <p>SKU: {item.sku ?? "Sin SKU registrado"}</p>
-        <p>Telemetría: {item.telemetry_category ? telemetryCategories[item.telemetry_category] : "Sin clasificar"} · Programa: {item.programme_id ?? "Sin asignar"}</p>
-        {item.source_asset_id != null && <p>ID anterior del Hito 5: {item.source_asset_id}</p>}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-slate-200 bg-white/70 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Stock calculado</p><p className="mt-1 text-xl font-bold">{item.current_stock} <span className="text-sm font-medium">{inventoryUnits[item.unit_of_measure]}</span></p></div>
+          <div className="rounded-xl border border-slate-200 bg-white/70 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Punto de reorden</p><p className="mt-1 text-xl font-bold">{item.reorder_point}</p></div>
+          <div className="rounded-xl border border-slate-200 bg-white/70 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Estado</p><p className={item.reorder_alert ? "mt-1 font-bold text-amber-900" : "mt-1 font-bold text-emerald-800"}>{item.reorder_alert ? "Reabastecimiento necesario" : "Por encima del punto de reorden"}</p></div>
+        </div>
+        <div className="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-2"><p>Categoría: {inventoryCategories[item.category]}</p><p>Control de lotes: {item.lot_tracked ? "Sí" : "No"}</p><p>SKU: {item.sku ?? "Sin SKU registrado"}</p><p>Telemetría: {item.telemetry_category ? telemetryCategories[item.telemetry_category] : "Sin clasificar"}</p><p>Programa: {item.programme_id ?? "Sin asignar"}</p>{item.source_asset_id != null && <p>ID anterior del Hito 5: {item.source_asset_id}</p>}</div>
       </header>}
       {!creation && <div className="flex flex-wrap gap-2">
         <button type="button" className={buttonClass} onClick={() => setEditing((value) => !value)}>{editing ? "Cancelar edición" : "Editar artículo"}</button>
@@ -211,7 +210,7 @@ function ItemDetail({ item, onChanged, onDeleted, creation }: {
       {error && <div role="alert" className="text-red-800"><p>{error}</p><button type="button" className={buttonClass} onClick={refresh} disabled={busy}>Recargar detalle</button></div>}
       {!details && !error && <p role="status">Cargando lotes y movimientos…</p>}
       {details && <>
-        {creation === "lot" && <form onSubmit={(event) => submit(event, "lot")} className="grid gap-3 rounded-xl border p-4">
+        {creation === "lot" && <form onSubmit={(event) => submit(event, "lot")} className="inventory-surface-card grid gap-4 rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm sm:p-6">
           <h3 className="font-bold">Nuevo lote</h3>
           <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2">
             <Field label="Código de lote"><input className={inputClass} name="code" required maxLength={100} /></Field>
@@ -219,12 +218,12 @@ function ItemDetail({ item, onChanged, onDeleted, creation }: {
           </fieldset>
           <button className={buttonClass} disabled={busy}>Registrar lote</button>
         </form>}
-        {!creation && <><h3 className="font-bold">Lotes</h3>
-        {details.lots.length === 0 ? <p>No hay lotes registrados.</p> : <ul className="grid gap-2">{details.lots.map((lot) => <li key={lot.id}>
-          {lot.lot_code} · {lot.expiry_date ? `Caducidad: ${lot.expiry_date}` : "Sin caducidad"} · Recibido: {new Date(lot.received_at).toLocaleString("es")}
+        {!creation && <section className="grid gap-3 rounded-2xl border border-slate-200 bg-white/50 p-4 sm:p-5"><h3 className="font-bold">Lotes</h3>
+        {details.lots.length === 0 ? <p>No hay lotes registrados.</p> : <ul className="grid gap-3 sm:grid-cols-2">{details.lots.map((lot) => <li key={lot.id} className="inventory-surface-card rounded-xl border border-slate-200 bg-white/70 p-4 shadow-sm">
+          <p className="font-bold">{lot.lot_code}</p><p className="mt-1 text-sm">{lot.expiry_date ? `Caducidad: ${lot.expiry_date}` : "Sin caducidad"}</p><p className="text-sm">Recibido: {new Date(lot.received_at).toLocaleString("es")}</p>
           {lot.expiry_date && lot.expiry_date < localToday() && <strong className="ml-2 text-red-800">Caducado: no admite salidas</strong>}
-        </li>)}</ul>}</>}
-        {creation === "movement" && <form onSubmit={(event) => submit(event, "movement")} className="grid gap-3 rounded-xl border p-4">
+        </li>)}</ul>}</section>}
+        {creation === "movement" && <form onSubmit={(event) => submit(event, "movement")} className="inventory-surface-card grid gap-4 rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm sm:p-6">
           <h3 className="font-bold">Nuevo movimiento</h3>
           <fieldset disabled={busy} className="grid gap-3 sm:grid-cols-2">
             <Field label="Tipo de movimiento"><select className={inputClass} value={kind} onChange={(event) => setKind(catalogKey(writableMovementTypes, event.target.value))}><Options values={writableMovementTypes} /></select></Field>
@@ -250,8 +249,8 @@ function ItemDetail({ item, onChanged, onDeleted, creation }: {
           {supplierError && <p role="alert" className="text-red-800">{supplierError} <Link href="/backoffice/suppliers" className="underline">Abrir proveedores</Link></p>}
           <button className={buttonClass} disabled={busy || (item.lot_tracked && details.lots.length === 0)}>Registrar movimiento</button>
         </form>}
-        {!creation && <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        {!creation && <div className="overflow-x-auto rounded-xl border border-slate-200">
+          <table className="w-full min-w-[720px] text-left text-sm">
             <caption className="mb-2 text-left font-bold">Historial de movimientos</caption>
             <thead><tr>{["Fecha", "Tipo", "Cantidad", "Motivo", "Lote", "Proveedor", "Costo unitario", "Finalidad", "Asignado a", "Oficina", "Autor"].map((label) => <th key={label} scope="col" className="p-2">{label}</th>)}</tr></thead>
             <tbody>{details.movements.map((movement) => <tr key={movement.id} className="border-t">
@@ -322,7 +321,7 @@ export function ManagedInventory() {
   const pageItems = visible.slice((currentPage - 1) * 10, currentPage * 10);
   return (
     <main className="min-h-screen px-4 py-8 md:px-10">
-      <section className="mx-auto grid max-w-6xl gap-6 rounded-2xl border border-white/70 bg-white/90 p-5 shadow-lg md:p-8">
+      <section className="inventory-page-card mx-auto grid max-w-6xl gap-6 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-lg sm:p-6 md:p-8">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div><p className="text-xs font-semibold uppercase tracking-widest text-cyan-800">Nexova · Backoffice</p>
         <h1 className="mt-1 text-2xl font-bold text-slate-950">Inventario de activos</h1><p className="text-sm text-slate-600">Consulta el stock por artículo y oficina, calculado desde movimientos.</p></div>
@@ -344,7 +343,7 @@ export function ManagedInventory() {
             : "border-red-400 bg-red-50 text-red-800 hover:bg-red-100 dark:border-red-400 dark:bg-red-950/50 dark:text-red-200 dark:hover:bg-red-900"
         }`} aria-pressed={deleteMode} disabled={deletingId !== null} onClick={() => setDeleteMode((value) => !value)}>{deleteMode ? "Cancelar eliminación" : "Eliminar artículos"}</button>
       </div>
-      <section className="grid gap-4 rounded-xl border bg-white p-4" aria-label="Listado de artículos">
+      <section className="grid min-w-0 gap-4 rounded-2xl border bg-white/70 p-3 sm:gap-5 sm:p-5" aria-label="Listado de artículos">
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Buscar artículos"><input className={inputClass} type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder="Nombre, SKU, ID, oficina, categoría o unidad" /></Field>
           <Field label="Filtrar por oficina"><select className={inputClass} value={office} onChange={(event) => { setOffice(event.target.value); setPage(1); }}><option value="">Todas las oficinas</option><Options values={inventoryOffices} /></select></Field>
@@ -357,15 +356,15 @@ export function ManagedInventory() {
         {error && <p role="alert" className="text-red-800">{error}</p>}
         {!loading && !error && <>
           <p role="status">{visible.length} artículos · {reorderAlertCount} alertas en esta vista</p>
-          {!visible.length ? <p>No hay artículos que coincidan con los filtros.</p> : <div className="overflow-x-auto rounded-xl border border-slate-200"><table className="w-full min-w-[850px] border-collapse text-left text-sm">
+          {!visible.length ? <p>No hay artículos que coincidan con los filtros.</p> : <div className="overflow-x-auto rounded-xl border border-slate-200"><table className="inventory-list-table w-full min-w-[850px] border-collapse text-left text-sm">
             <caption className="sr-only">Artículos por oficina y stock calculado</caption>
             <thead className="bg-slate-100 text-xs uppercase tracking-wide text-slate-700"><tr>{["Artículo", "Oficina", "Categoría", "Unidad", "Stock", "Reorden", "Estado", "Acción"].map((label) => <th key={label} scope="col" className="px-4 py-3">{label}</th>)}</tr></thead>
             <tbody className="divide-y divide-slate-200">{pageItems.map((item) => <tr key={item.id} className="hover:bg-cyan-50/50">
-              <td className="p-2">{item.name}<span className="block text-xs text-slate-500">{item.sku}</span></td><td className="p-2">{inventoryOffices[item.office]}</td><td className="p-2">{inventoryCategories[item.category]}</td><td className="p-2">{inventoryUnits[item.unit_of_measure]}</td>
-              <td className="p-2">{item.current_stock}</td><td className="p-2">{item.reorder_point}</td>
-              <td className="p-2"><span className={`inline-flex rounded-full border px-3 py-1 font-semibold ${item.reorder_alert ? "border-amber-300 bg-amber-100 text-amber-900" : "border-emerald-300 bg-emerald-100 text-emerald-900"}`}>{Number(item.current_stock) === 0 ? "Sin stock" : item.reorder_alert ? "Reabastecer" : "Disponible"}</span></td>
-              <td className="p-2"><div className="flex flex-wrap gap-2"><Link className={buttonClass} aria-label={`Ver ${item.name} en ${inventoryOffices[item.office]}`} href={`/backoffice/inventory/${item.id}`}>Ver detalle</Link>
-                {deleteMode && <button type="button" className="inline-flex items-center justify-center rounded-lg border border-red-300 bg-red-100 px-3 py-2 text-sm font-semibold text-red-800 shadow-sm transition hover:bg-red-200 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-300 dark:bg-red-400 dark:text-red-950 dark:hover:bg-red-300" disabled={deletingId !== null} aria-label={`Eliminar ${item.name} en ${inventoryOffices[item.office]}`} onClick={() => void removeItem(item)}>Eliminar definitivamente</button>}
+              <td className="p-2" data-label="Artículo">{item.name}<span className="block text-xs text-slate-500">{item.sku}</span></td><td className="p-2" data-label="Oficina">{inventoryOffices[item.office]}</td><td className="p-2" data-label="Categoría">{inventoryCategories[item.category]}</td><td className="p-2" data-label="Unidad">{inventoryUnits[item.unit_of_measure]}</td>
+              <td className="p-2" data-label="Stock">{item.current_stock}</td><td className="p-2" data-label="Reorden">{item.reorder_point}</td>
+              <td className="p-2" data-label="Estado"><span className={`inline-flex rounded-full border px-3 py-1 font-semibold ${item.reorder_alert ? "border-amber-300 bg-amber-100 text-amber-900" : "border-emerald-300 bg-emerald-100 text-emerald-900"}`}>{Number(item.current_stock) === 0 ? "Sin stock" : item.reorder_alert ? "Reabastecer" : "Disponible"}</span></td>
+              <td className="p-2" data-label="Acción"><div className="flex flex-wrap gap-2"><Link className={buttonClass} aria-label={`Ver ${item.name} en ${inventoryOffices[item.office]}`} href={`/backoffice/inventory/${item.id}`}>Ver detalle</Link>
+                {deleteMode && <button type="button" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-red-300 bg-red-100 px-3 py-2 text-sm font-semibold text-red-800 shadow-sm transition hover:bg-red-200 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-300 dark:bg-red-400 dark:text-red-950 dark:hover:bg-red-300" disabled={deletingId !== null} aria-label={`Eliminar ${item.name} en ${inventoryOffices[item.office]}`} onClick={() => void removeItem(item)}>Eliminar definitivamente</button>}
               </div></td>
             </tr>)}</tbody>
           </table></div>}
@@ -390,7 +389,7 @@ export function ManagedInventoryDetail({ itemId, creation }: { itemId: number; c
   }, [itemId, attempt]);
   function reload() { setError(null); setAttempt((value) => value + 1); }
   return <main className="min-h-screen px-4 py-8 md:px-10">
-    <section className="mx-auto grid max-w-5xl gap-6 rounded-2xl border border-white/70 bg-white/90 p-5 shadow-lg md:p-8">
+    <section className="inventory-page-card mx-auto grid max-w-5xl gap-6 rounded-2xl border border-white/70 bg-white/90 p-4 shadow-lg sm:p-6 md:p-8">
       <header className="border-b border-slate-200 pb-5"><Link href={creation ? `/backoffice/inventory/${itemId}` : "/backoffice/inventory"} className="font-semibold text-cyan-800">{creation ? "← Volver al artículo" : "← Volver al inventario"}</Link>
         <h1 className="mt-3 text-2xl font-bold text-slate-950">{creation === "lot" ? "Registrar lote" : creation === "movement" ? "Registrar movimiento" : "Detalle del artículo"}</h1></header>
       {error && <div role="alert"><p className="text-red-900">{error}</p><button type="button" className={buttonClass} onClick={reload}>Reintentar</button></div>}
@@ -402,8 +401,8 @@ export function ManagedInventoryDetail({ itemId, creation }: { itemId: number; c
 
 export function ManagedInventoryCreate() {
   const router = useRouter();
-  return <main className="min-h-screen px-4 py-8 md:px-10">
-    <section className="mx-auto grid max-w-3xl gap-6 rounded-2xl border bg-white/90 p-6">
+  return <main className="min-h-screen px-3 py-5 sm:px-4 sm:py-8 md:px-10">
+    <section className="inventory-page-card mx-auto grid max-w-3xl gap-6 rounded-2xl border bg-white/90 p-4 shadow-lg sm:p-6 md:p-8">
       <Link href="/backoffice/inventory" className="font-semibold text-cyan-800">← Volver al inventario</Link>
       <h1 className="text-2xl font-bold">Registrar artículo</h1>
       <ItemForm onSaved={() => router.push("/backoffice/inventory")} />

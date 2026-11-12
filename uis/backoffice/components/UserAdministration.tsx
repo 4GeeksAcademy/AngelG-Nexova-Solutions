@@ -1,9 +1,9 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
-  createManagedUser,
   deleteManagedUser,
   getManagedUsers,
   updateManagedUserPassword,
@@ -23,13 +23,10 @@ const roleLabels: Record<UserRole, string> = {
 const roles: ManagedUserRole[] = ["user", "manager", "admin"];
 
 export function UserAdministration() {
+  const router = useRouter();
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [role, setRole] = useState<ManagedUserRole>("user");
-  const [isCreating, setIsCreating] = useState(false);
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<Record<string, ManagedUserRole>>({});
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -67,32 +64,6 @@ export function UserAdministration() {
       isMounted = false;
     };
   }, []);
-
-  async function handleCreate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError(null);
-    setFeedback(null);
-    setIsCreating(true);
-    try {
-      const created = await createManagedUser({
-        email: email.trim(),
-        role,
-        name: name.trim() || null,
-      });
-      setUsers((current) => [...current, created]);
-      setEmail("");
-      setName("");
-      setFeedback(
-        created.password_setup_email_sent
-          ? "Usuario creado. Se envió un enlace de un solo uso para establecer su contraseña."
-          : "Usuario creado, pero no se pudo enviar el enlace. Usa «Forzar cambio de contraseña» cuando el correo esté disponible.",
-      );
-    } catch (error) {
-      setFormError(error instanceof Error ? error.message : "No se pudo crear el usuario.");
-    } finally {
-      setIsCreating(false);
-    }
-  }
 
   function openPasswordForm(user: ManagedUser) {
     setPasswordUser(user);
@@ -198,33 +169,13 @@ export function UserAdministration() {
           </form>
         </div>
       ) : <>
-      <p className="mt-2 text-sm text-slate-600">
-        Las cuentas nuevas reciben un enlace de un solo uso para establecer su contraseña; nunca se muestra una contraseña temporal.
-      </p>
-
-      <form onSubmit={handleCreate} className="mt-5 grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-3">
-        <div>
-          <label htmlFor="managed-user-email" className="mb-1 block text-sm font-medium text-slate-700">Email</label>
-          <input id="managed-user-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200" />
-        </div>
-        <div>
-          <label htmlFor="managed-user-name" className="mb-1 block text-sm font-medium text-slate-700">Nombre (opcional)</label>
-          <input id="managed-user-name" value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200" />
-        </div>
-        <div>
-          <label htmlFor="managed-user-role" className="mb-1 block text-sm font-medium text-slate-700">Rol</label>
-          <select id="managed-user-role" value={role} onChange={(event) => setRole(event.target.value as ManagedUserRole)} className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200">
-            {roles.map((item) => <option key={item} value={item}>{roleLabels[item]}</option>)}
-          </select>
-        </div>
-        {formError ? <p role="alert" className="text-sm text-red-700 md:col-span-3">{formError}</p> : null}
-        <div className="md:col-span-3">
-          <button type="submit" disabled={isCreating} className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50">
-            {isCreating ? "Creando…" : "Crear usuario"}
-          </button>
-        </div>
-      </form>
-
+      <button
+        type="button"
+        onClick={() => router.push("/account/users/new")}
+        className="mt-5 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+      >
+        Crear cuenta
+      </button>
       {feedback ? <p role="status" className="mt-4 rounded-xl bg-cyan-50 px-3 py-2 text-sm text-cyan-900">{feedback}</p> : null}
 
       <div className="mt-6">

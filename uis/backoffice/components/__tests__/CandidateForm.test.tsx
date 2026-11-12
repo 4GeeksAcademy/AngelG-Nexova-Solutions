@@ -8,6 +8,12 @@ describe("CandidateForm", () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
     render(<CandidateForm onSubmit={onSubmit} />);
 
+    expect(screen.getByRole("spinbutton", { name: "Años de experiencia" })).toHaveAttribute(
+      "placeholder",
+      "Años de experiencia",
+    );
+    expect(screen.getByRole("spinbutton", { name: "Años de experiencia" })).toHaveValue(null);
+
     fireEvent.change(screen.getByRole("textbox", { name: "Nombre completo" }), {
       target: { value: "Elena Ruiz" },
     });
@@ -61,11 +67,22 @@ describe("CandidateForm", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Teléfono" }), {
       target: { value: "+34 600 111 222" },
     });
+    fireEvent.change(screen.getByRole("textbox", { name: "Puesto" }), {
+      target: { value: "Executive Assistant" },
+    });
+    fireEvent.change(screen.getByRole("spinbutton", { name: "Años de experiencia" }), {
+      target: { value: "0" },
+    });
     fireEvent.click(screen.getByRole("button", { name: "Guardar candidatura" }));
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({ linkedin_url: null, cv_url: null }),
+        expect.objectContaining({
+          position: "Executive Assistant",
+          experience_years: 0,
+          linkedin_url: null,
+          cv_url: null,
+        }),
       );
     });
   });

@@ -1,18 +1,14 @@
 from fastapi.testclient import TestClient
 
 from main import app
+from tests.user_helpers import create_test_user
 
 
 client = TestClient(app, raise_server_exceptions=False)
 
 
 def auth_headers():
-    registered = client.post(
-        "/users",
-        json={"email": "records@example.com", "password": "Password123!"},
-    )
-    assert registered.status_code == 200
-    assert registered.json() == {"message": "Registro completado correctamente."}
+    create_test_user("records@example.com", "Password123!")
     login = client.post(
         "/auth/login",
         data={"username": "records@example.com", "password": "Password123!"},

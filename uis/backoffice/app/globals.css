@@ -83,6 +83,27 @@ html.dark body {
     var(--background);
 }
 
+html.dark body {
+  color: #f1f5f9;
+}
+
+/* Several screens use the default Tailwind gray families for secondary copy.
+   Keep that copy readable against the dark surfaces without changing status colors. */
+html.dark :is(
+  [class~="text-gray-400"], [class~="text-gray-500"], [class~="text-gray-600"], [class~="text-gray-700"],
+  [class~="text-zinc-400"], [class~="text-zinc-500"], [class~="text-zinc-600"], [class~="text-zinc-700"],
+  [class~="text-stone-400"], [class~="text-stone-500"], [class~="text-stone-600"], [class~="text-stone-700"],
+  [class~="text-neutral-400"], [class~="text-neutral-500"], [class~="text-neutral-600"], [class~="text-neutral-700"]
+) {
+  color: #cbd5e1;
+}
+
+html.dark :is(
+  [class~="text-gray-300"], [class~="text-zinc-300"], [class~="text-stone-300"], [class~="text-neutral-300"]
+) {
+  color: #e2e8f0;
+}
+
 html.dark [class~="bg-white"],
 html.dark [class~="bg-white/65"],
 html.dark [class~="bg-white/70"],
@@ -200,4 +221,35 @@ h3 {
   .profile-section-enter {
     animation: none;
   }
+}
+
+/* Consistent, restrained feedback across authenticated and public-facing
+   backoffice controls, including links styled as buttons. */
+button,
+[role="button"],
+  .profile-section-enter {
+    animation: none;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):not([aria-disabled="true"]):hover,
+  [role="button"]:not([aria-disabled="true"]):hover,
+  a[class*="bg-"]:hover,
+  a[class*="inline-flex"][class*="rounded"]:hover {
+    transform: translateY(-1px);
+  }
+}
+
+button:not(:disabled):not([aria-disabled="true"]):active,
+[role="button"]:not([aria-disabled="true"]):active,
+a[class*="bg-"]:active,
+a[class*="inline-flex"][class*="rounded"]:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 90ms;
 }

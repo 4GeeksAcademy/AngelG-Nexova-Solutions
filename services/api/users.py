@@ -45,16 +45,6 @@ class AssignableRole(str, Enum):
     user = "user"
 
 
-class UserCreate(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    email: str
-    password: str
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-
-
 class UserUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -95,10 +85,6 @@ class UserProfileResponse(BaseModel):
     name: str | None = None
     phone: str | None = None
     address: str | None = None
-
-
-class UserRegistrationResponse(BaseModel):
-    message: str
 
 
 class UserDeleteResponse(BaseModel):
@@ -154,56 +140,6 @@ def ensure_another_admin_remains(target_id: str, changes: dict | None = None):
             status_code=400,
             detail="Debe permanecer al menos un administrador activo.",
         )
-
-
-@router.post("", response_model=UserRegistrationResponse)
-def register(data: UserCreate):
-
-    if get_user_by_email(data.email):
-        raise HTTPException(
-            status_code=400,
-            detail="El email ya está registrado"
-        )
-
-    user_id = str(uuid4())
-
-    try:
-        hashed_password = bcrypt.hash(data.password)
-    except Exception:
-        logger.exception("Error al generar hash de contraseña durante registro")
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "code": "REGISTRATION_FAILED",
-                "message": "No se pudo completar el registro.",
-            }
-        )
-
-    user = {
-        "id": user_id,
-        "email": data.email,
-        "hashed_password": hashed_password,
-        "is_active": True,
-        "role": "user",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-
-    profile = {
-        "id": str(uuid4()),
-        "user_id": user_id,
-        "name": data.name,
-        "phone": data.phone,
-        "address": data.address
-    }
-
-    create_user(
-        user,
-        profile
-    )
-
-    # The client proceeds to login separately; do not echo submitted
-    # credentials, email, or profile data in this unauthenticated response.
-    return {"message": "Registro completado correctamente."}
 
 
 @router.get("", response_model=list[AdminUserResponse])

@@ -1,0 +1,516 @@
+/* Nexova Backoffice — operational workspace visual layer. */
+:root {
+  --ops-ink: #101b32;
+  --ops-navy: #101b32;
+  --ops-navy-deep: #091326;
+  --ops-gold: #d4a843;
+  --ops-gold-soft: #f8efda;
+  --ops-muted: #64748b;
+  --ops-line: #dfe5ed;
+  --ops-paper: #ffffff;
+  --ops-shadow: 0 22px 60px rgb(16 27 50 / 9%), 0 2px 8px rgb(16 27 50 / 4%);
+}
+
+html {
+  background: #f3f5f8;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  background:
+    radial-gradient(ellipse 68rem 30rem at 50% -12rem, rgb(212 168 67 / 12%), transparent 72%),
+    linear-gradient(180deg, #f7f8fa 0%, #eef2f6 100%);
+  color: var(--ops-ink);
+  font-family: "DM Sans", var(--font-geist-sans), "Segoe UI", sans-serif;
+  letter-spacing: -0.012em;
+}
+
+html.dark body {
+  background:
+    radial-gradient(ellipse 64rem 34rem at 50% -18rem, rgb(212 168 67 / 13%), transparent 74%),
+    linear-gradient(180deg, #0b1425 0%, #070d19 100%);
+}
+
+h1, h2, h3 {
+  letter-spacing: -0.035em;
+}
+
+/* Authenticated global navigation */
+header:has(> nav[aria-label="Navegación principal"]) {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  background: linear-gradient(112deg, var(--ops-navy-deep), #172746 70%, #203454);
+  box-shadow: 0 10px 28px rgb(9 19 38 / 18%);
+  backdrop-filter: blur(18px);
+}
+
+nav[aria-label="Navegación principal"] {
+  max-width: 90rem;
+  min-height: 4.75rem;
+  gap: 0.6rem;
+  padding: 0.75rem clamp(1rem, 3vw, 2.75rem);
+}
+
+nav[aria-label="Navegación principal"]::before {
+  content: "NEXOVA";
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  margin-right: clamp(0.4rem, 1.8vw, 1.5rem);
+  padding-right: clamp(0.7rem, 2vw, 1.75rem);
+  border-right: 1px solid rgb(255 255 255 / 18%);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+}
+
+nav[aria-label="Navegación principal"] > a {
+  border-color: transparent;
+  border-radius: 0.7rem;
+  background: transparent;
+  color: #cbd5e1;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.79rem;
+  letter-spacing: 0.005em;
+}
+
+nav[aria-label="Navegación principal"] > a:hover {
+  border-color: rgb(255 255 255 / 9%);
+  background: rgb(255 255 255 / 7%);
+  color: white;
+}
+
+nav[aria-label="Navegación principal"] > a[aria-current="page"] {
+  border-color: rgb(212 168 67 / 32%);
+  background: rgb(212 168 67 / 12%);
+  color: #f4d58a;
+}
+
+nav[aria-label="Navegación principal"] button[aria-label^="Cambiar a modo"] {
+  width: 2.55rem;
+  height: 2.55rem;
+  border-color: rgb(255 255 255 / 16%);
+  border-radius: 0.8rem;
+  background: rgb(255 255 255 / 7%);
+  color: #f3d88f;
+}
+
+nav[aria-label="Navegación principal"] button[aria-label^="Cambiar a modo"]:hover {
+  border-color: rgb(212 168 67 / 60%);
+  background: rgb(255 255 255 / 12%);
+}
+
+nav[aria-label="Navegación principal"] > div > button[aria-label^="Menú de usuario"] {
+  min-height: 2.65rem;
+  border-color: rgb(255 255 255 / 16%);
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 8%);
+  color: #fff;
+}
+
+nav[aria-label="Navegación principal"] > div > button[aria-label^="Menú de usuario"]:hover {
+  border-color: rgb(212 168 67 / 60%);
+  background: rgb(255 255 255 / 13%);
+}
+
+/* App canvases and primary content surfaces */
+main:not(:has(form)) {
+  padding-top: clamp(1.4rem, 4vw, 3.25rem);
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+main > section {
+  position: relative;
+  overflow: clip;
+  border: 1px solid rgb(255 255 255 / 88%);
+  border-radius: 1.35rem;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: var(--ops-shadow);
+  backdrop-filter: blur(18px);
+}
+
+html.dark main > section {
+  border-color: rgb(148 163 184 / 18%);
+  background: linear-gradient(145deg, rgb(19 34 58 / 95%), rgb(13 25 44 / 97%));
+  box-shadow: 0 24px 64px rgb(0 0 0 / 26%);
+}
+
+main > section > header,
+main > section > div > header {
+  border-color: var(--ops-line);
+}
+
+html.dark main > section > header,
+html.dark main > section > div > header {
+  border-color: rgb(148 163 184 / 20%);
+}
+
+main > section h1 {
+  font-size: clamp(1.8rem, 3.6vw, 2.75rem);
+  line-height: 1.08;
+  color: #111d34;
+}
+
+html.dark main > section h1,
+html.dark main > section h2,
+html.dark main > section h3 {
+  color: #f8fafc;
+}
+
+main > section p.text-xs.font-semibold.uppercase,
+main > header p.text-sm.font-semibold.uppercase {
+  color: #98701d;
+  letter-spacing: 0.19em;
+}
+
+html.dark main > section p.text-xs.font-semibold.uppercase,
+html.dark main > header p.text-sm.font-semibold.uppercase {
+  color: #e8c97a;
+}
+
+/* Page-level headers on knowledge and reporting tools */
+main > header {
+  margin-bottom: 2rem;
+}
+
+main > header h1 {
+  color: #111d34;
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
+  line-height: 1.08;
+}
+
+html.dark main > header h1 {
+  color: #f8fafc;
+}
+
+/* Functional controls retain their existing markup, behavior and semantics. */
+main button:not([aria-label^="Cambiar a modo"]),
+main a[class*="bg-cyan-700"],
+main a[class*="bg-slate-900"] {
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+main button:not(:disabled):hover,
+main a[class*="bg-cyan-700"]:hover,
+main a[class*="bg-slate-900"]:hover {
+  transform: translateY(-1px);
+}
+
+main button:not(:disabled):active,
+main a[class*="bg-cyan-700"]:active,
+main a[class*="bg-slate-900"]:active {
+  transform: translateY(0);
+}
+
+main input:not([type="checkbox"]):not([type="radio"]),
+main select,
+main textarea {
+  min-height: 2.7rem;
+  border-radius: 0.7rem;
+  border-color: #cbd5e1;
+  background-color: #fff;
+  color: #14213a;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+main textarea {
+  min-height: unset;
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):focus,
+main select:focus,
+main textarea:focus {
+  border-color: #b58a32;
+  box-shadow: 0 0 0 3px rgb(212 168 67 / 18%);
+  outline: none;
+}
+
+html.dark main input:not([type="checkbox"]):not([type="radio"]),
+html.dark main select,
+html.dark main textarea {
+  border-color: #43536d;
+  background-color: #0c1729;
+  color: #f8fafc;
+}
+
+html.dark main input::placeholder,
+html.dark main textarea::placeholder {
+  color: #8998ad;
+}
+
+main table {
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid var(--ops-line);
+  border-radius: 0.9rem;
+}
+
+main thead {
+  background: #f2f5f8;
+  color: #475569;
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+main th {
+  padding: 0.85rem 0.9rem;
+}
+
+main td {
+  padding: 0.85rem 0.9rem;
+}
+
+main tbody tr {
+  background: rgb(255 255 255 / 75%);
+  transition: background-color 150ms ease;
+}
+
+main tbody tr:hover {
+  background: #fbf7ed;
+}
+
+main tbody tr + tr td {
+  border-top: 1px solid #e9edf2;
+}
+
+html.dark main table {
+  border-color: rgb(148 163 184 / 22%);
+}
+
+html.dark main thead {
+  background: #0b1729;
+  color: #cbd5e1;
+}
+
+html.dark main tbody tr,
+html.dark main tbody tr:hover {
+  background: #13233b;
+}
+
+html.dark main tbody tr + tr td {
+  border-color: rgb(148 163 184 / 15%);
+}
+
+main a:not([class*="bg-"]):not([class*="rounded"]),
+main a[class*="text-cyan-"] {
+  text-underline-offset: 3px;
+}
+
+/* Authentication is intentionally quieter than the operational workspace. */
+body > div > main:has(form) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 32rem 24rem at 18% 18%, rgb(212 168 67 / 16%), transparent 70%),
+    radial-gradient(ellipse 34rem 24rem at 90% 88%, rgb(26 55 96 / 14%), transparent 70%);
+}
+
+body > div > main:has(form)::before {
+  position: absolute;
+  z-index: -1;
+  inset: 1.2rem;
+  border: 1px solid rgb(148 163 184 / 14%);
+  border-radius: 1.75rem;
+  content: "";
+  pointer-events: none;
+}
+
+main:has(> section.w-full.max-w-md) > section {
+  border: 1px solid rgb(255 255 255 / 84%);
+  border-radius: 1.4rem;
+  box-shadow: 0 28px 80px rgb(16 27 50 / 14%), 0 3px 10px rgb(16 27 50 / 5%);
+}
+
+html.dark main:has(> section.w-full.max-w-md) > section {
+  border-color: rgb(148 163 184 / 20%);
+  background: linear-gradient(150deg, #142541, #0b1729);
+}
+
+/* Smooth but restrained interaction feedback. */
+main > section,
+main > header,
+main [role="alert"],
+main [role="status"] {
+  animation: ops-enter 420ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+@keyframes ops-enter {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Inventory cards get a restrained lift on pointer devices, with no forced
+   motion on touch-only screens or for users requesting reduced motion. */
+@media (hover: hover) and (pointer: fine) {
+  .inventory-surface-card {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .inventory-surface-card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(212 168 67 / 52%);
+    box-shadow: 0 14px 28px rgb(16 27 50 / 10%);
+  }
+
+  html.dark .inventory-surface-card:hover {
+    box-shadow: 0 16px 30px rgb(0 0 0 / 24%);
+  }
+}
+
+html.dark .inventory-surface-card {
+  border-color: rgb(148 163 184 / 22%);
+  background: linear-gradient(145deg, rgb(20 37 65 / 88%), rgb(13 27 48 / 92%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inventory-surface-card,
+  .inventory-surface-card:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 760px) {
+  nav[aria-label="Navegación principal"] {
+    min-height: auto;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 0.65rem 1rem;
+  }
+
+  nav[aria-label="Navegación principal"]::-webkit-scrollbar {
+    display: none;
+  }
+
+  nav[aria-label="Navegación principal"]::before {
+    flex: 0 0 auto;
+    margin-right: 0.35rem;
+    padding-right: 0.8rem;
+    font-size: 0.67rem;
+  }
+
+  nav[aria-label="Navegación principal"] > a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.73rem;
+  }
+
+  nav[aria-label="Navegación principal"] > div.ml-auto {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-left: 0.4rem;
+  }
+
+  main > section {
+    border-radius: 1.05rem;
+  }
+
+  main > section h1 {
+    font-size: clamp(1.75rem, 8vw, 2.35rem);
+  }
+
+  main table {
+    min-width: 42rem;
+  }
+
+  main table.inventory-list-table {
+    min-width: 0;
+    border: 0;
+    border-radius: 0;
+    border-spacing: 0;
+  }
+
+  main table.inventory-list-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  main table.inventory-list-table,
+  main table.inventory-list-table tbody,
+  main table.inventory-list-table tr,
+  main table.inventory-list-table td {
+    display: block;
+    width: 100%;
+  }
+
+  main table.inventory-list-table tbody {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  main table.inventory-list-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem 0.75rem;
+    padding: 1rem;
+    border: 1px solid var(--ops-line);
+    border-radius: 1rem;
+    box-shadow: 0 5px 16px rgb(16 27 50 / 5%);
+  }
+
+  main table.inventory-list-table tbody tr + tr td {
+    border-top: 0;
+  }
+
+  main table.inventory-list-table td {
+    min-width: 0;
+    padding: 0;
+    overflow-wrap: anywhere;
+  }
+
+  main table.inventory-list-table td::before {
+    display: block;
+    margin-bottom: 0.15rem;
+    color: var(--ops-muted);
+    content: attr(data-label);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  main table.inventory-list-table td:first-child,
+  main table.inventory-list-table td:last-child {
+    grid-column: 1 / -1;
+  }
+
+  main table.inventory-list-table td:last-child > div {
+    flex-direction: column;
+  }
+
+  main table.inventory-list-table td:last-child a,
+  main table.inventory-list-table td:last-child button {
+    width: 100%;
+  }
+
+  html.dark main table.inventory-list-table tbody tr {
+    border-color: rgb(148 163 184 / 22%);
+    background: linear-gradient(145deg, rgb(20 37 65 / 88%), rgb(13 27 48 / 92%));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

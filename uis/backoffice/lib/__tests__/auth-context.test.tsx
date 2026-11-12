@@ -15,14 +15,12 @@ const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn() }));
 const authApiMocks = vi.hoisted(() => ({
   getMe: vi.fn(),
   loginRequest: vi.fn(),
-  registerRequest: vi.fn(),
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => router }));
 vi.mock("@/lib/api-client", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/api-client")>()),
   getMe: authApiMocks.getMe,
   loginRequest: authApiMocks.loginRequest,
-  registerRequest: authApiMocks.registerRequest,
 }));
 
 const validMe = {
@@ -43,7 +41,6 @@ function AuthProbe() {
       {auth.authState.status === "error" && <output role="alert">{auth.authState.message}</output>}
       <button onClick={auth.retryAuthentication}>retry</button>
       <button onClick={() => void auth.login("user@example.com", "password").catch(() => undefined)}>login</button>
-      <button onClick={() => auth.register({ email: "user@example.com", password: "password" })}>register</button>
       <button onClick={auth.logout}>logout</button>
       <button onClick={() => auth.updateProfileName("Updated")}>update</button>
     </div>
@@ -69,7 +66,6 @@ describe("AuthProvider session lifecycle", () => {
     router.replace.mockReset();
     authApiMocks.getMe.mockReset();
     authApiMocks.loginRequest.mockReset();
-    authApiMocks.registerRequest.mockReset();
     vi.restoreAllMocks();
   });
 
@@ -163,14 +159,11 @@ describe("AuthProvider session lifecycle", () => {
     expect(screen.getByTestId("phase")).toHaveTextContent("anonymous");
   });
 
-  it("preserves register-then-login behavior and profile name updates", async () => {
-    authApiMocks.registerRequest.mockResolvedValue({ user: {}, profile: null });
-    authApiMocks.loginRequest.mockResolvedValue({ access_token: "register-token", token_type: "bearer" });
+  it("updates the profile name after successful authentication", async () => {
+    localStorage.setItem("token", "profile-token");
     authApiMocks.getMe.mockResolvedValue(validMe);
     renderProvider();
-    await waitFor(() => expect(screen.getByTestId("phase")).toHaveTextContent("anonymous"));
-    await act(async () => fireEvent.click(screen.getByRole("button", { name: "register" })));
-    expect(screen.getByTestId("phase")).toHaveTextContent("authenticated");
+    await waitFor(() => expect(screen.getByTestId("phase")).toHaveTextContent("authenticated"));
     fireEvent.click(screen.getByRole("button", { name: "update" }));
     expect(screen.getByTestId("user")).toHaveTextContent("Updated");
   });

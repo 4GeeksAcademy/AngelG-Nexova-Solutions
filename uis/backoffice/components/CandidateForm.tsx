@@ -24,7 +24,7 @@ export function CandidateForm({
   const [linkedinUrl, setLinkedinUrl] = useState(initialValues?.linkedin_url ?? "");
   const [cvUrl, setCvUrl] = useState(initialValues?.cv_url ?? "");
   const [experienceYears, setExperienceYears] = useState(
-    initialValues?.experience_years?.toString() ?? "0",
+    initialValues?.experience_years?.toString() ?? "",
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -98,7 +98,7 @@ export function CandidateForm({
         value={experienceYears}
         onChange={(event) => setExperienceYears(event.target.value)}
         aria-label="Años de experiencia"
-        placeholder="Anos de experiencia"
+        placeholder="Años de experiencia"
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm"
       />
       <button

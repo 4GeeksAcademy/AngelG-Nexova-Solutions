@@ -171,14 +171,6 @@ export interface LoginResponse {
   token_type: string;
 }
 
-export interface RegisterPayload {
-  email: string;
-  password: string;
-  name?: string | null;
-  phone?: string | null;
-  address?: string | null;
-}
-
 export interface ProfileData {
   id: string;
   user_id: string;
@@ -266,15 +258,6 @@ export async function loginRequest(
   }
 
   return (await response.json()) as LoginResponse;
-}
-
-export async function registerRequest(
-  payload: RegisterPayload,
-): Promise<{ user: unknown; profile: ProfileData | null }> {
-  return authRequest("/users", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
 }
 
 export async function getMe(): Promise<MeResponse> {

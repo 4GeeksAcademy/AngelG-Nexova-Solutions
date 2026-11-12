@@ -1,16 +1,13 @@
 from fastapi.testclient import TestClient
 
 from main import app
+from tests.user_helpers import create_test_user
 
 client = TestClient(app)
 
 
 def _auth_headers():
-    registered = client.post(
-        "/users",
-        json={"email": "langgraph-agent@example.com", "password": "Password123!"},
-    )
-    assert registered.status_code in {200, 400}, registered.text
+    create_test_user("langgraph-agent@example.com", "Password123!")
     login = client.post(
         "/auth/login",
         data={"username": "langgraph-agent@example.com", "password": "Password123!"},
