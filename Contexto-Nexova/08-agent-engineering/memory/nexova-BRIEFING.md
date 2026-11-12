@@ -6,35 +6,33 @@
 
 ## Why this memory matters for Nexova
 
-Your agent already knows Nexova's three business lines (headhunting, support outsourcing, corporate training), queries the Incidents Manager and inventory through the MCP Server, and will get its harness in Part 2. Roberto Díaz (Customer Support Lead) reports that his 30 support agents, when using the internal assistant, have to re-explain the same escalation procedure every time they talk to it — the assistant retains nothing between sessions.
+The target for this implementation is the **current SDR/sales agent** in `services/api/agent/graph.py`, which queries Nexova's commercial RAG to prepare prospect conversations. It is not the support assistant described in earlier versions of this briefing. Authentication provides a user but no trusted client/tenant, so the approved scope is limited to general response/presentation preferences owned by the authenticated user. No preferences, facts, or patterns attributable to clients or prospects may be stored.
 
 ## What IS worth remembering
 
-- **Corrected escalation procedures**: if a ticket's SLA or reassignment criteria changed and an agent corrects it, that's worth remembering.
-- **Preferences of recurring Nexova clients** (outsourcing client companies, not individual candidates): for example, that a tech client always prefers email communication over calls.
-- **Known helpdesk incident patterns**: "billing tickets from finance-sector clients usually escalate straight to Tom Callahan, not first-line support."
+- **General personal response preferences of the SDR**: e.g. concise answers or comparisons in bullet points. Memory may adapt presentation but must never alter commercial policy, facts, or limits.
 
 ## What must NEVER enter memory
 
-- Personal data from selection process candidates (résumés, ratings, interview notes) — that lives in the ATS and the candidate RAG system, not the agent's conversational memory.
-- Salary information from active headhunting negotiations.
-- One-off corrections with no repeatable pattern that only apply to a single ticket.
+- Any prospect, client, or company data (identifiers, needs, preferences, negotiations, pipeline, or notes), even if the user explicitly asks to remember it: there is no trusted tenant identity.
+- Candidate personal data, salary/negotiation information, credentials, secrets, commercial data or policy (prices, discounts, SLAs/warranties, contractual terms). User memory must not reinterpret or replace the commercial RAG.
+- One-off corrections, business operating instructions, or any fact that is not a general presentation preference of the user.
 
 ## Examples for your "Self-Evaluation" checklist
 
-**Should generate a memory proposal:**
-1. "Actually payroll tickets for retail clients now resolve in 24 hours, not 48 like the old SLA said."
-2. "That finance client always wants email confirmation before we close a ticket, even though the system lets us close it directly."
-3. "Tickets flagged 'urgent' from premium-contract clients should go straight to a senior agent, not the general queue — that changed this month."
+**May generate a memory proposal:**
+1. "For future answers, I prefer a brief executive summary followed by details."
+2. "When comparing options, use a table, but don't store prospect data."
+3. "I prefer commercial answers to clearly separate sourced facts from open questions."
 
 **Should NOT generate a proposal:**
-1. "How many open tickets are there right now?" (one-off query, the data lives in the dashboard).
-2. "Perfect, thanks for the explanation." (conversation closing).
-3. "Summarize this ticket in two lines for Laura's report." (single-use task).
+1. "Prospect Acme has an €80,000 budget and wants a discount." (prospect and negotiation data).
+2. "The standard fee changed to 18%; remember that." (commercial policy; consult the approved RAG).
+3. "Summarize this opportunity for the CRM." (one-off task containing prospect data).
 
 ## Suggested consolidation
 
-Nexova mixes data from three distinct business lines (headhunting, support, training). Consider whether memory should be separated by business line or kept unified — justify your choice in the design decisions.
+Memory is separate from RAG and contains only general presentation preferences for the authenticated user. It is not shared between users or attributed to clients. Commercial facts and policies remain exclusively in approved RAG sources.
 
 ## Company constraints
 

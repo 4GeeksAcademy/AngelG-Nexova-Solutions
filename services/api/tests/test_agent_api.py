@@ -27,7 +27,7 @@ def test_agent_endpoint_requires_authentication():
 def test_agent_endpoint_returns_answer_and_trace(monkeypatch):
     monkeypatch.setattr(
         "routes.agent.run_agent",
-        lambda question, *, owner_id: {
+        lambda question, *, owner_id, thread_id=None: {
             "answer": f"Respuesta a: {question}",
             "sources": [{"document": "pricing-model", "section": "Tarifas"}],
             "status": "answered",
@@ -38,7 +38,7 @@ def test_agent_endpoint_returns_answer_and_trace(monkeypatch):
     response = client.post(
         "/agent/query",
         headers=_auth_headers(),
-        json={"question": "¿Cuál es la tarifa?"},
+        json={"question": "¿Cuál es la tarifa?", "thread_id": "thread-stable"},
     )
     assert response.status_code == 200
     assert response.json() == {
@@ -48,6 +48,30 @@ def test_agent_endpoint_returns_answer_and_trace(monkeypatch):
         "trace": ["receive", "retrieve", "generate"],
         "thread_id": "trace-123",
     }
+
+
+def test_agent_endpoint_passes_optional_thread_for_continuation(monkeypatch):
+    calls = {}
+
+    def fake_run(question, *, owner_id, thread_id=None):
+        calls.update(question=question, owner_id=owner_id, thread_id=thread_id)
+        return {
+            "answer": "Respuesta",
+            "sources": [],
+            "status": "answered",
+            "trace": ["receive"],
+            "thread_id": thread_id or "generated-thread",
+        }
+
+    monkeypatch.setattr("routes.agent.run_agent", fake_run)
+    response = client.post(
+        "/agent/query",
+        headers=_auth_headers(),
+        json={"question": "Continúa", "thread_id": "consent-thread"},
+    )
+    assert response.status_code == 200
+    assert calls["thread_id"] == "consent-thread"
+    assert calls["owner_id"]
 
 
 def test_agent_endpoint_rejects_extra_fields():
