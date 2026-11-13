@@ -48,7 +48,7 @@ services:
       dockerfile: infra/Dockerfile.api
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:?Set POSTGRES_DB}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES: ${PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES:-15}
@@ -63,9 +63,6 @@ services:
       QDRANT_API_KEY: ${QDRANT_API_KEY-}
     volumes:
       - backend_data:/workspace/services/api/data
-    depends_on:
-      database:
-        condition: service_healthy
     healthcheck:
       test:
         - CMD
@@ -84,10 +81,7 @@ services:
     working_dir: /workspace/services/api
     environment:
       PYTHONPATH: /workspace
-      DATABASE_URL: postgresql://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:?Set POSTGRES_DB}
-    depends_on:
-      database:
-        condition: service_healthy
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
 
   incidents-api:
     image: ghcr.io/${GHCR_OWNER:?Set GHCR_OWNER}/nexova-api:${IMAGE_TAG:-latest}
@@ -115,21 +109,5 @@ services:
       retries: 5
       start_period: 10s
 
-  database:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 volumes:
   backend_data:
-  postgres_data:
