@@ -6,7 +6,7 @@ El workflow [deploy.yml](../.github/workflows/deploy.yml) construye imágenes Do
 
 - Sitio web y formulario: `http://<IP_DEL_VPS>/` y `http://<IP_DEL_VPS>/application.html`.
 - Talent Pipeline Tracker: `http://<IP_DEL_VPS>:3000/`.
-- API principal y PostgreSQL: red interna de Compose; no publican puertos en el VPS.
+- API principal: no publica puertos en el VPS. La base PostgreSQL se configura mediante `DATABASE_URL` y debe ser accesible desde el contenedor.
 - API de análisis de incidencias: `127.0.0.1:8001` en el VPS. Para probarla desde tu ordenador, abre un túnel SSH y visita `http://localhost:8001/docs`:
 
 ```sh
@@ -82,7 +82,7 @@ ssh "deploy@$VPS_IP"
 nano /opt/nexova/infra/.env.production
 ```
 
-En ese archivo, sustituye `GHCR_OWNER` por el propietario de GitHub en minúsculas y `FRONTEND_URL` por `http://<IP_DEL_VPS>:3000`. Genera valores distintos para `POSTGRES_PASSWORD` y `JWT_SECRET` con `openssl rand -hex 32`; no uses los valores de ejemplo. Protege el archivo:
+En ese archivo, configura `DATABASE_URL` con la cadena de conexión PostgreSQL externa, `FRONTEND_URL` como `http://<IP_DEL_VPS>:3000` y un `JWT_SECRET` aleatorio (por ejemplo, generado con `openssl rand -hex 32`). La base de datos debe existir, aceptar conexiones desde el VPS y tener el esquema/migraciones requeridos por la aplicación. No compartas ni registres la URL porque contiene credenciales. Protege el archivo:
 
 Para habilitar las funciones RAG, configura también `OPENAI_API_KEY`, `EMBEDDING_MODEL_ID`, `GENERATION_MODEL_ID` y `QDRANT_URL`. `OPENAI_BASE_URL` y `QDRANT_API_KEY` son opcionales si el proveedor/gateway o Qdrant no los requieren. El Compose pasa esas variables al contenedor `api`; el servicio Qdrant y su colección deben existir y ser accesibles desde la red del contenedor. No pongas las claves en el Compose ni en el repositorio.
 
@@ -108,19 +108,18 @@ Para volver a una versión anterior, vuelve a ejecutar el workflow exitoso corre
 
 ## Datos y limitaciones actuales
 
-- PostgreSQL y TinyDB usan volúmenes persistentes. Un volumen no sustituye una copia de seguridad; prepara backups fuera del Droplet y prueba la restauración antes de guardar datos importantes.
+- TinyDB usa un volumen persistente. PostgreSQL es externo a Compose y requiere su propia política de copias de seguridad y restauración; un volumen no sustituye una copia de seguridad.
 - El resultado más reciente del analizador de incidencias vive en memoria y se pierde al reiniciar ese contenedor.
 - La página del directorio de proveedores no está presente en el árbol actual, y su router no está registrado en la API principal. Además, sus operaciones actuales no tienen autenticación; no se publica en esta configuración.
 - El acceso por HTTP y el uso de la IP son únicamente temporales. No uses datos reales hasta disponer de HTTPS y revisar la autenticación de las rutas que se publiquen.
 
 ### Respaldo de datos
 
-En el VPS, guarda copias de PostgreSQL y TinyDB. El segundo comando detiene y empaqueta solo una copia del volumen; no elimina el volumen original:
+En el VPS, guarda una copia de TinyDB. PostgreSQL es externo a Compose: respáldalo usando el servicio/proveedor de base de datos y prueba la restauración antes de guardar datos importantes. El comando empaqueta solo una copia del volumen TinyDB; no elimina el volumen original:
 
 ```sh
 cd /opt/nexova
 mkdir -p /opt/nexova/backups
-docker compose --env-file infra/.env.production -f infra/compose.production.yml exec -T database sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > "/opt/nexova/backups/postgres-$(date +%F-%H%M).sql"
 docker run --rm -v nexova_backend_data:/data:ro -v /opt/nexova/backups:/backup alpine tar -czf "/backup/tinydb-$(date +%F-%H%M).tar.gz" -C /data .
 ```
 
